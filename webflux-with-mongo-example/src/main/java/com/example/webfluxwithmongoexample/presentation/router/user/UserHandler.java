@@ -26,4 +26,27 @@ public class UserHandler {
                 })
                 .switchIfEmpty(ServerResponse.status(HttpStatus.BAD_REQUEST).build());
     }
+
+    public Mono<ServerResponse> getUserById(ServerRequest request) {
+        String id = request.pathVariable("id");
+        return userFacade.findById(id)
+                .flatMap(userResult -> {
+                    UserResponse userResponse = new UserResponse(userResult.getName());
+                    return ServerResponse.ok().bodyValue(userResponse);
+                })
+                .switchIfEmpty(ServerResponse.notFound().build());
+    }
+
+    public Mono<ServerResponse> getAllUsers(ServerRequest request) {
+        String name = request.queryParam("name").orElse(null);
+        Integer age = request.queryParam("age")
+                .map(Integer::parseInt)
+                .orElse(null);
+
+        UserCriteria criteria = new UserCriteria(name, age);
+        return userFacade.getAllUsers(criteria)
+                .collectList()
+                .flatMap(users -> ServerResponse.ok().bodyValue(users))
+                .switchIfEmpty(ServerResponse.noContent().build());
+    }
 }

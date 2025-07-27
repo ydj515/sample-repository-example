@@ -5,3 +5,8 @@ Content-Type: application/json
   "name": "a",
   "age": 1
 }
+
+###
+
+GET http://localhost:8080/users?name=1&age=2
+Content-Type: application/json
