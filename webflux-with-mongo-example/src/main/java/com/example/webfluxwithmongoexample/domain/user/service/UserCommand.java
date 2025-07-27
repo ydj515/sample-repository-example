@@ -8,7 +8,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public class UserCommand {
     private String name;
-    private int age;
+    private Integer age;
 
     public UserCommand(UserCriteria criteria) {
         this.name = criteria.getName();

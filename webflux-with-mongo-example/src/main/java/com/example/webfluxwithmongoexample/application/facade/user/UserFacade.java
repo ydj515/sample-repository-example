@@ -5,6 +5,7 @@ import com.example.webfluxwithmongoexample.domain.user.service.UserInfo;
 import com.example.webfluxwithmongoexample.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Component
@@ -18,5 +19,16 @@ public class UserFacade {
         Mono<UserInfo> userInfo = userService.save(userCommand);
 
         return userInfo.map(UserResult::new);
+    }
+
+    public Flux<UserResult> getAllUsers(UserCriteria criteria) {
+        UserCommand userCommand = new UserCommand(criteria);
+        Flux<UserInfo> usersInfo = userService.getAllUsers(userCommand);
+
+        return usersInfo.map(UserResult::new);
+    }
+
+    public Mono<UserResult> findById(String id) {
+        return userService.findById(id).map(UserResult::new);
     }
 }

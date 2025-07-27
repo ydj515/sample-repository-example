@@ -9,6 +9,8 @@ import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 @Component
 @RequiredArgsConstructor
 public class UserHandler {
@@ -25,5 +27,33 @@ public class UserHandler {
                     return ServerResponse.status(HttpStatus.CREATED).bodyValue(userResponse);
                 })
                 .switchIfEmpty(ServerResponse.status(HttpStatus.BAD_REQUEST).build());
+    }
+
+    public Mono<ServerResponse> getUserById(ServerRequest request) {
+        String id = request.pathVariable("id");
+        return userFacade.findById(id)
+                .flatMap(userResult -> {
+                    UserResponse userResponse = new UserResponse(userResult.getName());
+                    return ServerResponse.ok().bodyValue(userResponse);
+                })
+                .switchIfEmpty(ServerResponse.notFound().build());
+    }
+
+    public Mono<ServerResponse> getAllUsers(ServerRequest request) {
+        String name = request.queryParam("name").orElse(null);
+        Integer age = request.queryParam("age")
+                .map(Integer::parseInt)
+                .orElse(null);
+
+        UserCriteria criteria = new UserCriteria(name, age);
+        return userFacade.getAllUsers(criteria)
+                .map(user -> new UserResponse(user.getName()))
+                .collectList()
+                .flatMap(responses -> {
+                    if (responses.isEmpty()) {
+                        return ServerResponse.noContent().build();
+                    }
+                    return ServerResponse.ok().bodyValue(responses);
+                });
     }
 }

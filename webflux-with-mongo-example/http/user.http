@@ -1,7 +1,16 @@
-POST http://localhost:8080/users
+### create user
+POST {{host}}/users
 Content-Type: application/json
 
 {
-  "name": "a",
-  "age": 1
+  "name": "1",
+  "age": 2
 }
+
+### get users
+GET {{host}}/users
+Content-Type: application/json
+
+### get user
+GET {{host}}/users?name=1&age=2
+Content-Type: application/json
