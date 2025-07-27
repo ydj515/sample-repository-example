@@ -19,7 +19,7 @@ public class UserService {
     }
 
     public Flux<UserInfo> getAllUsers(UserCommand command) {
-        return userRepository.findAll()
+        return userRepository.findAllByCommand(command)
                 .map(user -> new UserInfo(user.getName()));
     }
 

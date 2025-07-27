@@ -2,6 +2,7 @@ package com.example.webfluxwithmongoexample.infrastructure.user;
 
 import com.example.webfluxwithmongoexample.domain.user.User;
 import com.example.webfluxwithmongoexample.domain.user.repository.UserRepository;
+import com.example.webfluxwithmongoexample.domain.user.service.UserCommand;
 import com.example.webfluxwithmongoexample.infrastructure.persistence.mongo.UserMongoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -27,5 +28,15 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public Flux<User> findAll() {
         return userMongoRepository.findAll();
+    }
+
+    @Override
+    public Flux<User> findAllByCommand(UserCommand command) {
+        return userMongoRepository.findAllByCommand(command);
+    }
+
+    @Override
+    public Mono<Void> deleteAll() {
+        return userMongoRepository.deleteAll();
     }
 }
