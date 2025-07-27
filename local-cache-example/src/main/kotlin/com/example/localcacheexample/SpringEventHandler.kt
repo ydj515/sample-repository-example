@@ -13,16 +13,11 @@ class SpringEventHandler(
 ) {
     @EventListener(ApplicationReadyEvent::class)
     fun onApplicationReadyEvent(event: ApplicationReadyEvent?) {
-        val products = listOf(
-            Product(name = "A", price = BigDecimal.ONE),
-            Product(name = "A", price = BigDecimal.ONE),
-            Product(name = "B", price = BigDecimal.ONE),
-            Product(name = "B", price = BigDecimal.ONE),
-            Product(name = "B", price = BigDecimal.ONE),
-            Product(name = "C", price = BigDecimal.ONE),
-            Product(name = "D", price = BigDecimal.ONE),
-            Product(name = "E", price = BigDecimal.ONE),
-        )
+        val names = listOf("A", "B", "C", "D", "E", "F", "G")
+        val products = (1..10000).map { i ->
+            val name = names[i % names.size] // A ~ G 반복
+            Product(name = name, price = BigDecimal.ONE)
+        }
 
         productRepository.saveAll(products)
     }

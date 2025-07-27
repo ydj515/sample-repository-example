@@ -17,6 +17,17 @@ spring:
     properties:
       hibernate:
         format_sql: true
+management:
+  server:
+    port: 8081
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  prometheus:
+    metrics:
+      export:
+        enabled: true
 logging:
   level:
     sql: debug
