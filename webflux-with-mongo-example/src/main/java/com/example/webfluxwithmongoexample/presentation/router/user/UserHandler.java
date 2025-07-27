@@ -9,6 +9,8 @@ import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 @Component
 @RequiredArgsConstructor
 public class UserHandler {
@@ -45,8 +47,13 @@ public class UserHandler {
 
         UserCriteria criteria = new UserCriteria(name, age);
         return userFacade.getAllUsers(criteria)
+                .map(user -> new UserResponse(user.getName()))
                 .collectList()
-                .flatMap(users -> ServerResponse.ok().bodyValue(users))
-                .switchIfEmpty(ServerResponse.noContent().build());
+                .flatMap(responses -> {
+                    if (responses.isEmpty()) {
+                        return ServerResponse.noContent().build();
+                    }
+                    return ServerResponse.ok().bodyValue(responses);
+                });
     }
 }

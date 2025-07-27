@@ -32,7 +32,7 @@ public class UserMongoRepository {
         if (command.getName() != null && !command.getName().isEmpty()) {
             query.addCriteria(Criteria.where("name").is(command.getName()));
         }
-        if (command.getAge() != 0) { // Assuming 0 means age is not specified for filtering
+        if (command.getAge() != null && command.getAge() != 0) { // Assuming 0 means age is not specified for filtering
             query.addCriteria(Criteria.where("age").is(command.getAge()));
         }
         return mongoTemplate.find(query, User.class);

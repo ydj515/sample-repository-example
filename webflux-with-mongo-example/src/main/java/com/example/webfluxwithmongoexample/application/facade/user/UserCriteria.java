@@ -7,5 +7,5 @@ import lombok.Getter;
 @AllArgsConstructor
 public class UserCriteria {
     private String name;
-    private int age;
+    private Integer age;
 }
