@@ -16,6 +16,10 @@ class ProductLoadingCache(
     private val productRepository: ProductRepository,
 ) {
 
+    companion object {
+        private val log = LoggerFactory.getLogger(ProductLoadingCache::class.java)
+    }
+
     @Bean
     fun productCache(): LoadingCache<Long, ProductInfo> {
         return Caffeine.newBuilder()
@@ -38,10 +42,6 @@ class ProductLoadingCache(
                     return findProductInfo(key)
                 }
             })
-    }
-
-    companion object {
-        private val log = LoggerFactory.getLogger(ProductLoadingCache::class.java)
     }
 
     private fun findProductInfo(id: Long): ProductInfo {
