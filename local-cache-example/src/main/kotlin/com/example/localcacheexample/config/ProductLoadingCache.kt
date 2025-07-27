@@ -25,26 +25,28 @@ class ProductLoadingCache(
             .maximumSize(10000)
             .recordStats()
             .removalListener<Long, ProductInfo> { key, value, cause ->
-                log.info("캐시 제거됨 - key: $key, cause: $cause")
+                log.info("캐시 제거됨 - key: {}, cause: {}", key, cause)
             }
             .build(object : CacheLoader<Long, ProductInfo> {
                 override fun load(key: Long): ProductInfo {
-                    println("LOAD - DB 조회 productId=$key")
-                    val product = productRepository.getProduct(key)
-                        ?: throw IllegalArgumentException("Product with id $key not found")
-                    return product.toInfo()
+                    log.info("LOAD - DB 조회 productId={}", key)
+                    return findProductInfo(key)
                 }
 
                 override fun reload(key: Long, oldValue: ProductInfo): ProductInfo {
-                    println("REFRESH - DB 갱신 productId=$key")
-                    val product = productRepository.getProduct(key)
-                        ?: throw IllegalArgumentException("Product with id $key not found")
-                    return product.toInfo()
+                    log.info("REFRESH - DB 갱신 productId={}", key)
+                    return findProductInfo(key)
                 }
             })
     }
 
     companion object {
         private val log = LoggerFactory.getLogger(ProductLoadingCache::class.java)
+    }
+
+    private fun findProductInfo(id: Long): ProductInfo {
+        val product = productRepository.getProduct(id)
+            ?: throw IllegalArgumentException("Product with id $id not found")
+        return product.toInfo()
     }
 }
