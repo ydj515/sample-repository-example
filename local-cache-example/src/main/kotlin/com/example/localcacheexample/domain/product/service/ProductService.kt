@@ -3,12 +3,14 @@ package com.example.localcacheexample.domain.product.service
 import com.example.localcacheexample.domain.product.Product
 import com.example.localcacheexample.domain.product.extensions.toInfo
 import com.example.localcacheexample.domain.product.repository.ProductRepository
+import com.github.benmanes.caffeine.cache.LoadingCache
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Service
 
 @Service
 class ProductService(
-    private val productRepository: ProductRepository
+    private val productRepository: ProductRepository,
+    private val productCache: LoadingCache<Long, ProductInfo>,
 ) {
     @Cacheable(cacheNames = ["productList"])
     fun getProducts(): List<ProductInfo> {
@@ -18,13 +20,18 @@ class ProductService(
     }
 
 
-    @Cacheable(cacheNames = ["product"], key = "#id")
+//    @Cacheable(cacheNames = ["product"], key = "#id")
+//    fun getProduct(id: Long): ProductInfo {
+//        println("db 조회 getProduct")
+//        val product = productRepository.getProduct(id)
+//            ?: throw IllegalArgumentException("Product with id $id not found")
+//        return product.toInfo()
+//    }
+
     fun getProduct(id: Long): ProductInfo {
-        println("db 조회 getProduct")
-        val product = productRepository.getProduct(id)
-            ?: throw IllegalArgumentException("Product with id $id not found")
-        return product.toInfo()
+        return productCache.get(id)
     }
+
 
 
     @Cacheable(cacheNames = ["productByName"], key = "#name")
