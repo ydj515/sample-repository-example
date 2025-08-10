@@ -152,173 +152,105 @@ public class StreamPractice {
      * 1) 카테고리별로 가격 상위 N개 상품의 이름을 가격 내림차순으로 반환
      */
     static Map<String, List<String>> topNProductsByCategory(List<Product> products, int n) {
-        if (n <= 0) return Collections.emptyMap();
-        Comparator<Product> byPriceDescThenName =
-                Comparator.comparingDouble(Product::price).reversed()
-                        .thenComparing(Product::name);
-        return products.stream()
-                .collect(Collectors.groupingBy(Product::category,
-                        Collectors.collectingAndThen(Collectors.toList(), list ->
-                                list.stream()
-                                        .sorted(byPriceDescThenName)
-                                        .limit(n)
-                                        .map(Product::name)
-                                        .toList()
-                        )));
+        throw new UnsupportedOperationException("TODO #1");
     }
 
     /**
      * 2) 도시별 평균 주문 금액 (Order.lines 의 (price*qty) 합)
      */
     static Map<String, Double> avgOrderAmountByCity(List<Order> orders) {
-        return orders.stream()
-                .collect(Collectors.groupingBy(o -> o.customer().city(),
-                        Collectors.averagingDouble(StreamPractice::orderAmount)));
+        throw new UnsupportedOperationException("TODO #2");
     }
 
     /**
      * 3) 가장 많이 팔린 상품 TOP K (수량 기준)
      */
     static List<Product> topKSellingProducts(List<Order> orders, int k) {
-        if (k <= 0) return List.of();
-        Map<Product, Integer> qtyByProduct = orders.stream()
-                .flatMap(o -> o.lines().stream())
-                .collect(Collectors.groupingBy(OrderLine::product, Collectors.summingInt(OrderLine::qty)));
-        return qtyByProduct.entrySet().stream()
-                .sorted(Map.Entry.<Product, Integer>comparingByValue(Comparator.reverseOrder())
-                        .thenComparing(e -> e.getKey().name()))
-                .limit(k)
-                .map(Map.Entry::getKey)
-                .toList();
+        throw new UnsupportedOperationException("TODO #3");
     }
 
     /**
      * 4) 고객별 총 지출액 상위 5명 (동률이면 이름순)
      */
     static List<Person> topSpenders(List<Order> orders) {
-        return orders.stream()
-                .collect(Collectors.groupingBy(Order::customer,
-                        Collectors.summingDouble(StreamPractice::orderAmount)))
-                .entrySet().stream()
-                .sorted((e1, e2) -> {
-                    int c = Double.compare(e2.getValue(), e1.getValue());
-                    return c != 0 ? c : e1.getKey().name().compareTo(e2.getKey().name());
-                })
-                .limit(5)
-                .map(Map.Entry::getKey)
-                .toList();
+        throw new UnsupportedOperationException("TODO #4");
     }
 
     /**
      * 5) 주문이 한 번도 없는 상품 리스트 (안티 조인)
      */
     static List<Product> productsNeverOrdered(List<Product> products, List<Order> orders) {
-        Set<String> ordered = orders.stream()
-                .flatMap(o -> o.lines().stream())
-                .map(ol -> ol.product().id())
-                .collect(Collectors.toSet());
-        return products.stream()
-                .filter(p -> !ordered.contains(p.id()))
-                .toList();
+        throw new UnsupportedOperationException("TODO #5");
     }
 
     /**
      * 6) 제품별 리뷰 평균 별점(Map<productId, avgStars>) — 리뷰가 없으면 미포함
      */
     static Map<String, Double> avgStarsByProduct(List<Review> reviews) {
-        return reviews.stream()
-                .collect(Collectors.groupingBy(Review::productId,
-                        Collectors.averagingInt(Review::stars)));
+        throw new UnsupportedOperationException("TODO #6");
     }
 
     /**
      * 7) 센서 타입별( temp/humidity ) 최근 30분 평균값
      */
     static Map<String, Double> avgSensorLast30Min(List<SensorEvent> events) {
-        Instant cutoff = Instant.now().minus(30, ChronoUnit.MINUTES);
-        return events.stream()
-                .filter(e -> !e.timestamp().isBefore(cutoff))
-                .collect(Collectors.groupingBy(SensorEvent::type,
-                        Collectors.averagingDouble(SensorEvent::value)));
+        throw new UnsupportedOperationException("TODO #7");
     }
 
     /**
      * 8) 각 카테고리에서 평점이 가장 높은 상품(동률이면 가격 낮은 순)
      */
     static Map<String, Product> bestRatedByCategory(List<Product> products) {
-        Comparator<Product> cmp = Comparator
-                .comparingDouble(Product::rating).reversed()
-                .thenComparingDouble(Product::price);
-        return products.stream().collect(Collectors.groupingBy(Product::category,
-                Collectors.collectingAndThen(Collectors.maxBy(cmp), Optional::get)));
+        throw new UnsupportedOperationException("TODO #8");
     }
 
     /**
      * 9) 나이 기준 파티셔닝: 성인(>=20)과 미성년자(<20) 인원수
      */
     static Map<Boolean, Long> partitionAdultsCount(List<Person> persons) {
-        return persons.stream()
-                .collect(Collectors.partitioningBy(p -> p.age() >= 20, Collectors.counting()));
+        throw new UnsupportedOperationException("TODO #9");
     }
 
     /**
      * 10) 주문 상태별 총 매출액 (CANCELED 제외)
      */
     static Map<OrderStatus, Double> revenueByStatus(List<Order> orders) {
-        return orders.stream()
-                .filter(o -> o.status() != OrderStatus.CANCELED)
-                .collect(Collectors.groupingBy(Order::status,
-                        Collectors.summingDouble(StreamPractice::orderAmount)));
+        throw new UnsupportedOperationException("TODO #10");
     }
 
     /**
      * 11) 최근 7일간 일자별 주문 수(Map<LocalDate, count>)
      */
     static Map<LocalDate, Long> ordersCountByDayLast7(List<Order> orders) {
-        LocalDate today = LocalDate.now();
-        LocalDate from = today.minusDays(6);
-        return orders.stream()
-                .map(o -> o.orderedAt().toLocalDate())
-                .filter(d -> !d.isBefore(from) && !d.isAfter(today))
-                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+        throw new UnsupportedOperationException("TODO #11");
     }
 
     /**
      * 12) 제품명 대문자 조인 (특정 카테고리) — 예: "A, B, C"
      */
     static String joinUpperNamesByCategory(List<Product> products, String category) {
-        return products.stream()
-                .filter(p -> p.category().equals(category))
-                .map(p -> p.name().toUpperCase())
-                .collect(Collectors.joining(", "));
+        throw new UnsupportedOperationException("TODO #12");
     }
 
     /**
      * 13) 주문 총액의 상위 10% cutoff 값(근사 퍼센타일)
      */
     static double p90OfOrderAmounts(List<Order> orders) {
-        if (orders.isEmpty()) return 0.0;
-        double[] arr = orders.stream().mapToDouble(StreamPractice::orderAmount).sorted().toArray();
-        int idx = (int) Math.ceil(0.9 * arr.length) - 1;
-        idx = Math.max(0, Math.min(idx, arr.length - 1));
-        return arr[idx];
+        throw new UnsupportedOperationException("TODO #13");
     }
 
     /**
      * 14) 카테고리별 가격 SummaryStatistics(DoubleSummaryStatistics)
      */
     static Map<String, DoubleSummaryStatistics> priceStatsByCategory(List<Product> products) {
-        return products.stream()
-                .collect(Collectors.groupingBy(Product::category,
-                        Collectors.summarizingDouble(Product::price)));
+        throw new UnsupportedOperationException("TODO #14");
     }
 
     /**
      * 15) 이름 대소문자 무시하고 특정 이름의 첫 번째 고객 찾기 (Optional)
      */
     static Optional<Person> findByNameIgnoreCase(List<Person> persons, String name) {
-        if (name == null) return Optional.empty();
-        return persons.stream().filter(p -> p.name().equalsIgnoreCase(name)).findFirst();
+        throw new UnsupportedOperationException("TODO #15");
     }
 
     // ===== 고급 문제 (16~30) =====
