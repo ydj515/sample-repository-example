@@ -331,18 +331,28 @@ public class StreamPracticeAnswer {
     static Map<Person, List<String>> topKCategoriesBySpendPerCustomer(List<Order> orders, int k) {
         if (k <= 0) return Collections.emptyMap();
         return orders.stream()
-                .collect(Collectors.groupingBy(Order::customer,
-                        Collectors.collectingAndThen(Collectors.toList(), os -> {
-                            Map<String, Double> byCat = os.stream()
-                                    .flatMap(o -> o.lines().stream().map(ol -> Map.entry(ol.product().category(), ol.product().price() * ol.qty())))
-                                    .collect(Collectors.groupingBy(Map.Entry::getKey, Collectors.summingDouble(Map.Entry::getValue)));
-                            return byCat.entrySet().stream()
-                                    .sorted(Map.Entry.<String, Double>comparingByValue(Comparator.reverseOrder())
-                                            .thenComparing(Map.Entry::getKey))
-                                    .limit(k)
-                                    .map(Map.Entry::getKey)
-                                    .toList();
-                        })));
+                .filter(o -> o.status() != OrderStatus.CANCELED)
+                .collect(Collectors.groupingBy( // Step 1: 고객별로 그룹화
+                        Order::customer,
+                        // Step 2: 각 고객의 주문 목록을 처리할 Downstream Collector
+                        Collectors.flatMapping( // Step 2a: 고객의 모든 OrderLine들을 단일 스트림으로 통합
+                                order -> order.lines().stream(),
+                                // Step 2b & 2c: 후처리가 가능한 collectingAndThen 사용
+                                Collectors.collectingAndThen(
+                                        // Step 2b: 카테고리별로 지출액 집계 -> Map<String, Double> 생성
+                                        Collectors.groupingBy(
+                                                line -> line.product().category(),
+                                                Collectors.summingDouble(line -> line.product().price() * line.qty())
+                                        ),
+                                        // Step 2c: 위에서 생성된 Map을 받아 후처리
+                                        categorySpendMap -> categorySpendMap.entrySet().stream()
+                                                .sorted(Map.Entry.<String, Double>comparingByValue().reversed()) // 지출액 내림차순 정렬
+                                                .limit(k) // 상위 k개 선택
+                                                .map(Map.Entry::getKey) // 카테고리 이름만 추출
+                                                .toList() // 최종 List<String> 으로 변환
+                                )
+                        )
+                ));
     }
 
     /**
