@@ -2,6 +2,7 @@ package com.example.jpajavaexample.infrastructure.persistence.user;
 
 import com.example.jpajavaexample.domain.user.model.User;
 import com.example.jpajavaexample.domain.user.repository.UserRepository;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -47,6 +48,11 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public Page<User> findAll(Pageable pageable) {
         return jpaUserRepository.findAll(pageable);
+    }
+
+    @Override
+    public List<User> findAll() {
+        return jpaUserRepository.findAll();
     }
 
     private String like(String keyword) {

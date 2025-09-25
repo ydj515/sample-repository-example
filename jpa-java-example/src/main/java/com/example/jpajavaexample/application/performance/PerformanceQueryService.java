@@ -1,6 +1,9 @@
 package com.example.jpajavaexample.application.performance;
 
 import com.example.jpajavaexample.domain.performance.repository.PerformanceRepository;
+import com.example.jpajavaexample.domain.performance.service.PerformanceDetailInfo;
+import com.example.jpajavaexample.domain.performance.service.PerformanceNotFoundException;
+import com.example.jpajavaexample.presentation.performance.dto.PerformanceDetailResponse;
 import com.example.jpajavaexample.presentation.performance.dto.PerformanceSummaryResponse;
 import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
@@ -25,5 +28,13 @@ public class PerformanceQueryService {
     ) {
         return performanceRepository.search(title, category, startDate, endDate, pageable)
             .map(PerformanceSummaryResponse::from);
+    }
+
+    @Transactional(readOnly = true)
+    public PerformanceDetailResponse getPerformanceDetail(Long performanceId) {
+        PerformanceDetailInfo detailInfo = performanceRepository.findDetail(performanceId)
+            .orElseThrow(() -> new PerformanceNotFoundException(performanceId));
+
+        return PerformanceDetailResponse.from(detailInfo);
     }
 }

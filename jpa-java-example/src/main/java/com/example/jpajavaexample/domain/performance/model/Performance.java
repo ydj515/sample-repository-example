@@ -34,16 +34,20 @@ public class Performance {
     @Column(nullable = false)
     private LocalDate endDate;
 
-    private Performance(String title, String category, LocalDate startDate, LocalDate endDate) {
+    @Column(nullable = false, length = 500)
+    private String posterUrl;
+
+    private Performance(String title, String category, LocalDate startDate, LocalDate endDate, String posterUrl) {
         this.title = Objects.requireNonNull(title, "title");
         this.category = Objects.requireNonNull(category, "category");
         this.startDate = Objects.requireNonNull(startDate, "startDate");
         this.endDate = Objects.requireNonNull(endDate, "endDate");
+        this.posterUrl = Objects.requireNonNull(posterUrl, "posterUrl");
         validatePeriod(this.startDate, this.endDate);
     }
 
-    public static Performance create(String title, String category, LocalDate startDate, LocalDate endDate) {
-        return new Performance(title, category, startDate, endDate);
+    public static Performance create(String title, String category, LocalDate startDate, LocalDate endDate, String posterUrl) {
+        return new Performance(title, category, startDate, endDate, posterUrl);
     }
 
     public void updatePeriod(LocalDate startDate, LocalDate endDate) {
