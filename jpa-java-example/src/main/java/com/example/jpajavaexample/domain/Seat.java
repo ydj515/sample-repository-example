@@ -1,9 +1,6 @@
 package com.example.jpajavaexample.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 
 // 좌석
 @Entity
@@ -14,6 +11,8 @@ public class Seat {
     @ManyToOne(fetch = FetchType.LAZY)
     private VenueSection venueSection; // 공연장의 구역(ex. R석, S석)
 
+    @Column(name = "row_no")
     private String rowNumber;
+    @Column(name = "seat_no")
     private int seatNumber;
 }

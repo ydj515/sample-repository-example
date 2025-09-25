@@ -1,5 +1,6 @@
 package com.example.jpajavaexample.domain;
 
+import com.example.jpajavaexample.domain.user.model.User;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
