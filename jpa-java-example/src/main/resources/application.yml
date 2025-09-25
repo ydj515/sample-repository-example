@@ -27,7 +27,7 @@ spring:
 logging:
   level:
     org.hibernate.SQL: debug                 # SQL
-    org.hibernate.orm.jdbc.bind: trace       # 바인딩 파라미터(Hibernate 6.x)
+#    org.hibernate.orm.jdbc.bind: trace       # 바인딩 파라미터(Hibernate 6.x)
 ---
 spring:
   config:
@@ -47,5 +47,5 @@ spring:
         format_sql: true
 logging:
   level:
-    org.hibernate.SQL: debug                 # SQL
+    org.hibernate.SQL: info                 # SQL
 #    org.hibernate.orm.jdbc.bind: trace       # 바인딩 파라미터(Hibernate 6.x)

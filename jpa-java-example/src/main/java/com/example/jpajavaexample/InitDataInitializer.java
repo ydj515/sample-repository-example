@@ -7,6 +7,10 @@ import com.example.jpajavaexample.domain.Seat;
 import com.example.jpajavaexample.domain.Venue;
 import com.example.jpajavaexample.domain.VenueSection;
 import com.example.jpajavaexample.domain.SeatStatus;
+import com.example.jpajavaexample.domain.coupon.model.Coupon;
+import com.example.jpajavaexample.domain.coupon.model.FixedAmountCoupon;
+import com.example.jpajavaexample.domain.coupon.model.PercentageCoupon;
+import com.example.jpajavaexample.domain.coupon.repository.CouponRepository;
 import com.example.jpajavaexample.domain.performance.model.Performance;
 import com.example.jpajavaexample.domain.performance.repository.PerformanceRepository;
 import com.example.jpajavaexample.domain.reservation.repository.ReservationRepository;
@@ -23,6 +27,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
@@ -52,6 +58,7 @@ public class InitDataInitializer implements ApplicationRunner {
 
     private final UserRepository userRepository;
     private final PerformanceRepository performanceRepository;
+    private final CouponRepository couponRepository;
     private final VenueRepository venueRepository;
     private final ScheduleRepository scheduleRepository;
     private final ScheduleSeatRepository scheduleSeatRepository;
@@ -63,10 +70,11 @@ public class InitDataInitializer implements ApplicationRunner {
         List<User> users = initUsers();
         List<Performance> performances = initPerformances();
         List<Venue> venues = initVenues();
+        List<Coupon> coupons = initCoupons();
         Map<Long, List<Seat>> seatsByVenue = extractSeatsByVenue(venues);
         List<Schedule> schedules = initSchedules(performances, venues);
         List<ScheduleSeat> scheduleSeats = initScheduleSeats(schedules, seatsByVenue);
-        initReservations(users, scheduleSeats);
+        initReservations(users, scheduleSeats, coupons);
     }
 
     private List<User> initUsers() {
@@ -216,7 +224,7 @@ public class InitDataInitializer implements ApplicationRunner {
         return scheduleSeatRepository.findAll();
     }
 
-    private void initReservations(List<User> users, List<ScheduleSeat> scheduleSeats) {
+    private void initReservations(List<User> users, List<ScheduleSeat> scheduleSeats, List<Coupon> coupons) {
         if (users.isEmpty() || scheduleSeats.isEmpty()) {
             return;
         }
@@ -250,7 +258,57 @@ public class InitDataInitializer implements ApplicationRunner {
 
             seat.reserveFor(reservation);
             scheduleSeatRepository.save(seat);
+
+            if (!coupons.isEmpty() && index % 3 == 0) {
+                Coupon coupon = coupons.get(index % coupons.size());
+                reservation.applyCoupon(coupon);
+                reservationRepository.save(reservation);
+            }
         }
+    }
+
+    private List<Coupon> initCoupons() {
+        Map<String, Coupon> existingByCode = couponRepository.findAll().stream()
+            .collect(Collectors.toMap(Coupon::getCode, Function.identity(), (left, right) -> left, HashMap::new));
+
+        ensureCoupon(existingByCode, "FX-25000", () -> FixedAmountCoupon.create(
+            "FX-25000",
+            "Fixed Coupon 25000",
+            new BigDecimal("25000.00")
+        ));
+        ensureCoupon(existingByCode, "FX-10000", () -> FixedAmountCoupon.create(
+            "FX-10000",
+            "Fixed Coupon 10000",
+            new BigDecimal("10000.00")
+        ));
+        ensureCoupon(existingByCode, "FX-01000", () -> FixedAmountCoupon.create(
+            "FX-01000",
+            "Fixed Coupon 1000",
+            new BigDecimal("1000.00")
+        ));
+
+        ensureCoupon(existingByCode, "RT-02000", () -> PercentageCoupon.create(
+            "RT-02000",
+            "Percent Coupon 20%",
+            new BigDecimal("0.2000")
+        ));
+        ensureCoupon(existingByCode, "RT-01000", () -> PercentageCoupon.create(
+            "RT-01000",
+            "Percent Coupon 10%",
+            new BigDecimal("0.1000")
+        ));
+        ensureCoupon(existingByCode, "RT-05000", () -> PercentageCoupon.create(
+            "RT-05000",
+            "Percent Coupon 50%",
+            new BigDecimal("0.5000")
+        ));
+        ensureCoupon(existingByCode, "RT-08000", () -> PercentageCoupon.create(
+            "RT-08000",
+            "Percent Coupon 80%",
+            new BigDecimal("0.8000")
+        ));
+
+        return couponRepository.findAll();
     }
 
     private Map<Long, List<Seat>> extractSeatsByVenue(List<Venue> venues) {
@@ -325,5 +383,12 @@ public class InitDataInitializer implements ApplicationRunner {
 
     private LocalDateTime sampleReservedAt(int index) {
         return LocalDateTime.now().minusDays(index % 30L).withHour(10).withMinute(0).withSecond(0).withNano(0);
+    }
+
+    private void ensureCoupon(Map<String, Coupon> existingByCode, String code, Supplier<Coupon> factory) {
+        if (!existingByCode.containsKey(code)) {
+            Coupon saved = couponRepository.save(factory.get());
+            existingByCode.put(code, saved);
+        }
     }
 }

@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Repository
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -22,5 +24,10 @@ public class ReservationRepositoryImpl implements ReservationRepository {
     @Transactional
     public Reservation save(Reservation reservation) {
         return jpaReservationRepository.save(reservation);
+    }
+
+    @Override
+    public Optional<Reservation> findById(Long id) {
+        return jpaReservationRepository.findById(id);
     }
 }
