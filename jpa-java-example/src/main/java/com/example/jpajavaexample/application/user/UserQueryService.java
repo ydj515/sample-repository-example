@@ -15,9 +15,8 @@ public class UserQueryService {
     private final UserRepository userRepository;
 
     @Transactional(readOnly = true)
-    public Page<UserDetailResponse> getUsers(Pageable pageable) {
-        return userRepository.findAll(pageable)
+    public Page<UserDetailResponse> getUsers(String name, String email, Pageable pageable) {
+        return userRepository.search(name, email, pageable)
             .map(UserDetailResponse::from);
     }
 }
-

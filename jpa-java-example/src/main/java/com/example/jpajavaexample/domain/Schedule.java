@@ -5,6 +5,8 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 
+import com.example.jpajavaexample.domain.performance.model.Performance;
+
 import java.time.LocalDateTime;
 
 // 회차 (ex. '오페라의 유령'의 '9월 1일 19:00')
