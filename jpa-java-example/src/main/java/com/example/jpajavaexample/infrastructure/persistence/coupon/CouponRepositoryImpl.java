@@ -27,6 +27,11 @@ public class CouponRepositoryImpl implements CouponRepository {
     }
 
     @Override
+    public Optional<Coupon> findByCode(String code) {
+        return jpaCouponRepository.findByCode(code);
+    }
+
+    @Override
     public List<Coupon> findAll() {
         return jpaCouponRepository.findAll();
     }

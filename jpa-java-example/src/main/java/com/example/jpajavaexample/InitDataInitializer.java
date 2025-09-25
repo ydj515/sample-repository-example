@@ -274,38 +274,56 @@ public class InitDataInitializer implements ApplicationRunner {
         ensureCoupon(existingByCode, "FX-25000", () -> FixedAmountCoupon.create(
             "FX-25000",
             "Fixed Coupon 25000",
+            true,
+            LocalDateTime.now().plusDays(120),
             new BigDecimal("25000.00")
         ));
         ensureCoupon(existingByCode, "FX-10000", () -> FixedAmountCoupon.create(
             "FX-10000",
             "Fixed Coupon 10000",
+            true,
+            LocalDateTime.now().plusDays(90),
             new BigDecimal("10000.00")
         ));
         ensureCoupon(existingByCode, "FX-01000", () -> FixedAmountCoupon.create(
             "FX-01000",
             "Fixed Coupon 1000",
+            false,
+            LocalDateTime.now().minusDays(7),
             new BigDecimal("1000.00")
         ));
 
         ensureCoupon(existingByCode, "RT-02000", () -> PercentageCoupon.create(
             "RT-02000",
             "Percent Coupon 20%",
-            new BigDecimal("0.2000")
+            true,
+            LocalDateTime.now().plusDays(45),
+            new BigDecimal("0.2000"),
+            new BigDecimal("30000.00")
         ));
         ensureCoupon(existingByCode, "RT-01000", () -> PercentageCoupon.create(
             "RT-01000",
             "Percent Coupon 10%",
-            new BigDecimal("0.1000")
+            true,
+            LocalDateTime.now().plusDays(60),
+            new BigDecimal("0.1000"),
+            new BigDecimal("20000.00")
         ));
         ensureCoupon(existingByCode, "RT-05000", () -> PercentageCoupon.create(
             "RT-05000",
             "Percent Coupon 50%",
-            new BigDecimal("0.5000")
+            false,
+            LocalDateTime.now().minusDays(3),
+            new BigDecimal("0.5000"),
+            new BigDecimal("50000.00")
         ));
         ensureCoupon(existingByCode, "RT-08000", () -> PercentageCoupon.create(
             "RT-08000",
             "Percent Coupon 80%",
-            new BigDecimal("0.8000")
+            true,
+            LocalDateTime.now().plusDays(10),
+            new BigDecimal("0.8000"),
+            new BigDecimal("80000.00")
         ));
 
         return couponRepository.findAll();

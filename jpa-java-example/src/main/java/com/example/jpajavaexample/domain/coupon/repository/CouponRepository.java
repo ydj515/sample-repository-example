@@ -10,6 +10,8 @@ public interface CouponRepository {
 
     Optional<Coupon> findById(Long id);
 
+    Optional<Coupon> findByCode(String code);
+
     List<Coupon> findAll();
 
     long count();

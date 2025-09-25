@@ -109,4 +109,3 @@ com.example.project
 3. lombok을 사용할 수 있는 곳은 lombok을 사용할 것.
 4. transaction은 정합성을 지킬수 있는 최소의 범위로 잡을 것.
 5. application 계층의 UseCase 서비스는 연관된 서비스들로 분리할것.
-6. 샘플 데이터(최소 100건 이상)를 넣어줄 수 있는 코드를 작성하고 도메인 변경사항을 계속 반영하여 업데이트할것.
