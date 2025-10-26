@@ -111,12 +111,20 @@ cte-example
    POST_ID=1 LIMIT_MIN=1 LIMIT_MAX=5 \
    STAGES="30s:10,2m:100,30s:0" \
    k6 run k6/top-comment-trees-cte.js
+   
+   -- 대시보드 활성화 및 prometheus remote write
+   K6_WEB_DASHBOARD=true K6_PROMETHEUS_RW_SERVER_URL=http://localhost:9090/api/v1/write \
+   k6 run -o k6/experimental-prometheus-rw top-comment-trees-cte.js
    ```
 3. **Aggregation 시나리오 실행 예**
    ```bash
    POST_ID=1 LIMIT=3 \
    STAGES="30s:10,2m:100,30s:0" \
    k6 run k6/top-comment-trees-aggregation.js
+   
+   -- 대시보드 활성화 및 prometheus remote write
+   K6_WEB_DASHBOARD=true K6_PROMETHEUS_RW_SERVER_URL=http://localhost:9090/api/v1/write \
+   k6 run -o experimental-prometheus-rw k6/top-comment-trees-aggregation.js
    ```
 4. **수집 메트릭**
     - `http_req_duration`, `http_req_failed`
