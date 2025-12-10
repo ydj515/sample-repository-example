@@ -1,0 +1,44 @@
+# 제품 목록 조회 예시 (프래그먼트 사용)
+query productList {
+    productList {
+        ...ProductFields
+    }
+}
+
+# 제품 추가 (전자제품) 예시
+mutation addElectronics {
+    addProduct(
+        input: {
+            name: "Camera"
+            price: 800
+            productType: ELECTRONICS
+            warrantyPeriod: 12
+        }
+    ) {
+        ...ProductFields
+    }
+}
+
+# 제품 추가 (의류) 예시
+mutation addClothing {
+    addProduct(
+        input: {
+            name: "Hoodie"
+            price: 120
+            productType: CLOTHING
+            size: "L"
+        }
+    ) {
+        ...ProductFields
+    }
+}
+
+# 공통 제품 필드 프래그먼트 (파일 끝에 배치)
+fragment ProductFields on Product {
+    id
+    name
+    price
+    productType
+    ... on Electronics { warrantyPeriod }
+    ... on Clothing { size }
+}

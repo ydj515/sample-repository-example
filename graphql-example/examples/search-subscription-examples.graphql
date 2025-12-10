@@ -1,0 +1,51 @@
+# 신상품 구독 예시 (키워드 미사용: 모든 제품)
+subscription newProductAny {
+    newProduct {
+        id
+        name
+        productType
+    }
+}
+
+# 신상품 구독 예시 (키워드 사용: 이름에 "book" 포함)
+subscription newProductWithKeyword {
+    newProduct(keyword: "book") {
+        id
+        name
+        productType
+    }
+}
+
+# 공통 SearchResult 필드 (interface) + 타입별 확장
+query searchByKeyword {
+    search(keyword: "new") {
+        __typename
+        ... on User {
+            id
+            name
+        }
+        ... on Product {
+            id
+            name
+        }
+    }
+}
+
+# 공통 SearchResult 필드 (interface) + 타입별 확장
+query searchByKeyword {
+    search(keyword: "new") {
+        __typename
+        ... on User {
+            id
+            name
+        }
+        ... on Electronics {
+            id
+            name
+        }
+        ... on Clothing {
+            id
+            name
+        }
+    }
+}

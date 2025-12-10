@@ -1,0 +1,40 @@
+"""
+장바구니 아이템
+"""
+type CartItem {
+  id: ID!
+  product: Product!
+  quantity: Int!
+}
+
+"""
+유저 장바구니
+- totalAmount는 items 기준으로 동적으로 계산
+"""
+type Cart {
+  id: ID!
+  user: User!
+  items: [CartItem!]!
+
+  """
+  총 금액 = Σ(product.price * quantity)
+  """
+  totalAmount: Int!
+}
+
+"""
+장바구니 아이템 추가 입력
+"""
+input AddCartItemInput {
+  userId: ID!
+  productId: ID!
+  quantity: Int!
+}
+
+"""
+장바구니 아이템 삭제 입력
+"""
+input RemoveCartItemInput {
+  userId: ID!
+  cartItemId: ID!
+}

@@ -1,0 +1,28 @@
+# 유저 조회 예시
+query getUser {
+    user(id: 1) {
+        id
+        name
+        email
+        createdAt
+        cart {
+            id
+            totalAmount
+        }
+    }
+}
+
+# 유저 생성 예시
+mutation createUser {
+    createUser(
+        input: {
+            name: "New User"
+            email: "new.user@example.com"
+        }
+    ) {
+        id
+        name
+        email
+        createdAt
+    }
+}

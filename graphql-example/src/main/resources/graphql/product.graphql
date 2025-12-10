@@ -1,0 +1,66 @@
+"""
+모든 제품이 공통으로 가지는 필드
+구현 타입: Electronics, Clothing
+"""
+interface Product {
+  id: ID!
+  name: String!
+  price: Int!
+  productType: ProductType!
+}
+
+"""
+전자제품
+- warrantyPeriod: 보증기간 (예: 개월 수)
+"""
+type Electronics implements Product {
+  id: ID!
+  name: String!
+  price: Int!
+  productType: ProductType!
+
+  warrantyPeriod: Int!
+}
+
+"""
+의류
+- size: S, M, L 등
+"""
+type Clothing implements Product {
+  id: ID!
+  name: String!
+  price: Int!
+  productType: ProductType!
+
+  size: String!
+}
+
+"""
+제품 종류
+- ELECTRONICS: 전자제품 (warrantyPeriod 필수)
+- CLOTHING: 의류 (size 필수)
+"""
+enum ProductType {
+  ELECTRONICS
+  CLOTHING
+}
+
+"""
+제품 추가 입력
+- productType에 따라 warrantyPeriod 또는 size를 서버에서 검증
+"""
+input AddProductInput {
+  name: String!
+  price: Int!
+  productType: ProductType!
+
+  """
+  productType = ELECTRONICS일 때 필수
+  """
+  warrantyPeriod: Int
+
+  """
+  productType = CLOTHING일 때 필수
+  """
+  size: String
+}

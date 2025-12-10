@@ -1,0 +1,5 @@
+"""
+커스텀 날짜/시간 스칼라
+스프링에선 java.time.LocalDateTime <-> String 변환용 Scalar를 직접 구현해야 함.
+"""
+scalar DateTime

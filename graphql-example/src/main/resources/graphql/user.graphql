@@ -1,0 +1,23 @@
+"""
+유저 정보
+"""
+type User {
+  id: ID!
+  name: String!
+  email: String!
+  createdAt: DateTime!
+
+  """
+  유저의 장바구니 (없으면 null)
+  """
+  cart: Cart
+}
+
+
+"""
+유저 생성 입력
+"""
+input CreateUserInput {
+  name: String!
+  email: String!
+}

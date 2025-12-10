@@ -1,0 +1,28 @@
+"""
+Mutation 루트 타입
+"""
+type Mutation {
+  """
+  유저 추가
+  - createdAt은 서버 시간 기준으로 세팅
+  """
+  createUser(input: CreateUserInput!): User!
+
+  """
+  제품 추가
+  - productType에 따라 warrantyPeriod/size 필수 여부 체크
+  """
+  addProduct(input: AddProductInput!): Product!
+
+  """
+  유저 장바구니에 아이템 추가
+  - 처리 후 최신 Cart 반환
+  """
+  addCartItem(input: AddCartItemInput!): Cart!
+
+  """
+  유저 장바구니에서 아이템 삭제
+  - 처리 후 최신 Cart 반환
+  """
+  removeCartItem(input: RemoveCartItemInput!): Cart!
+}

@@ -1,0 +1,47 @@
+# 유저 장바구니 조회 예시
+query userCart {
+    cart(userId: 1) {
+        ...CartFields
+    }
+}
+
+# 장바구니 아이템 추가 예시
+mutation addCartItem {
+    addCartItem(
+        input: {
+            userId: 1
+            productId: 2
+            quantity: 3
+        }
+    ) {
+        ...CartFields
+    }
+}
+
+# 장바구니 아이템 삭제 예시
+mutation removeCartItem {
+    removeCartItem(
+        input: {
+            userId: 1
+            cartItemId: 4
+        }
+    ) {
+        ...CartFields
+    }
+}
+
+# 공통 Cart 필드 프래그먼트
+fragment CartFields on Cart {
+    id
+    totalAmount
+    items {
+        id
+        quantity
+        product {
+            id
+            name
+            price
+            productType
+        }
+    }
+}

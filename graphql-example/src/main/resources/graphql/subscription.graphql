@@ -1,0 +1,11 @@
+"""
+Subscription 루트 타입
+"""
+type Subscription {
+  """
+  새로운 상품 실시간 알림
+  - keyword가 주어지면 이름에 keyword가 포함된 상품만 푸시
+  - keyword가 없으면 모든 신상품 푸시
+  """
+  newProduct(keyword: String): Product!
+}
