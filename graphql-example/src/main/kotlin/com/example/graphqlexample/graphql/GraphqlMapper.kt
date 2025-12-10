@@ -13,6 +13,8 @@ import com.example.graphqlexample.graphql.dto.Electronics as ElectronicsDto
 import com.example.graphqlexample.graphql.dto.Product as ProductDto
 import com.example.graphqlexample.graphql.dto.User as UserDto
 import com.example.graphqlexample.service.CartService
+import org.hibernate.Hibernate
+import org.hibernate.proxy.HibernateProxy
 import org.springframework.stereotype.Component
 
 @Component
@@ -28,12 +30,13 @@ class GraphqlMapper(
             cart = null
         )
 
-    fun toProductDto(product: Product): ProductDto =
-        when (product) {
-            is Electronics -> toElectronicsDto(product)
-            is Clothing -> toClothingDto(product)
-            else -> throw IllegalArgumentException("Unsupported product type: ${product::class.simpleName}")
+    fun toProductDto(product: Product): ProductDto {
+        return when (val unproxiedProduct = unwrap(product)) {
+            is Electronics -> toElectronicsDto(unproxiedProduct)
+            is Clothing -> toClothingDto(unproxiedProduct)
+            else -> throw IllegalArgumentException("Unsupported product type: ${unproxiedProduct::class.simpleName}")
         }
+    }
 
     fun toElectronicsDto(electronics: Electronics): ElectronicsDto =
         ElectronicsDto(
@@ -73,5 +76,12 @@ class GraphqlMapper(
             is User -> toUserDto(result)
             is Product -> toProductDto(result)
             else -> throw IllegalArgumentException("Unsupported search result type: ${result::class.simpleName}")
+        }
+
+    private fun <T> unwrap(entity: T): T =
+        if (entity is HibernateProxy) {
+            Hibernate.unproxy(entity) as T
+        } else {
+            entity
         }
 }

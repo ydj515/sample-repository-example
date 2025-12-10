@@ -20,7 +20,7 @@ class CartService(
     private val userService: UserService,
     private val productRepository: ProductRepository
 ) {
-    @Transactional
+    @Transactional(readOnly = true)
     fun getCartForUser(userId: Long): Cart {
         val user = userService.getUser(userId)
         return cartRepository.findByUserId(user.id!!) ?: createCartForUser(user)
