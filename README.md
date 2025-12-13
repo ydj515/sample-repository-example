@@ -29,4 +29,7 @@
 - load-test-example([link](https://github.com/ydj515/sample-repository-example/tree/main/load-test-example))
 - jpa-java-example([link](https://github.com/ydj515/sample-repository-example/tree/main/jpa-java-example))
 - stream-example([link](https://github.com/ydj515/sample-repository-example/tree/main/stream-example))
-- git-master-to-main-example([link](https://github.com/ydj515/sample-repository-example/tree/main/git-master-to-main-example))
+- git-master-to-main-example([link](https://github.com/ydj515/sample-repository-example/tree/main/git-master-to-main))
+- graphql-example([link](https://github.com/ydj515/sample-repository-example/tree/main/graphql-example))
+- kotlin-notebook-example([link](https://github.com/ydj515/sample-repository-example/tree/main/kotlin-notebook-example))
+- mysql8-example([link](https://github.com/ydj515/sample-repository-example/tree/main/mysql8-example))
