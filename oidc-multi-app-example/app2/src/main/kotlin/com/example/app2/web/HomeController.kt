@@ -1,8 +1,9 @@
 package com.example.app2.web
 
 import com.example.app2.config.App2ViewProperties
-import com.example.oidccommon.config.AppSecurityProperties
-import com.example.oidccommon.session.SessionLookupService
+import com.example.oidccommon.config.OidcSecurityProperties
+import com.example.sessioncommon.config.SessionPolicyProperties
+import com.example.sessioncommon.session.SessionLookupService
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.security.access.AccessDeniedException
@@ -21,7 +22,8 @@ import java.nio.charset.StandardCharsets
 class HomeController(
     private val sessionLookupService: SessionLookupService,
     private val app2ViewProperties: App2ViewProperties,
-    private val appSecurityProperties: AppSecurityProperties,
+    private val oidcSecurityProperties: OidcSecurityProperties,
+    private val sessionPolicyProperties: SessionPolicyProperties,
 ) {
 
     @GetMapping("/")
@@ -34,7 +36,7 @@ class HomeController(
     ): String {
         val oidcUser = authentication?.principal as? OidcUser
         val grantedAuthorities = authentication?.authorities.orEmpty()
-        if (oidcUser != null && !appSecurityProperties.hasAccess(grantedAuthorities)) {
+        if (oidcUser != null && !oidcSecurityProperties.hasAccess(grantedAuthorities)) {
             throw AccessDeniedException("App 2 접근 권한이 없습니다.")
         }
 
@@ -95,13 +97,13 @@ class HomeController(
         val grantedAuthorities = authentication?.authorities.orEmpty()
         val authorityNames = grantedAuthorities.map { it.authority }
         val activeSessions = authentication?.name?.let { username ->
-            sessionLookupService.findUserSessions(username, appSecurityProperties.appId)
+            sessionLookupService.findUserSessions(username, sessionPolicyProperties.appId)
         }.orEmpty()
         val encodedAppName = URLEncoder.encode(app2ViewProperties.appName, StandardCharsets.UTF_8)
         val peerLandingUrl = "${app2ViewProperties.peerAppUrl}?from=$encodedAppName&demo=sso"
         val peerAuthorizationUrl = "${app2ViewProperties.peerAppUrl}/oauth2/authorization/keycloak"
-        val isMasterAdmin = appSecurityProperties.isMasterAdmin(grantedAuthorities)
-        val canManageCurrentApp = authorityNames.any(appSecurityProperties.adminAuthorities().toSet()::contains)
+        val isMasterAdmin = oidcSecurityProperties.isMasterAdmin(grantedAuthorities)
+        val canManageCurrentApp = authorityNames.any(oidcSecurityProperties.adminAuthorities().toSet()::contains)
         val canAccessPeerApp = canAccessPeerApp(grantedAuthorities)
 
         model.addAttribute("organizationName", app2ViewProperties.organizationName)
@@ -186,7 +188,7 @@ class HomeController(
         model.addAttribute("peerAppUrl", app2ViewProperties.peerAppUrl)
         model.addAttribute("username", username)
         model.addAttribute("authorities", authorityNames)
-        model.addAttribute("requiredRoles", appSecurityProperties.accessAuthorities().toList())
+        model.addAttribute("requiredRoles", oidcSecurityProperties.accessAuthorities().toList())
         model.addAttribute("accessDeniedMessage", "현재 계정에는 ${app2ViewProperties.appName} 접근 권한이 없습니다.")
         model.addAttribute("fromApp", from ?: "")
         model.addAttribute("loginUrl", "/oauth2/authorization/keycloak")
@@ -200,7 +202,7 @@ class HomeController(
     private fun canAccessPeerApp(authorities: Collection<GrantedAuthority>): Boolean {
         val authorityNames = authorities.map { it.authority }
         val peerAuthorities = app2ViewProperties.peerAccessRoles.map { "ROLE_$it" }
-        return authorityNames.any(peerAuthorities::contains) || appSecurityProperties.isMasterAdmin(authorities)
+        return authorityNames.any(peerAuthorities::contains) || oidcSecurityProperties.isMasterAdmin(authorities)
     }
 
     private fun resolvePersonaLabel(authorities: List<String>): String {

@@ -11,7 +11,7 @@ import org.springframework.session.MapSession
 @SpringBootTest(
     properties = [
         "app.session.redis-enabled=false",
-        "app.security.app-id=app1",
+        "app.session.app-id=app1",
         "app.security.end-session-uri=http://localhost:9000/realms/oidc-multi-app-example/protocol/openid-connect/logout",
         "app.security.access.user-roles[0]=app1-user",
         "app.security.access.admin-roles[0]=app1-admin",

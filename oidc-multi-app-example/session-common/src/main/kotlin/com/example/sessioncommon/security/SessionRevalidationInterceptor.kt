@@ -1,17 +1,15 @@
-package com.example.oidccommon.security
+package com.example.sessioncommon.security
 
-import com.example.oidccommon.config.AppSecurityProperties
-import com.example.oidccommon.session.SessionLookupService
+import com.example.sessioncommon.config.SessionPolicyProperties
+import com.example.sessioncommon.session.SessionLookupService
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.security.authentication.AnonymousAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.stereotype.Component
 import java.time.Duration
 
-@Component
 class SessionRevalidationInterceptor(
-    private val appSecurityProperties: AppSecurityProperties,
+    private val sessionPolicyProperties: SessionPolicyProperties,
     private val sessionLookupService: SessionLookupService,
     private val tierResolver: ApiSecurityTierResolver,
 ) : org.springframework.web.servlet.HandlerInterceptor {
@@ -34,8 +32,8 @@ class SessionRevalidationInterceptor(
 
         val ttl = when (tierResolver.resolve(handler)) {
             ApiSecurityLevel.P0_CRITICAL -> Duration.ZERO
-            ApiSecurityLevel.P1_SENSITIVE -> appSecurityProperties.revalidation.sensitiveTtl
-            ApiSecurityLevel.P2_STANDARD -> appSecurityProperties.revalidation.standardTtl
+            ApiSecurityLevel.P1_SENSITIVE -> sessionPolicyProperties.revalidation.sensitiveTtl
+            ApiSecurityLevel.P2_STANDARD -> sessionPolicyProperties.revalidation.standardTtl
         }
 
         val valid = sessionLookupService.revalidateSession(

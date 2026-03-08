@@ -1,10 +1,11 @@
 package com.example.app1.web
 
 import com.example.app1.config.App1ViewProperties
-import com.example.oidccommon.config.AppSecurityProperties
-import com.example.oidccommon.security.ApiSecurityLevel
-import com.example.oidccommon.security.ApiSecurityTier
-import com.example.oidccommon.session.SessionLookupService
+import com.example.oidccommon.config.OidcSecurityProperties
+import com.example.sessioncommon.config.SessionPolicyProperties
+import com.example.sessioncommon.security.ApiSecurityLevel
+import com.example.sessioncommon.security.ApiSecurityTier
+import com.example.sessioncommon.session.SessionLookupService
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -21,7 +22,8 @@ import java.time.Instant
 class App1ApiController(
     private val sessionLookupService: SessionLookupService,
     private val app1ViewProperties: App1ViewProperties,
-    private val appSecurityProperties: AppSecurityProperties,
+    private val oidcSecurityProperties: OidcSecurityProperties,
+    private val sessionPolicyProperties: SessionPolicyProperties,
 ) {
 
     @GetMapping("/me")
@@ -64,15 +66,15 @@ class App1ApiController(
         @PathVariable username: String,
         authentication: Authentication,
     ): LogoutResultResponse {
-        val masterAdmin = appSecurityProperties.isMasterAdmin(authentication.authorities)
+        val masterAdmin = oidcSecurityProperties.isMasterAdmin(authentication.authorities)
         val invalidated = sessionLookupService.invalidateUserSessions(
             principalName = username,
-            appId = if (masterAdmin) null else appSecurityProperties.appId,
+            appId = if (masterAdmin) null else sessionPolicyProperties.appId,
         )
         return LogoutResultResponse(
             app = app1ViewProperties.appName,
             username = username,
-            scope = if (masterAdmin) "all-apps" else appSecurityProperties.appId,
+            scope = if (masterAdmin) "all-apps" else sessionPolicyProperties.appId,
             invalidatedSessions = invalidated,
         )
     }

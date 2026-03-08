@@ -1,4 +1,4 @@
-package com.example.oidccommon.config
+package com.example.sessioncommon.config
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Configuration

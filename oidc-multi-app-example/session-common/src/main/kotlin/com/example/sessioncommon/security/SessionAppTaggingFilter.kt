@@ -1,18 +1,16 @@
-package com.example.oidccommon.security
+package com.example.sessioncommon.security
 
-import com.example.oidccommon.config.AppSecurityProperties
-import com.example.oidccommon.session.SessionAttributeNames
+import com.example.sessioncommon.config.SessionPolicyProperties
+import com.example.sessioncommon.session.SessionAttributeNames
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.security.authentication.AnonymousAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
 
-@Component
 class SessionAppTaggingFilter(
-    private val appSecurityProperties: AppSecurityProperties,
+    private val sessionPolicyProperties: SessionPolicyProperties,
 ) : OncePerRequestFilter() {
 
     override fun doFilterInternal(
@@ -27,9 +25,9 @@ class SessionAppTaggingFilter(
             authentication != null &&
             authentication.isAuthenticated &&
             authentication !is AnonymousAuthenticationToken &&
-            session.getAttribute(SessionAttributeNames.APP_ID) != appSecurityProperties.appId
+            session.getAttribute(SessionAttributeNames.APP_ID) != sessionPolicyProperties.appId
         ) {
-            session.setAttribute(SessionAttributeNames.APP_ID, appSecurityProperties.appId)
+            session.setAttribute(SessionAttributeNames.APP_ID, sessionPolicyProperties.appId)
         }
 
         filterChain.doFilter(request, response)

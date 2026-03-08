@@ -1,4 +1,4 @@
-package com.example.oidccommon.security
+package com.example.sessioncommon.security
 
 enum class ApiSecurityLevel {
     P0_CRITICAL,

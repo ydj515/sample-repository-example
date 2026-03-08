@@ -1,4 +1,4 @@
-package com.example.oidccommon.security
+package com.example.sessioncommon.security
 
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)

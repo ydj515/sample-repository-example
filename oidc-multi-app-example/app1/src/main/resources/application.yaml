@@ -39,8 +39,11 @@ management:
 app:
   session:
     redis-enabled: true
-  security:
     app-id: app1
+    revalidation:
+      standard-ttl: 5s
+      sensitive-ttl: 1s
+  security:
     logout-cookie-name: APP1SESSION
     access:
       user-roles:
@@ -48,9 +51,6 @@ app:
       admin-roles:
         - app1-admin
       master-admin-role: master-admin
-    revalidation:
-      standard-ttl: 5s
-      sensitive-ttl: 1s
   view:
     app-name: App 1
     app-description: 같은 Keycloak realm을 신뢰하는 첫 번째 애플리케이션입니다.

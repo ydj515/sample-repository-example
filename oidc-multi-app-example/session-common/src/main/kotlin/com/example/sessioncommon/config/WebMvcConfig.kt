@@ -1,11 +1,9 @@
-package com.example.oidccommon.config
+package com.example.sessioncommon.config
 
-import com.example.oidccommon.security.SessionRevalidationInterceptor
-import org.springframework.context.annotation.Configuration
+import com.example.sessioncommon.security.SessionRevalidationInterceptor
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 
-@Configuration
 class WebMvcConfig(
     private val sessionRevalidationInterceptor: SessionRevalidationInterceptor,
 ) : WebMvcConfigurer {

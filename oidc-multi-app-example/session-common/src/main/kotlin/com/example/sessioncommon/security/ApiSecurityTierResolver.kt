@@ -1,9 +1,7 @@
-package com.example.oidccommon.security
+package com.example.sessioncommon.security
 
-import org.springframework.stereotype.Component
 import org.springframework.web.method.HandlerMethod
 
-@Component
 class ApiSecurityTierResolver {
 
     fun resolve(handler: Any): ApiSecurityLevel {

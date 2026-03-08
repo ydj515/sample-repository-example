@@ -1,15 +1,13 @@
-package com.example.oidccommon.session
+package com.example.sessioncommon.session
 
 import org.springframework.security.core.context.SecurityContext
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository
 import org.springframework.session.FindByIndexNameSessionRepository
 import org.springframework.session.Session
-import org.springframework.stereotype.Service
 import java.time.Duration
 import java.time.Instant
 import java.util.concurrent.ConcurrentHashMap
 
-@Service
 class SessionLookupService(
     private val sessionRepository: FindByIndexNameSessionRepository<out Session>,
 ) {

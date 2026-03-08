@@ -13,7 +13,7 @@ import java.net.URI
 
 @Configuration
 @EnableMethodSecurity
-@EnableConfigurationProperties(AppSecurityProperties::class)
+@EnableConfigurationProperties(OidcSecurityProperties::class)
 class OidcCommonAutoConfiguration {
 
     @Bean
@@ -26,9 +26,9 @@ class OidcCommonAutoConfiguration {
 
     @Bean
     fun keycloakLogoutSuccessHandler(
-        appSecurityProperties: AppSecurityProperties,
+        oidcSecurityProperties: OidcSecurityProperties,
     ): KeycloakLogoutSuccessHandler {
-        return KeycloakLogoutSuccessHandler(URI.create(appSecurityProperties.endSessionUri))
+        return KeycloakLogoutSuccessHandler(URI.create(oidcSecurityProperties.endSessionUri))
     }
 
     @Bean

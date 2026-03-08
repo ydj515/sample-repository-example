@@ -1,4 +1,4 @@
-package com.example.oidccommon.session
+package com.example.sessioncommon.session
 
 object SessionAttributeNames {
     const val APP_ID: String = "oidc-multi-app-example:app-id"

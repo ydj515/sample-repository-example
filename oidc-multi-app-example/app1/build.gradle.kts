@@ -5,6 +5,7 @@ plugins {
 
 dependencies {
     implementation(project(":oidc-common"))
+    implementation(project(":session-common"))
     implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
 
     testImplementation("org.springframework.security:spring-security-test")

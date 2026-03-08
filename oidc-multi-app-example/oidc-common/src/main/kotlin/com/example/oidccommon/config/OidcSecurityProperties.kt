@@ -2,15 +2,12 @@ package com.example.oidccommon.config
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.security.core.GrantedAuthority
-import java.time.Duration
 
 @ConfigurationProperties(prefix = "app.security")
-data class AppSecurityProperties(
-    val appId: String,
+data class OidcSecurityProperties(
     val endSessionUri: String,
     val logoutCookieName: String = "SESSION",
     val access: AccessProperties = AccessProperties(),
-    val revalidation: RevalidationProperties = RevalidationProperties(),
 ) {
     fun accessAuthorities(): Array<String> {
         return (access.userRoles + access.adminRoles + access.masterAdminRole)
@@ -42,9 +39,4 @@ data class AccessProperties(
     val userRoles: List<String> = emptyList(),
     val adminRoles: List<String> = emptyList(),
     val masterAdminRole: String = "master-admin",
-)
-
-data class RevalidationProperties(
-    val standardTtl: Duration = Duration.ofSeconds(5),
-    val sensitiveTtl: Duration = Duration.ofSeconds(1),
 )
