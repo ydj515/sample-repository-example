@@ -17,8 +17,9 @@
 | `app2` | 두 번째 실행 앱 | App 2 화면, API, app2 전용 설정, app2 client 연결 | 포트 `8082`, client `oidc-app2` |
 | `oidc-common` | 공통 OIDC 보안 모듈 | OIDC 로그인, Keycloak 사용자 매핑, logout 처리, 접근 role 계산 | `SecurityFilterChain`, `OidcUserService` |
 | `session-common` | 공통 세션 모듈 | Redis 세션 저장, 세션 조회, 세션 재검증, 앱별 세션 태깅, 세션 정책, Boot 자동 설정 | `SessionCommonAutoConfiguration`, `SessionLookupService` |
+| `postgres` | Keycloak DB | realm, client, 사용자, 세션 관련 Keycloak 영속 데이터 저장 | PostgreSQL 14 |
 | `redis` | 세션 저장소 | Spring Session 저장 | Redis 7 |
-| `keycloak` | 공통 IdP | realm, client, 사용자/role 발급, IdP 세션 유지 | Keycloak 26 |
+| `keycloak` | 공통 IdP | realm, client, 사용자/role 발급, IdP 세션 유지 | Keycloak 26 + PostgreSQL |
 
 ## 모듈 설명
 
@@ -80,6 +81,12 @@ docker compose up --build
 - app1: `http://localhost:8081`
 - app2: `http://localhost:8082`
 - Keycloak: `http://localhost:9000`
+
+선택 환경 변수:
+
+- `KEYCLOAK_DB_NAME` 기본값: `keycloak`
+- `KEYCLOAK_DB_USER` 기본값: `keycloak`
+- `KEYCLOAK_DB_PASSWORD` 기본값: `keycloak`
 
 ## 예제 계정
 
@@ -219,7 +226,7 @@ sequenceDiagram
 Keycloak과 Redis만 먼저 띄운 뒤, 각 앱을 별도로 실행할 수 있습니다.
 
 ```bash
-docker compose up keycloak redis
+docker compose up keycloak redis postgres
 ./gradlew :app1:bootRun --args='--spring.profiles.active=local'
 ./gradlew :app2:bootRun --args='--spring.profiles.active=local'
 ```
