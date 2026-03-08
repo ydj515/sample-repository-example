@@ -1,0 +1,47 @@
+services:
+  redis:
+    image: redis:7.4.3
+    ports:
+      - "6379:6379"
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0
+    command:
+      - start-dev
+      - --import-realm
+      - --http-port=8080
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_HOSTNAME: http://localhost:9000
+      KC_HOSTNAME_BACKCHANNEL_DYNAMIC: "true"
+    ports:
+      - "9000:8080"
+    volumes:
+      - ./infra/keycloak:/opt/keycloak/data/import
+
+  app1:
+    build:
+      context: .
+      args:
+        APP_MODULE: app1
+    depends_on:
+      - redis
+      - keycloak
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "8081:8081"
+
+  app2:
+    build:
+      context: .
+      args:
+        APP_MODULE: app2
+    depends_on:
+      - redis
+      - keycloak
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "8082:8082"
