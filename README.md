@@ -31,5 +31,7 @@
 - stream-example([link](https://github.com/ydj515/sample-repository-example/tree/main/stream-example))
 - git-master-to-main-example([link](https://github.com/ydj515/sample-repository-example/tree/main/git-master-to-main))
 - graphql-example([link](https://github.com/ydj515/sample-repository-example/tree/main/graphql-example))
+- oidc-simple-example([link](https://github.com/ydj515/sample-repository-example/tree/main/oidc-simple-example))
+- oidc-multi-app-example([link](https://github.com/ydj515/sample-repository-example/tree/main/oidc-multi-app-example))
 - kotlin-notebook-example([link](https://github.com/ydj515/sample-repository-example/tree/main/kotlin-notebook-example))
 - mysql8-example([link](https://github.com/ydj515/sample-repository-example/tree/main/mysql8-example))
