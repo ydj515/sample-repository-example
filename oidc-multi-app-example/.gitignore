@@ -75,6 +75,7 @@ logs/
 # =========================
 output/
 playwright-report/
+.playwright-cli
 test-results/
 
 # =========================

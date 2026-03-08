@@ -4,6 +4,11 @@
 
 현재 구조는 `app1`, `app2`, `oidc-common`, `session-common` 4모듈로 나뉘어 있으며, OIDC 로그인 책임과 세션 운영 책임을 분리해서 보여줍니다.
 
+## Repository Links
+
+- 전체 저장소: [sample-repository-example](https://github.com/ydj515/sample-repository-example)
+- 현재 예제 경로: [oidc-multi-app-example](https://github.com/ydj515/sample-repository-example/tree/main/oidc-multi-app-example)
+
 ## 구성
 
 | 모듈/서비스 | 역할 | 포함 책임 | 대표 예시 |
@@ -218,6 +223,31 @@ docker compose up keycloak redis
 ./gradlew :app1:bootRun --args='--spring.profiles.active=local'
 ./gradlew :app2:bootRun --args='--spring.profiles.active=local'
 ```
+
+## 수동 Playwright 회귀 점검
+
+- 이 예제는 브라우저 검증을 기본 빌드나 `./gradlew test`에 묶지 않습니다.
+- 대신 접근 거부 화면과 정적 리소스 공개 설정을 수정했을 때만 수동으로 돌리는 Playwright 스크립트를 제공합니다.
+- 스크립트 위치: `scripts/playwright/check-access-denied-regression.sh`
+
+실행 예시:
+
+```bash
+./scripts/playwright/check-access-denied-regression.sh
+```
+
+헤드 있는 브라우저로 보고 싶을 때:
+
+```bash
+HEADED=true ./scripts/playwright/check-access-denied-regression.sh
+```
+
+이 스크립트는 아래 두 시나리오를 검증합니다.
+
+- `app2-user`가 `app1`에 로그인해서 `App 1 Access Denied` 화면이 스타일과 함께 렌더링되는지
+- `app1-user`가 `app2`에 로그인해서 `App 2 Access Denied` 화면이 스타일과 함께 렌더링되는지
+
+검증 결과물은 `output/playwright/access-denied/<timestamp>/` 아래에 스크린샷과 로그로 저장됩니다.
 
 ## 주요 엔드포인트
 
