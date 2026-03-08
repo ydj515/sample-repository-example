@@ -1,0 +1,600 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "한국환경공단_에어코리아_대기오염정보 - 시도별 실시간 측정정보 API",
+    "version": "1.0.1",
+    "description": "한국환경공단_에어코리아_대기오염정보 API 입니다. 시도명을 검색조건으로 하여 시도별 측정소목록에 대한 대기오염 정보 일반 항목과 CAI최종 실시간 측정값과 지수 정보 조회 기능을 제공하는 시도별 실시간 측정정보를 조회합니다."
+  },
+  "paths": {
+    "/dust": {
+      "get": {
+        "summary": "시도별 실시간 대기오염 측정정보 조회",
+        "parameters": [
+          {
+            "name": "serviceKey",
+            "in": "query",
+            "required": true,
+            "description": "공공데이터포털에서 발급받은 인증키",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageNo",
+            "in": "query",
+            "required": false,
+            "description": "페이지 번호",
+            "schema": {
+              "type": "integer",
+              "default": 1,
+              "minimum": 1,
+              "maximum": 9999
+            }
+          },
+          {
+            "name": "numOfRows",
+            "in": "query",
+            "required": false,
+            "description": "한 페이지 결과 수",
+            "schema": {
+              "type": "integer",
+              "default": 1000,
+              "minimum": 1,
+              "maximum": 9999
+            }
+          },
+          {
+            "name": "returnType",
+            "in": "query",
+            "required": false,
+            "description": "요청 자료 형식(xml/json) (기본값: xml)",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "xml",
+                "json"
+              ],
+              "default": "json"
+            }
+          },
+          {
+            "name": "sidoName",
+            "in": "query",
+            "required": true,
+            "description": "시도 이름 (전국/서울/부산/대구/... 등)",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "전국",
+                "서울",
+                "부산",
+                "대구",
+                "인천",
+                "광주",
+                "대전",
+                "울산",
+                "경기",
+                "강원",
+                "충북",
+                "충남",
+                "전북",
+                "전남",
+                "경북",
+                "경남",
+                "제주",
+                "세종"
+              ],
+              "default": "서울"
+            }
+          },
+        ],
+        "responses": {
+          "200": {
+            "description": "성공 응답",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DustResponse"
+                },
+                "examples": {
+                  "success": {
+                    "summary": "정상 응답 예시",
+                    "value": {
+                      "response": {
+                        "header": {
+                          "resultCode": "00",
+                          "resultMsg": "NORMAL_CODE"
+                        },
+                        "body": {
+                          "pageNo": 1,
+                          "numOfRows": 1000,
+                          "totalCount": 8,
+                          "items": {
+                            "item": [
+                              {
+                                "so2Grade": "1",
+                                "coFlag": null,
+                                "khaiValue": "53",
+                                "so2Value": "0.003",
+                                "coValue": "0.3",
+                                "pm10Flag": null,
+                                "o3Grade": "2",
+                                "pm10Value": "11",
+                                "khaiGrade": "2",
+                                "sidoName": "서울",
+                                "no2Flag": null,
+                                "no2Grade": "1",
+                                "o3Flag": null,
+                                "so2Flag": null,
+                                "dataTime": "2025-08-14 18:00",
+                                "coGrade": "1",
+                                "no2Value": "0.012",
+                                "stationName": "중구",
+                                "pm10Grade": "1",
+                                "o3Value": "0.032"
+                              },
+                              {
+                                "so2Grade": "1",
+                                "coFlag": null,
+                                "khaiValue": "40",
+                                "so2Value": "0.003",
+                                "coValue": "0.5",
+                                "pm10Flag": null,
+                                "o3Grade": "1",
+                                "pm10Value": "19",
+                                "khaiGrade": "1",
+                                "sidoName": "서울",
+                                "no2Flag": null,
+                                "no2Grade": "1",
+                                "o3Flag": null,
+                                "so2Flag": null,
+                                "dataTime": "2025-08-14 18:00",
+                                "coGrade": "1",
+                                "no2Value": "0.024",
+                                "stationName": "한강대로",
+                                "pm10Grade": "1",
+                                "o3Value": "0.021"
+                              },
+                              {
+                                "so2Grade": "1",
+                                "coFlag": null,
+                                "khaiValue": "54",
+                                "so2Value": "0.003",
+                                "coValue": "0.3",
+                                "pm10Flag": null,
+                                "o3Grade": "2",
+                                "pm10Value": "7",
+                                "khaiGrade": "2",
+                                "sidoName": "서울",
+                                "no2Flag": null,
+                                "no2Grade": "1",
+                                "o3Flag": null,
+                                "so2Flag": null,
+                                "dataTime": "2025-08-14 18:00",
+                                "coGrade": "1",
+                                "no2Value": "0.017",
+                                "stationName": "종로구",
+                                "pm10Grade": "1",
+                                "o3Value": "0.034"
+                              },
+                              {
+                                "so2Grade": "1",
+                                "coFlag": null,
+                                "khaiValue": "44",
+                                "so2Value": "0.003",
+                                "coValue": "0.7",
+                                "pm10Flag": null,
+                                "o3Grade": "1",
+                                "pm10Value": "16",
+                                "khaiGrade": "1",
+                                "sidoName": "서울",
+                                "no2Flag": null,
+                                "no2Grade": "1",
+                                "o3Flag": null,
+                                "so2Flag": null,
+                                "dataTime": "2025-08-14 18:00",
+                                "coGrade": "1",
+                                "no2Value": "0.026",
+                                "stationName": "청계천로",
+                                "pm10Grade": "1",
+                                "o3Value": "0.018"
+                              },
+                              {
+                                "so2Grade": "1",
+                                "coFlag": null,
+                                "khaiValue": "45",
+                                "so2Value": "0.002",
+                                "coValue": "0.4",
+                                "pm10Flag": null,
+                                "o3Grade": "1",
+                                "pm10Value": "10",
+                                "khaiGrade": "1",
+                                "sidoName": "서울",
+                                "no2Flag": null,
+                                "no2Grade": "1",
+                                "o3Flag": null,
+                                "so2Flag": null,
+                                "dataTime": "2025-08-14 18:00",
+                                "coGrade": "1",
+                                "no2Value": "0.027",
+                                "stationName": "종로",
+                                "pm10Grade": "1",
+                                "o3Value": "0.020"
+                              },
+                              {
+                                "so2Grade": "1",
+                                "coFlag": null,
+                                "khaiValue": "-",
+                                "so2Value": "0.003",
+                                "coValue": "0.2",
+                                "pm10Flag": null,
+                                "o3Grade": "1",
+                                "pm10Value": "3",
+                                "khaiGrade": null,
+                                "sidoName": "서울",
+                                "no2Flag": null,
+                                "no2Grade": "1",
+                                "o3Flag": null,
+                                "so2Flag": null,
+                                "dataTime": "2025-08-14 18:00",
+                                "coGrade": "1",
+                                "no2Value": "0.008",
+                                "stationName": "용산구",
+                                "pm10Grade": null,
+                                "o3Value": "0.029"
+                              },
+                              {
+                                "so2Grade": "1",
+                                "coFlag": null,
+                                "khaiValue": "60",
+                                "so2Value": "0.002",
+                                "coValue": "0.4",
+                                "pm10Flag": null,
+                                "o3Grade": "2",
+                                "pm10Value": "13",
+                                "khaiGrade": "2",
+                                "sidoName": "서울",
+                                "no2Flag": null,
+                                "no2Grade": "1",
+                                "o3Flag": null,
+                                "so2Flag": null,
+                                "dataTime": "2025-08-14 18:00",
+                                "coGrade": "1",
+                                "no2Value": "0.011",
+                                "stationName": "광진구",
+                                "pm10Grade": "1",
+                                "o3Value": "0.041"
+                              },
+                              {
+                                "so2Grade": "1",
+                                "coFlag": null,
+                                "khaiValue": "53",
+                                "so2Value": "0.002",
+                                "coValue": "0.2",
+                                "pm10Flag": null,
+                                "o3Grade": "2",
+                                "pm10Value": "11",
+                                "khaiGrade": "2",
+                                "sidoName": "서울",
+                                "no2Flag": null,
+                                "no2Grade": "1",
+                                "o3Flag": null,
+                                "so2Flag": null,
+                                "dataTime": "2025-08-14 18:00",
+                                "coGrade": "1",
+                                "no2Value": "0.012",
+                                "stationName": "성동구",
+                                "pm10Grade": "1",
+                                "o3Value": "0.032"
+                              }
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청 파라미터"
+          },
+          "401": {
+            "description": "인증 실패(잘못된 ServiceKey)"
+          },
+          "500": {
+            "description": "서버 오류"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "DustResponse": {
+        "type": "object",
+        "properties": {
+          "response": {
+            "$ref": "#/components/schemas/ResponseEnvelope"
+          }
+        },
+        "required": [
+          "response"
+        ]
+      },
+      "ResponseEnvelope": {
+        "type": "object",
+        "properties": {
+          "header": {
+            "$ref": "#/components/schemas/ResponseHeader"
+          },
+          "body": {
+            "$ref": "#/components/schemas/ResponseBody"
+          }
+        },
+        "required": [
+          "header",
+          "body"
+        ]
+      },
+      "ResponseHeader": {
+        "type": "object",
+        "properties": {
+          "resultCode": {
+            "type": "string",
+            "maxLength": 2,
+            "description": "결과코드(예: 00=정상)",
+            "example": "00"
+          },
+          "resultMsg": {
+            "type": "string",
+            "maxLength": 50,
+            "description": "결과메시지",
+            "example": "NORMAL_CODE"
+          }
+        },
+        "required": [
+          "resultCode",
+          "resultMsg"
+        ]
+      },
+      "ResponseBody": {
+        "type": "object",
+        "properties": {
+          "dataType": {
+            "type": "string",
+            "enum": [
+              "XML",
+              "JSON"
+            ],
+            "description": "응답자료형식",
+            "example": "XML"
+          },
+          "items": {
+            "$ref": "#/components/schemas/Items"
+          },
+          "pageNo": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9999,
+            "description": "페이지번호",
+            "example": 1
+          },
+          "numOfRows": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9999,
+            "description": "한 페이지 결과 수",
+            "example": 10
+          },
+          "totalCount": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9999,
+            "description": "전체 결과 수",
+            "example": 3
+          }
+        },
+        "required": [
+          "dataType",
+          "items",
+          "pageNo",
+          "numOfRows",
+          "totalCount"
+        ]
+      },
+      "Items": {
+        "type": "object",
+        "properties": {
+          "item": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ObservationItem"
+            }
+          }
+        },
+        "required": [
+          "item"
+        ]
+      },
+      "ObservationItem": {
+        "type": "object",
+        "properties": {
+          "stationName": {
+            "type": "string",
+            "description": "측정소명",
+            "example": "중구"
+          },
+          "stationCode": {
+            "type": "string",
+            "description": "측정소 코드",
+            "example": "111121"
+          },
+          "mangName": {
+            "type": "string",
+            "description": "측정망 정보",
+            "example": "도시대기"
+          },
+          "sidoName": {
+            "type": "string",
+            "description": "시도명",
+            "enum": [
+              "전국",
+              "서울",
+              "부산",
+              "대구",
+              "인천",
+              "광주",
+              "대전",
+              "울산",
+              "경기",
+              "강원",
+              "충북",
+              "충남",
+              "전북",
+              "전남",
+              "경북",
+              "경남",
+              "제주",
+              "세종"
+            ],
+            "example": "서울"
+          },
+          "dataTime": {
+            "type": "string",
+            "description": "측정일시 (YYYY-MM-DD HH:MM)",
+            "example": "2020-11-25 11:00"
+          },
+          "so2Value": {
+            "type": "number",
+            "description": "아황산가스 농도",
+            "example": 0.007
+          },
+          "coValue": {
+            "type": "number",
+            "description": "일산화탄소 농도",
+            "example": 0.7
+          },
+          "o3Value": {
+            "type": "number",
+            "description": "오존 농도",
+            "example": 0.043
+          },
+          "no2Value": {
+            "type": "number",
+            "description": "이산화질소 농도",
+            "example": 0.043
+          },
+          "pm10Value": {
+            "type": "number",
+            "description": "미세먼지(PM10) 농도",
+            "example": 68
+          },
+          "pm10Value24": {
+            "type": "number",
+            "description": "미세먼지(PM10) 24시간예측이동농도",
+            "example": 56
+          },
+          "pm25Value": {
+            "type": "number",
+            "description": "미세먼지(PM2.5) 농도",
+            "example": 39
+          },
+          "pm25Value24": {
+            "type": "number",
+            "description": "미세먼지(PM2.5) 24시간예측이동농도",
+            "example": 26
+          },
+          "khaiValue": {
+            "type": "integer",
+            "description": "통합대기환경수치",
+            "example": 76
+          },
+          "khaiGrade": {
+            "type": "string",
+            "description": "통합대기환경지수",
+            "example": "2"
+          },
+          "so2Grade": {
+            "type": "string",
+            "description": "아황산가스 지수",
+            "example": "1"
+          },
+          "coGrade": {
+            "type": "string",
+            "description": "일산화탄소 지수",
+            "example": "1"
+          },
+          "o3Grade": {
+            "type": "string",
+            "description": "오존 지수",
+            "example": "2"
+          },
+          "no2Grade": {
+            "type": "string",
+            "description": "이산화질소 지수",
+            "example": "2"
+          },
+          "pm10Grade": {
+            "type": "string",
+            "description": "미세먼지(PM10) 24시간 등급자료",
+            "example": "2"
+          },
+          "pm25Grade": {
+            "type": "string",
+            "description": "미세먼지(PM2.5) 24시간 등급자료",
+            "example": "2"
+          },
+          "pm10Grade1h": {
+            "type": "string",
+            "description": "미세먼지(PM10) 1시간 등급자료",
+            "example": "2"
+          },
+          "pm25Grade1h": {
+            "type": "string",
+            "description": "미세먼지(PM2.5) 1시간 등급자료",
+            "example": "2"
+          },
+          "so2Flag": {
+            "type": "string",
+            "description": "아황산가스 플래그",
+            "example": "장비점검"
+          },
+          "coFlag": {
+            "type": "string",
+            "description": "일산화탄소 플래그",
+            "example": "장비점검"
+          },
+          "o3Flag": {
+            "type": "string",
+            "description": "오존 플래그",
+            "example": "자료이상"
+          },
+          "no2Flag": {
+            "type": "string",
+            "description": "이산화질소 플래그",
+            "example": "통신장애"
+          },
+          "pm10Flag": {
+            "type": "string",
+            "description": "미세먼지(PM10) 플래그",
+            "example": "점검및교정"
+          },
+          "pm25Flag": {
+            "type": "string",
+            "description": "미세먼지(PM2.5) 플래그",
+            "example": "점검및교정"
+          }
+        },
+        "required": [
+          "stationName",
+          "stationCode",
+          "mangName",
+          "sidoName",
+          "dataTime"
+        ]
+      }
+    }
+  }
+}
