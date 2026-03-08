@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>OIDC Example</title>
+    <style>
+        :root {
+            color-scheme: light;
+            --bg: #f6f8fb;
+            --panel: #ffffff;
+            --line: #d6dce8;
+            --text: #102033;
+            --muted: #5b6b7b;
+            --accent: #0b5fff;
+            --accent-soft: #e8f0ff;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: "Pretendard", "Noto Sans KR", sans-serif;
+            background:
+                radial-gradient(circle at top left, rgba(11,95,255,0.12), transparent 30%),
+                linear-gradient(180deg, #f9fbff, var(--bg));
+            color: var(--text);
+        }
+        main {
+            width: min(1080px, calc(100% - 32px));
+            margin: 48px auto;
+        }
+        .hero, .panel {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 20px;
+            box-shadow: 0 18px 40px rgba(16, 32, 51, 0.08);
+        }
+        .hero {
+            padding: 32px;
+            margin-bottom: 24px;
+        }
+        .hero h1 {
+            margin: 0 0 12px;
+            font-size: 34px;
+        }
+        .hero p {
+            margin: 0;
+            color: var(--muted);
+            line-height: 1.6;
+        }
+        .actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+            flex-wrap: wrap;
+        }
+        .btn, button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 999px;
+            padding: 12px 18px;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            border: 0;
+            cursor: pointer;
+        }
+        .btn-primary, button {
+            background: var(--accent);
+            color: white;
+        }
+        .btn-secondary {
+            background: var(--accent-soft);
+            color: var(--accent);
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        .panel {
+            padding: 24px;
+        }
+        .panel h2 {
+            margin-top: 0;
+            font-size: 20px;
+        }
+        dl {
+            margin: 0;
+            display: grid;
+            gap: 10px;
+        }
+        dt {
+            font-weight: 700;
+        }
+        dd {
+            margin: 0;
+            color: var(--muted);
+            word-break: break-all;
+        }
+        code {
+            background: #f0f4fa;
+            padding: 2px 6px;
+            border-radius: 8px;
+        }
+        ul {
+            padding-left: 18px;
+            color: var(--muted);
+        }
+        .claims {
+            max-height: 320px;
+            overflow: auto;
+            white-space: pre-wrap;
+            background: #0f1722;
+            color: #d9e2f1;
+            padding: 16px;
+            border-radius: 14px;
+            font-size: 13px;
+        }
+        .empty {
+            color: var(--muted);
+        }
+    </style>
+</head>
+<body>
+<main>
+    <section class="hero">
+        <h1>Keycloak 기반 OIDC 로그인 예제</h1>
+        <p>
+            이 화면은 Spring Security OAuth2 Login, Redis 세션, 세션 재검증 인터셉터,
+            Keycloak RP-Initiated Logout 흐름을 한 번에 확인하기 위한 샘플입니다.
+        </p>
+        <div class="actions" th:if="${!authenticated}">
+            <a class="btn btn-primary" href="/oauth2/authorization/keycloak">Keycloak로 로그인</a>
+            <a class="btn btn-secondary" href="/public">공개 API 확인</a>
+        </div>
+        <div class="actions" th:if="${authenticated}">
+            <a class="btn btn-secondary" href="/api/me">내 정보 API</a>
+            <a class="btn btn-secondary" href="/api/sensitive">민감 API</a>
+            <form th:action="@{/logout}" method="post">
+                <button type="submit">로그아웃</button>
+            </form>
+        </div>
+    </section>
+
+    <section class="grid">
+        <article class="panel">
+            <h2>현재 인증 상태</h2>
+            <dl>
+                <dt>로그인 여부</dt>
+                <dd th:text="${authenticated} ? '인증됨' : '비인증'"></dd>
+                <dt>사용자</dt>
+                <dd th:text="${username}"></dd>
+                <dt>세션 ID</dt>
+                <dd th:text="${sessionId ?: '없음'}"></dd>
+                <dt>권한</dt>
+                <dd th:text="${#lists.isEmpty(authorities)} ? '없음' : authorities"></dd>
+            </dl>
+        </article>
+
+        <article class="panel">
+            <h2>바로 확인할 엔드포인트</h2>
+            <ul>
+                <li><code>GET /public</code> : 로그인 없이 접근 가능</li>
+                <li><code>GET /api/me</code> : 현재 OIDC 사용자 정보 확인</li>
+                <li><code>GET /api/sensitive</code> : 짧은 TTL로 세션 재검증</li>
+                <li><code>POST /api/admin/users/{username}/logout-all</code> : 관리자 강제 로그아웃</li>
+            </ul>
+        </article>
+
+        <article class="panel">
+            <h2>활성 세션</h2>
+            <div th:if="${#lists.isEmpty(activeSessions)}" class="empty">
+                현재 사용자 기준으로 조회된 세션이 없습니다.
+            </div>
+            <ul th:if="${!#lists.isEmpty(activeSessions)}">
+                <li th:each="userSession : ${activeSessions}">
+                    <span th:text="${userSession.sessionId}"></span><br>
+                    <small th:text="'마지막 접근: ' + ${userSession.lastAccessedTime}"></small>
+                </li>
+            </ul>
+        </article>
+    </section>
+
+    <section class="panel" style="margin-top: 24px;">
+        <h2>OIDC Claims</h2>
+        <div class="claims" th:text="${claims}"></div>
+    </section>
+</main>
+</body>
+</html>

@@ -1,0 +1,92 @@
+{
+  "realm": "oidc-simple-example",
+  "enabled": true,
+  "registrationAllowed": false,
+  "resetPasswordAllowed": false,
+  "rememberMe": true,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "roles": {
+    "realm": [
+      {
+        "name": "user",
+        "description": "기본 사용자 권한"
+      },
+      {
+        "name": "admin",
+        "description": "관리자 권한"
+      }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "oidc-simple-example",
+      "name": "oidc-simple-example",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "secret": "oidc-simple-example-secret",
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "redirectUris": [
+        "http://localhost:8080/",
+        "http://localhost:8080/*",
+        "http://localhost:8080/login/oauth2/code/*",
+        "http://app:8080/",
+        "http://app:8080/*",
+        "http://app:8080/login/oauth2/code/*"
+      ],
+      "webOrigins": [
+        "http://localhost:8080"
+      ],
+      "attributes": {
+        "post.logout.redirect.uris": "http://localhost:8080/##http://localhost:8080/*##http://app:8080/##http://app:8080/*"
+      },
+      "defaultClientScopes": [
+        "profile",
+        "email",
+        "roles"
+      ]
+    }
+  ],
+  "users": [
+    {
+      "username": "alice",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Alice",
+      "lastName": "User",
+      "email": "alice@example.com",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "alice1234",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "user"
+      ]
+    },
+    {
+      "username": "app-admin",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "App",
+      "lastName": "User",
+      "email": "app-admin@example.com",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "admin1234",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "user",
+        "admin"
+      ]
+    }
+  ]
+}
