@@ -1,0 +1,26 @@
+[tools]
+java = "21.0.2"
+
+[env]
+_.file = ".env"
+#SPRING_PROFILES_ACTIVE = "local"
+
+[tasks.default]
+description = "Run the Spring Boot application"
+depends = ["run"]
+
+[tasks.run]
+description = "Run the Spring Boot application with Gradle"
+run = "./gradlew bootRun"
+
+[tasks.test]
+description = "Run tests"
+run = "./gradlew test"
+
+[tasks.build]
+description = "Build the application"
+run = "./gradlew build"
+
+[tasks.clean]
+description = "Clean build outputs"
+run = "./gradlew clean"

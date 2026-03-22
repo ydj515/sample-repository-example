@@ -1,0 +1,29 @@
+server:
+  port: 8080
+logging:
+  level:
+    root: INFO
+
+spring:
+  application:
+    name: spring-ai-sample
+  ai:
+    chat:
+      client:
+        enabled: false
+    openai:
+      api-key: ${OPENAI_API_KEY:test-openai-key}
+      chat:
+        options:
+          model: gpt-4o-mini
+    anthropic:
+      api-key: ${ANTHROPIC_API_KEY:test-key}
+      chat:
+        options:
+          model: claude-sonnet-4-5
+
+app:
+  chat:
+    default-provider: openai
+    memory:
+      max-turns: 3
