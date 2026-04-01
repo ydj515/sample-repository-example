@@ -18,7 +18,6 @@ import reactor.core.publisher.Flux;
 @RequestMapping("/test/advisor")
 @Slf4j
 @RequiredArgsConstructor
-// Chapter 3. Advisors Controller
 public class AdvisorController {
 
     // 1. Advisor
