@@ -54,6 +54,7 @@ public class AccessControlToolService {
         return chatClient.prompt()
                 .system(SYSTEM_MESSAGE_TEXT)
                 .messages(userMessage)
+                // .tools를 주석처리하면 mcp server를 이용한다는 뜻.
                 .tools(new AccessSystemTools(), new EmployeeIdTools())
                 .call()
                 .content();
