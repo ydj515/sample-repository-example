@@ -35,3 +35,7 @@
 - oidc-multi-app-example([link](https://github.com/ydj515/sample-repository-example/tree/main/oidc-multi-app-example))
 - kotlin-notebook-example([link](https://github.com/ydj515/sample-repository-example/tree/main/kotlin-notebook-example))
 - mysql8-example([link](https://github.com/ydj515/sample-repository-example/tree/main/mysql8-example))
+- spring-ai-example([link](https://github.com/ydj515/sample-repository-example/tree/main/spring-ai-example))
+- spring-ai-mcpserver-stdio-example([link](https://github.com/ydj515/sample-repository-example/tree/main/spring-ai-mcpserver-stdio-example))
+- spring-ai-mcpserver-webflux([link](https://github.com/ydj515/sample-repository-example/tree/main/spring-ai-mcpserver-webflux))
+- spring-ai-webmvc-example([link](https://github.com/ydj515/sample-repository-example/tree/main/spring-ai-webmvc-example))
