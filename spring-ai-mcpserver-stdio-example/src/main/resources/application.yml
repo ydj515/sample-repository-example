@@ -1,0 +1,22 @@
+server:
+  servlet:
+    encoding:
+      charset: UTF-8
+spring:
+  application:
+    name: spring-ai-mcpserver-stdio-example
+  main:
+    web-application-type: none
+    banner-mode: off
+  ai:
+    mcp:
+      server:
+        name: spring-ai-mcpserver-stdio-example
+        version: "0.0.1"
+logging:
+  charset:
+    file: UTF-8
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{39} : %msg%n"
+  file:
+    name: spring-ai-mcpserver-stdio-example.log
