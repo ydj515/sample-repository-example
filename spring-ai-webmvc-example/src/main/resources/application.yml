@@ -1,0 +1,24 @@
+server:
+  port: 8088
+
+spring:
+  application:
+    name: spring-ai-webmvc-example
+  ai:
+    mcp:
+      server:
+        name: spring-ai-webmvc-example
+        version: 0.0.1
+        request-timeout: 20s
+        protocol: sse  #default
+        sse-endpoint: /custom-sse
+        type: sync # default sync
+  devtools:
+    restart:
+      enabled: true
+    livereload:
+      enabled: true
+
+logging:
+  level:
+    root: INFO
