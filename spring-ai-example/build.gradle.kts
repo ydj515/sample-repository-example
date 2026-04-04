@@ -8,7 +8,7 @@ group = "com.example"
 version = "0.0.1-SNAPSHOT"
 description = "spring-ai-example"
 
-val springAiVersion = "1.1.3"
+val springAiVersion = "1.1.4"
 
 java {
     toolchain {

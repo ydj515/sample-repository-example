@@ -147,3 +147,38 @@ else
 fi
 
 printf '\n\n'
+
+# 18. Tools Date Time
+curl --get "${BASE_URL}/test/tools/date-time" \
+  --data-urlencode "prompt=지금 서울 시간과 오늘 날씨를 알려줘"
+
+printf '\n\n'
+
+# 19. Tools Customer Inquiry JSON
+curl --get "${BASE_URL}/test/tools/customer-inquiry-json" \
+  --data-urlencode "prompt=id01 고객 정보를 조회해줘"
+
+printf '\n\n'
+
+# 20. Tools Customer Inquiry String
+curl --get "${BASE_URL}/test/tools/customer-inquiry-string" \
+  --data-urlencode "prompt=id02 고객 정보를 자연어로 알려줘"
+
+printf '\n\n'
+
+# 21. Tools Recommendation
+curl --get "${BASE_URL}/test/tools/recommendation" \
+  --data-urlencode "prompt=이 고객이 좋아할 만한 상품을 추천해줘" \
+  --data-urlencode "user_id=id01"
+
+printf '\n\n'
+
+# 22. Tools Access System
+if [[ -n "${IMAGE_FILE}" && -f "${IMAGE_FILE}" ]]; then
+  curl -X POST "${BASE_URL}/test/tools/access-system" \
+    -F "attach=@${IMAGE_FILE}"
+else
+  printf 'Skip 22. Tools Access System: IMAGE_FILE 경로를 지정하세요.\n'
+fi
+
+printf '\n'
