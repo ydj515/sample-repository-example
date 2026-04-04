@@ -1,0 +1,9 @@
+spring:
+  ai:
+    openai:
+      api-key: test-openai-key
+    anthropic:
+      api-key: test-key
+    mcp:
+      client:
+        enabled: false

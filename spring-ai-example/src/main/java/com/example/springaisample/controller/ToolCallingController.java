@@ -20,7 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/test/tools")
 @Slf4j
 @RequiredArgsConstructor
-// Chapter 6. Tool Calling Controller
+// Tool Calling Controller
 public class ToolCallingController {
 
     // 1. Date Time

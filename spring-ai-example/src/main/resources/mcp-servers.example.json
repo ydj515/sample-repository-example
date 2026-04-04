@@ -1,0 +1,23 @@
+{
+  "mcpServers": {
+    "weather-forecast-stdio": {
+      "command": "java",
+      "args": [
+        "-Dspring.ai.mcp.server.stdio=true",
+        "-jar",
+        "/absolute/path/to/mcp-server-weather-forecast-stdio.jar"
+      ],
+      "env": {
+        "SPRING_PROFILES_ACTIVE": "default"
+      }
+    },
+    "time-webflux-stdio": {
+      "command": "java",
+      "args": [
+        "-Dspring.ai.mcp.server.stdio=true",
+        "-jar",
+        "/absolute/path/to/mcp-server-time-webflux.jar"
+      ]
+    }
+  }
+}

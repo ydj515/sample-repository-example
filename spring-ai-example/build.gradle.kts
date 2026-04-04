@@ -36,6 +36,7 @@ dependencies {
     // Claude(Anthropic) 연동용 Spring AI 스타터
     implementation("org.springframework.ai:spring-ai-starter-model-anthropic")
     implementation("org.springframework.ai:spring-ai-template-st")
+    implementation("org.springframework.ai:spring-ai-starter-mcp-client-webflux")
 
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")

@@ -181,4 +181,20 @@ else
   printf 'Skip 22. Tools Access System: IMAGE_FILE 경로를 지정하세요.\n'
 fi
 
+printf '\n\n'
+
+# 23. MCP Weather
+curl --get "${BASE_URL}/test/mcp/weather" \
+  --data-urlencode "prompt=지금 서울 시간과 오늘 날씨를 알려줘"
+
+printf '\n\n'
+
+# 24. MCP Access
+if [[ -n "${IMAGE_FILE}" && -f "${IMAGE_FILE}" ]]; then
+  curl -X POST "${BASE_URL}/test/mcp/access" \
+    -F "attach=@${IMAGE_FILE}"
+else
+  printf 'Skip 24. MCP Access: IMAGE_FILE 경로를 지정하세요.\n'
+fi
+
 printf '\n'
