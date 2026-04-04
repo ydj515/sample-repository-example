@@ -36,6 +36,7 @@ dependencies {
     // Claude(Anthropic) 연동용 Spring AI 스타터
     implementation("org.springframework.ai:spring-ai-starter-model-anthropic")
     implementation("org.springframework.ai:spring-ai-template-st")
+    // client-webflux는 mcpserver로 webflux, mvc, stdio 전부 대응 가능해서 webflux로 사용
     implementation("org.springframework.ai:spring-ai-starter-mcp-client-webflux")
 
     compileOnly("org.projectlombok:lombok")
