@@ -1,0 +1,22 @@
+server:
+  port: 8089
+
+spring:
+  application:
+    name: spring-ai-mcpserver-webflux
+  ai:
+    mcp:
+      server:
+        name: spring-ai-mcpserver-webflux
+        version: 0.0.1
+        request-timeout: 20s
+        type: async # default sync
+  devtools:
+    restart:
+      enabled: true
+    livereload:
+      enabled: true
+
+logging:
+  level:
+    root: INFO
