@@ -6,8 +6,8 @@
 
 ## Repository Links
 
-- 전체 저장소: [sample-repository-example](https://github.com/ydj515/sample-repository-example)
-- 현재 예제 경로: [oidc-multi-app-example](https://github.com/ydj515/sample-repository-example/tree/main/oidc-multi-app-example)
+- 기본 SSO 예제 경로: [oidc-multi-app-example](https://github.com/ydj515/sample-repository-example/tree/main/oidc-multi-app-example)
+- Gateway HMAC 확장 예제 경로: [oidc-multi-app-hmac-gateway-example](https://github.com/ydj515/sample-repository-example/tree/main/oidc-multi-app-hmac-gateway-example)
 
 ## 구성
 
