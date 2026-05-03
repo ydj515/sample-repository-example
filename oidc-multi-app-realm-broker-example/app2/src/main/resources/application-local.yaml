@@ -1,0 +1,29 @@
+spring:
+  config:
+    activate:
+      on-profile: local
+  data:
+    redis:
+      host: localhost
+      port: 6379
+  security:
+    oauth2:
+      client:
+        registration:
+          keycloak:
+            provider: keycloak
+        provider:
+          keycloak:
+            authorization-uri: http://localhost:9000/realms/agency-b/protocol/openid-connect/auth
+            token-uri: http://localhost:9000/realms/agency-b/protocol/openid-connect/token
+            user-info-uri: http://localhost:9000/realms/agency-b/protocol/openid-connect/userinfo
+            jwk-set-uri: http://localhost:9000/realms/agency-b/protocol/openid-connect/certs
+            user-name-attribute: preferred_username
+
+app:
+  security:
+    end-session-uri: http://localhost:9000/realms/agency-b/protocol/openid-connect/logout
+    identity-provider-hint: platform-broker
+    broker-logout:
+      end-session-uri: http://localhost:9000/realms/platform-broker/protocol/openid-connect/logout
+      client-id: platform-broker-logout

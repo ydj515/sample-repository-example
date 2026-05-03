@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${appName} + ' Access Denied'">Access Denied</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" th:href="@{/css/app1-access-denied.css}">
+</head>
+<body>
+<div class="shell">
+    <section class="panel">
+        <div class="kicker" th:text="${environmentName}">Environment</div>
+        <h1 th:text="${appName} + ' 접근 권한이 없습니다'">접근 권한이 없습니다</h1>
+        <p th:text="${accessDeniedMessage}">메시지</p>
+        <div class="actions">
+            <a class="btn btn-primary" th:href="${homeUrl}">현재 앱 홈으로 돌아가기</a>
+            <a class="btn btn-secondary" th:href="${peerLandingUrl}" th:text="${peerAppName} + ' 홈 보기'">Peer 보기</a>
+            <a class="btn btn-secondary" th:href="${loginUrl}">현재 Keycloak 세션으로 다시 인증 시도</a>
+        </div>
+    </section>
+
+    <section class="panel">
+        <div class="grid">
+            <article class="card">
+                <span>현재 사용자</span>
+                <strong th:text="${username}">anonymous</strong>
+            </article>
+            <article class="card">
+                <span>요청 경로</span>
+                <strong th:text="${requestPath}">/</strong>
+            </article>
+            <article class="card">
+                <span>현재 role</span>
+                <strong th:text="${#lists.isEmpty(authorities) ? '없음' : authorities}">역할</strong>
+            </article>
+            <article class="card">
+                <span>필요한 role</span>
+                <strong th:text="${requiredRoles}">필요 role</strong>
+            </article>
+        </div>
+        <p style="margin-top:16px;">
+            현재 계정이 다른 앱 전용 사용자이거나, 앱별 관리자 범위가 현재 서비스와 다를 때 이 페이지가 표시됩니다.
+        </p>
+    </section>
+
+    <section class="panel">
+        <h2 style="margin:0 0 12px;">권장 데모 계정</h2>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>계정</th>
+                    <th>비밀번호</th>
+                    <th>접근 가능한 앱</th>
+                    <th>관리 범위</th>
+                    <th>설명</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="account : ${accounts}">
+                    <td th:text="${account.username}">multi-user</td>
+                    <td th:text="${account.password}">multi1234</td>
+                    <td th:text="${account.accessApps}">App 1, App 2</td>
+                    <td th:text="${account.adminScope}">없음</td>
+                    <td th:text="${account.summary}">설명</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+</body>
+</html>
