@@ -3,85 +3,170 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title th:text="${appName} + ' Console'">App1 Console</title>
+    <title th:text="${appName} + ' Console'">App 1 Console</title>
+    <link rel="icon" href="data:,">
     <link rel="stylesheet" th:href="@{/css/app1-console.css}">
 </head>
 <body>
-<main>
-    <section class="topbar">
+<main class="page-shell">
+    <header class="topbar">
         <div class="brand">
-            <span class="kicker" th:text="${organizationName}">Multi App SSO Demo</span>
             <strong th:text="${suiteName}">Identity Federation Suite</strong>
         </div>
         <div class="chip-row">
             <div class="chip" th:text="'Environment · ' + ${environmentName}">Environment</div>
             <div class="chip" th:text="'Workspace · ' + ${appName}">Workspace</div>
             <div class="chip" th:text="'Client · ' + ${clientId}">Client</div>
+            <div class="chip">Gateway · HMAC Signed API</div>
             <div class="chip">Provider · Keycloak OIDC</div>
         </div>
-    </section>
+    </header>
 
-    <section class="hero">
-        <div>
-            <div class="eyebrow">App1 Identity Workspace</div>
-            <h1 th:text="${appName} + ' SSO Console'">App1 Access & SSO Console</h1>
-            <p th:text="${description}">설명</p>
+    <section class="hero-grid">
+        <div class="hero-copy">
+            <div class="eyebrow">OIDC + Gateway HMAC</div>
+            <h1>
+                <span th:text="${appName}">App 1</span>
+                <span>Gateway Federation Console</span>
+            </h1>
+            <p>
+                <span th:text="${description}">같은 Keycloak realm을 신뢰하는 첫 번째 애플리케이션입니다.</span>
+                OIDC 로그인, 앱별 role 검사, Redis 세션, Gateway 내부 HMAC 서명 경계를 한 화면에서 확인합니다.
+            </p>
             <div class="hero-actions" th:if="${!authenticated}">
                 <a class="btn btn-primary" href="/oauth2/authorization/keycloak">Keycloak로 로그인</a>
-                <a class="btn btn-secondary" href="/public">공개 API 확인</a>
+                <a class="btn btn-secondary" th:href="${gatewayApiBaseUrl + '/public'}">Gateway 공개 API</a>
                 <a class="btn btn-ghost" th:href="${peerLandingUrl}">SSO 데모 랜딩 보기</a>
             </div>
             <div class="hero-actions" th:if="${authenticated}">
-                <a class="btn btn-primary" href="/api/me">내 정보 API</a>
-                <a class="btn btn-secondary" href="/api/sensitive">민감 API</a>
+                <a class="btn btn-primary" th:href="${gatewayApiBaseUrl + '/api/me'}">Gateway 내 정보 API</a>
+                <a class="btn btn-secondary" th:href="${gatewayApiBaseUrl + '/api/sensitive'}">Gateway 민감 API</a>
                 <a class="btn btn-ghost" th:href="${peerLandingUrl}" th:text="${peerAppName} + ' 홈 열기'">peer</a>
                 <form th:action="@{/logout}" method="post">
                     <button type="submit">로그아웃</button>
                 </form>
             </div>
+            <dl class="route-facts">
+                <div>
+                    <dt>현재 Client</dt>
+                    <dd th:text="${clientId}">oidc-app1</dd>
+                </div>
+                <div>
+                    <dt>Gateway Route</dt>
+                    <dd th:text="${gatewayRoute}">/app1/**</dd>
+                </div>
+                <div>
+                    <dt>Peer App</dt>
+                    <dd th:text="${peerAppName}">App 2</dd>
+                </div>
+            </dl>
         </div>
 
-        <div class="hero-side">
-            <div class="metric-grid">
-                <article class="metric-card">
-                    <span>현재 사용자</span>
-                    <strong th:text="${username}">anonymous</strong>
-                    <small th:text="${personaLabel}">Guest Session</small>
-                </article>
-                <article class="metric-card">
-                    <span>환경 배지</span>
-                    <strong th:text="${environmentName}">Production Sandbox</strong>
-                    <small>데모는 운영 콘솔 분위기로 구성되어 있습니다.</small>
-                </article>
-                <article class="metric-card">
-                    <span>세션 개수</span>
-                    <strong th:text="${sessionCount}">0</strong>
-                    <small>현재 앱 범위에서 조회한 Redis indexed session 수입니다.</small>
-                </article>
-                <article class="metric-card">
-                    <span>관리 범위</span>
-                    <strong th:text="${adminScopeLabel}">관리자 권한 없음</strong>
-                    <small>앱 관리자와 master 관리자의 동작 범위를 구분합니다.</small>
-                </article>
+        <aside class="identity-summary" aria-label="현재 인증 상태 요약">
+            <span class="panel-label">Current Principal</span>
+            <strong th:text="${username}">anonymous</strong>
+            <small th:text="${personaLabel}">Guest Session</small>
+            <div class="session-pill" th:text="${authenticated} ? 'Authenticated OIDC Principal' : 'Anonymous Browser Context'">
+                Anonymous Browser Context
             </div>
-            <article class="service-map">
-                <h2>서비스 맵</h2>
-                <p>서로 다른 Workspace이 하나의 공통 IdP 세션을 신뢰하는 SSO 연동 구조를 보여줍니다.</p>
-                <div class="service-track">
-                    <div class="service-node">
-                        <strong th:text="${appName}">App1</strong>
-                        <small>업무 운영 콘솔과 API를 담당하는 현재 서비스입니다.</small>
-                    </div>
-                    <div class="service-node">
-                        <strong>Keycloak Realm</strong>
-                        <small>중앙 인증, role 발급, IdP 세션 유지 역할을 담당합니다.</small>
-                    </div>
-                    <div class="service-node">
-                        <strong th:text="${peerAppName}">App2</strong>
-                        <small>다른 client와 쿠키를 사용하지만 같은 realm을 신뢰하는 peer 서비스입니다.</small>
-                    </div>
+            <dl class="identity-list">
+                <div>
+                    <dt>앱 세션 수</dt>
+                    <dd th:text="${sessionCount}">0</dd>
                 </div>
+                <div>
+                    <dt>관리 범위</dt>
+                    <dd th:text="${adminScopeLabel}">관리자 권한 없음</dd>
+                </div>
+                <div>
+                    <dt>Gateway</dt>
+                    <dd>HMAC 검증 경계</dd>
+                </div>
+                <div>
+                    <dt>Peer 이동</dt>
+                    <dd th:text="${canAccessPeerApp} ? 'Role 확인 완료' : 'Role 점검 필요'">Role 점검 필요</dd>
+                </div>
+            </dl>
+        </aside>
+    </section>
+
+    <section class="account-state" th:if="${authenticated}" th:classappend="${accountInsight.tone}">
+        <div class="account-state-copy">
+            <span class="panel-label" th:text="${accountInsight.label}">multi-user</span>
+            <h2 th:text="${accountInsight.title}">멀티 앱 SSO 사용자</h2>
+            <p th:text="${accountInsight.detail}">계정 상태 설명</p>
+        </div>
+        <div class="state-grid">
+            <article>
+                <span>현재 앱</span>
+                <strong th:text="${accountInsight.currentAppAccess}">App 1 접근 가능</strong>
             </article>
+            <article>
+                <span>Peer 앱</span>
+                <strong th:text="${accountInsight.peerAppAccess}">App 2 접근 가능</strong>
+            </article>
+            <article>
+                <span>관리 권한</span>
+                <strong th:text="${accountInsight.adminAccess}">관리 권한 없음</strong>
+            </article>
+            <article>
+                <span>Gateway</span>
+                <strong th:text="${accountInsight.gatewayAccess}">Gateway API 확인 가능</strong>
+            </article>
+        </div>
+        <div class="state-next">
+            <span>다음 확인</span>
+            <strong th:text="${accountInsight.nextStep}">Gateway와 Peer 앱을 확인하세요.</strong>
+        </div>
+    </section>
+
+    <section class="flow-panel" aria-labelledby="gateway-flow-title">
+        <div class="section-heading">
+            <span class="eyebrow">OIDC Authorization + Internal HMAC</span>
+            <h2 id="gateway-flow-title">OIDC와 Gateway HMAC 흐름</h2>
+            <p>로그인은 Keycloak OIDC로 처리하고, API 요청은 Gateway가 내부 HMAC 서명 헤더를 붙인 뒤 Backend가 다시 검증합니다.</p>
+        </div>
+        <div class="oidc-flow">
+            <article class="flow-node">
+                <span>1</span>
+                <strong>Browser</strong>
+                <p>로그인 요청을 시작하고 앱 세션 쿠키를 보관합니다.</p>
+            </article>
+            <article class="flow-node current">
+                <span>2</span>
+                <strong th:text="${appName}">App 1</strong>
+                <p>OIDC client <code class="flow-code" th:text="${clientId}">oidc-app1</code> 로 authorization request를 보냅니다.</p>
+            </article>
+            <article class="flow-node idp">
+                <span>3</span>
+                <strong>Keycloak</strong>
+                <p>사용자 인증, role 매핑, authorization code 발급을 담당합니다.</p>
+            </article>
+            <article class="flow-node token">
+                <span>4</span>
+                <strong>Token / Claims</strong>
+                <p>앱은 code를 token으로 교환하고 claims 기반 권한을 계산합니다.</p>
+            </article>
+            <article class="flow-node gateway">
+                <span>5</span>
+                <strong>Gateway HMAC</strong>
+                <p>API Gateway가 외부 주입 헤더를 제거하고 X-Internal-Auth 서명을 붙입니다.</p>
+            </article>
+            <article class="flow-node backend">
+                <span>6</span>
+                <strong>Backend API</strong>
+                <p>Backend는 HMAC, session id, method, path를 검증한 뒤 API를 실행합니다.</p>
+            </article>
+        </div>
+        <div class="flow-notes">
+            <div>
+                <strong>SSO 확인 포인트</strong>
+                <p>App 세션은 분리되고 Keycloak IdP 세션만 이어집니다.</p>
+            </div>
+            <div>
+                <strong>Gateway 확인 포인트</strong>
+                <p>Backend API는 Gateway가 붙인 내부 서명으로 신뢰 경계를 확인합니다.</p>
+            </div>
         </div>
     </section>
 
@@ -111,8 +196,11 @@
     <section class="dashboard">
         <div class="stack">
             <article class="panel">
-                <h2>계정 접근 매트릭스</h2>
-                <p>계정별 접근 가능 앱, 관리자 범위를 표로 바로 보여줘서 데모 설명이 끊기지 않도록 구성했습니다.</p>
+                <div class="panel-heading">
+                    <span class="panel-label">Role Matrix</span>
+                    <h2>계정 접근 매트릭스</h2>
+                    <p>SSO 성공 여부, 앱별 인가 결과, 관리자 범위를 계정별로 비교합니다.</p>
+                </div>
                 <div class="table-wrap">
                     <table>
                         <thead>
@@ -128,7 +216,7 @@
                         <tr th:each="account : ${accounts}" th:classappend="${username == account.username} ? 'current-row'">
                             <td><strong th:text="${account.username}">multi-user</strong></td>
                             <td th:text="${account.password}">multi1234</td>
-                            <td th:text="${account.accessApps}">App1, App2</td>
+                            <td th:text="${account.accessApps}">App 1, App 2</td>
                             <td th:text="${account.adminScope}">없음</td>
                             <td th:text="${account.summary}">설명</td>
                         </tr>
@@ -138,8 +226,11 @@
             </article>
 
             <article class="panel">
-                <h2>SSO 체험 런북</h2>
-                <p>멀티 앱 SSO 데모처럼 로그인에서 다른 Workspace로 전환하기까지의 단계를 정리했습니다.</p>
+                <div class="panel-heading">
+                    <span class="panel-label">Demo Runbook</span>
+                    <h2>SSO + Gateway 체험 런북</h2>
+                    <p>로그인, peer app 전환, Gateway HMAC API 확인, 403 비교까지의 데모 순서입니다.</p>
+                </div>
                 <div class="step-list">
                     <article class="step-card" th:each="journey : ${journeySteps}">
                         <div class="step-index" th:text="${journey.step}">1</div>
@@ -152,11 +243,14 @@
             </article>
 
             <article class="panel" th:if="${canManageCurrentApp}">
-                <h2>강제 로그아웃 실행 패널</h2>
-                <p>
-                    관리자 계정으로 로그인한 경우에만 보입니다.
-                    <span th:text="${adminScopeLabel}">관리 범위</span>
-                </p>
+                <div class="panel-heading">
+                    <span class="panel-label">Admin Control</span>
+                    <h2>강제 로그아웃 실행 패널</h2>
+                    <p>
+                        관리자 계정으로 로그인한 경우에만 보입니다.
+                        <span th:text="${adminScopeLabel}">관리 범위</span>
+                    </p>
+                </div>
                 <div class="admin-panel">
                     <span class="panel-label">Admin Action Console</span>
                     <p>사용자명을 입력하면 현재 관리자 범위에 따라 세션을 강제 종료합니다.</p>
@@ -178,8 +272,11 @@
 
         <div class="stack">
             <article class="panel">
-                <h2>실시간 상태</h2>
-                <p>현재 로그인 상태, role, peer app 이동 가능 여부를 운영 대시보드처럼 요약합니다.</p>
+                <div class="panel-heading">
+                    <span class="panel-label">Runtime State</span>
+                    <h2>실시간 상태</h2>
+                    <p>현재 principal, 앱 세션, Gateway API, peer 이동 가능 여부를 요약합니다.</p>
+                </div>
                 <div class="summary-grid">
                     <div class="summary-item">
                         <span>로그인 상태</span>
@@ -194,15 +291,18 @@
                         <strong th:text="${#lists.isEmpty(authorities) ? '없음' : authorities}">권한</strong>
                     </div>
                     <div class="summary-item">
-                        <span>SSO Peer</span>
-                        <strong th:text="${canAccessPeerApp} ? 'Ready for ' + peerAppName : '권한 점검 필요'">Ready</strong>
+                        <span>Gateway API</span>
+                        <strong th:text="${authenticated} ? 'HMAC 서명 경유' : '로그인 후 확인'">HMAC</strong>
                     </div>
                 </div>
             </article>
 
             <article class="panel">
-                <h2>감사 로그 타임라인</h2>
-                <p>진짜 콘솔처럼 보이도록 현재 세션에서 중요한 인증/권한 이벤트를 시간 순서로 보여줍니다.</p>
+                <div class="panel-heading">
+                    <span class="panel-label">Audit Trail</span>
+                    <h2>감사 로그 타임라인</h2>
+                    <p>현재 요청에서 계산된 인증, 권한, Gateway 경계 이벤트입니다.</p>
+                </div>
                 <div class="timeline">
                     <article class="timeline-item" th:each="event : ${auditEvents}">
                         <span class="panel-label" th:text="${event.timestamp}">방금</span>
@@ -213,8 +313,11 @@
             </article>
 
             <article class="panel">
-                <h2>활성 세션</h2>
-                <p>현재 앱 범위에서 조회된 세션만 표시하며, 앱별 관리자는 여기 포함된 세션만 종료할 수 있습니다.</p>
+                <div class="panel-heading">
+                    <span class="panel-label">App Sessions</span>
+                    <h2>활성 세션</h2>
+                    <p>현재 앱 범위에서 조회된 Redis indexed session만 표시합니다.</p>
+                </div>
                 <div class="session-list" th:if="${!#lists.isEmpty(activeSessions)}">
                     <article class="session-card" th:each="userSession : ${activeSessions}">
                         <strong th:text="${userSession.sessionId}">session-id</strong>
@@ -227,11 +330,14 @@
             </article>
 
             <article class="panel">
-                <h2>OIDC Claims</h2>
-                <p>role 및 resource access 매핑을 데모할 때 바로 설명할 수 있도록 claims를 노출합니다.</p>
+                <div class="panel-heading">
+                    <span class="panel-label">OIDC Payload</span>
+                    <h2>OIDC Claims</h2>
+                    <p>role 및 resource access 매핑을 확인할 수 있는 claims입니다.</p>
+                </div>
                 <div class="claims" th:text="${claims}"></div>
                 <div class="footer-note">
-                    권한이 없는 사용자가 다른 Workspace로 이동하면 전용 접근 거부 페이지에서 현재 role과 필요한 role을 비교해볼 수 있습니다.
+                    권한이 없는 사용자가 다른 앱으로 이동하면 전용 접근 거부 페이지에서 현재 role과 필요한 role을 비교해볼 수 있습니다.
                 </div>
             </article>
         </div>

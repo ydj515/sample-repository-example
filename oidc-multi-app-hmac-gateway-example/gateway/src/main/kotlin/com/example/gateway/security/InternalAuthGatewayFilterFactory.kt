@@ -7,8 +7,10 @@ import org.springframework.cloud.gateway.filter.GatewayFilter
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory
 import org.springframework.http.HttpCookie
 import org.springframework.stereotype.Component
+import java.nio.charset.StandardCharsets
 import java.time.Clock
 import java.time.Instant
+import java.util.Base64
 
 @Component
 class InternalAuthGatewayFilterFactory(
@@ -23,9 +25,10 @@ class InternalAuthGatewayFilterFactory(
             val sessionId = request.cookies[config.sessionCookieName]
                 ?.firstOrNull()
                 ?.let(HttpCookie::getValue)
+                ?.let(::decodeSpringSessionCookie)
                 .orEmpty()
             val issuedAt = Instant.now(clock).epochSecond
-            val path = request.uri.rawPath
+            val path = backendPath(request.uri.rawPath, config.appId)
             val method = request.method.name()
             val payload = InternalAuthPayload(
                 appId = config.appId,
@@ -52,8 +55,29 @@ class InternalAuthGatewayFilterFactory(
         }
     }
 
+    private fun backendPath(rawPath: String, appId: String): String {
+        val routePrefix = "/$appId"
+        return when {
+            rawPath == routePrefix -> "/"
+            rawPath.startsWith("$routePrefix/") -> rawPath.removePrefix(routePrefix)
+            else -> rawPath
+        }
+    }
+
+    private fun decodeSpringSessionCookie(cookieValue: String): String {
+        val padded = cookieValue.padEnd((cookieValue.length + 3) / 4 * 4, '=')
+        return runCatching {
+            val decoded = String(Base64.getUrlDecoder().decode(padded), StandardCharsets.UTF_8)
+            if (decoded.matches(UUID_SESSION_ID)) decoded else cookieValue
+        }.getOrDefault(cookieValue)
+    }
+
     data class Config(
         var appId: String = "",
         var sessionCookieName: String = "",
     )
+
+    private companion object {
+        private val UUID_SESSION_ID = Regex("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}")
+    }
 }

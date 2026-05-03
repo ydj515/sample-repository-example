@@ -57,15 +57,14 @@ app:
         - app1-admin
       master-admin-role: master-admin
   view:
-    app-name: App1
+    app-name: App 1
     app-description: 같은 Keycloak realm을 신뢰하는 첫 번째 애플리케이션입니다.
     client-id: oidc-app1
-    peer-app-name: App2
+    peer-app-name: App 2
     peer-app-url: http://localhost:8082
     peer-access-roles:
       - app2-user
       - app2-admin
-    organization-name: Multi App SSO Demo
     environment-name: Gateway Security Sandbox
     suite-name: Identity Federation Suite
 
