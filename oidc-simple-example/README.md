@@ -68,6 +68,27 @@ docker compose up keycloak redis
 앱만 로컬에서 띄울 때는 `local` 프로필이 `localhost:9000`, `localhost:6379` 기준으로 동작합니다.
 Docker Compose에서는 `docker` 프로필이 적용되어 Redis는 `redis`, Keycloak 백채널은 `keycloak:8080`을 사용합니다.
 
+## 로그인 시퀀스
+
+```mermaid
+sequenceDiagram
+    participant B as 브라우저
+    participant APP as Spring Boot App
+    participant KC as Keycloak
+    participant R as Redis
+
+    B->>APP: 보호된 화면 요청
+    APP-->>B: 302 Keycloak login
+    B->>KC: 사용자 로그인
+    KC-->>APP: authorization code 반환
+    APP->>KC: token 교환
+    KC-->>APP: id/access token 반환
+    APP->>R: Spring Session 저장
+    APP-->>B: 홈 화면 렌더링
+```
+
+이 예제의 핵심은 OIDC 로그인으로 사용자 신원을 확인한 뒤, 애플리케이션이 그 결과를 자기 세션으로 다시 저장한다는 점입니다. 즉, 이후 요청에서는 매번 Keycloak에 다시 묻는 대신 Redis에 저장된 Spring Session을 기준으로 로그인 상태를 유지하고, 필요할 때만 세션 재검증이나 강제 로그아웃 정책을 적용합니다.
+
 ## 로그인 문제가 생길 때
 
 Keycloak 로그에 아래 메시지가 보이면:
