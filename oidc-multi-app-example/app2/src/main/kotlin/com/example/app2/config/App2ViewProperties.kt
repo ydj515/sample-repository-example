@@ -10,7 +10,6 @@ data class App2ViewProperties(
     val peerAppName: String,
     val peerAppUrl: String,
     val peerAccessRoles: List<String>,
-    val organizationName: String,
     val environmentName: String,
     val suiteName: String,
 )

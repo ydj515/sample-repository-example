@@ -4,12 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title th:text="${appName} + ' Access Denied'">Access Denied</title>
+    <link rel="icon" href="data:,">
     <link rel="stylesheet" th:href="@{/css/app2-access-denied.css}">
 </head>
 <body>
 <div class="shell">
     <section class="panel">
-        <div class="kicker" th:text="${organizationName} + ' · ' + ${environmentName}">Org</div>
+        <div class="kicker" th:text="${environmentName}">Environment</div>
         <h1 th:text="${appName} + ' 접근 권한이 없습니다'">접근 권한이 없습니다</h1>
         <p th:text="${accessDeniedMessage}">메시지</p>
         <div class="actions">

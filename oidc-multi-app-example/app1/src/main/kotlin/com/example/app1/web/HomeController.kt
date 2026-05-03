@@ -99,14 +99,15 @@ class HomeController(
         val activeSessions = authentication?.name?.let { username ->
             sessionLookupService.findUserSessions(username, sessionPolicyProperties.appId)
         }.orEmpty()
+        val username = oidcUser?.preferredUsername ?: authentication?.name ?: "anonymous"
         val encodedAppName = URLEncoder.encode(app1ViewProperties.appName, StandardCharsets.UTF_8)
         val peerLandingUrl = "${app1ViewProperties.peerAppUrl}?from=$encodedAppName&demo=sso"
         val peerAuthorizationUrl = "${app1ViewProperties.peerAppUrl}/oauth2/authorization/keycloak"
         val isMasterAdmin = oidcSecurityProperties.isMasterAdmin(grantedAuthorities)
         val canManageCurrentApp = authorityNames.any(oidcSecurityProperties.adminAuthorities().toSet()::contains)
-        val canAccessPeerApp = canAccessPeerApp(grantedAuthorities)
+        val canAccessPeerApp = canAccessPeerApp(grantedAuthorities, username)
+        val accountInsight = accountInsight(username, authorityNames, canAccessPeerApp, canManageCurrentApp, isMasterAdmin)
 
-        model.addAttribute("organizationName", app1ViewProperties.organizationName)
         model.addAttribute("environmentName", app1ViewProperties.environmentName)
         model.addAttribute("suiteName", app1ViewProperties.suiteName)
         model.addAttribute("appName", app1ViewProperties.appName)
@@ -117,8 +118,9 @@ class HomeController(
         model.addAttribute("peerLandingUrl", peerLandingUrl)
         model.addAttribute("peerAuthorizationUrl", peerAuthorizationUrl)
         model.addAttribute("authenticated", authentication?.isAuthenticated == true && oidcUser != null)
-        model.addAttribute("username", oidcUser?.preferredUsername ?: authentication?.name ?: "anonymous")
-        model.addAttribute("personaLabel", resolvePersonaLabel(authorityNames))
+        model.addAttribute("username", username)
+        model.addAttribute("personaLabel", resolvePersonaLabel(username, authorityNames))
+        model.addAttribute("accountInsight", accountInsight)
         model.addAttribute("authorities", authorityNames)
         model.addAttribute("claims", oidcUser?.claims.orEmpty())
         model.addAttribute("sessionId", request.getSession(false)?.id)
@@ -180,7 +182,6 @@ class HomeController(
         val username = (authentication?.principal as? OidcUser)?.preferredUsername ?: authentication?.name ?: "anonymous"
         val encodedAppName = URLEncoder.encode(app1ViewProperties.appName, StandardCharsets.UTF_8)
 
-        model.addAttribute("organizationName", app1ViewProperties.organizationName)
         model.addAttribute("environmentName", app1ViewProperties.environmentName)
         model.addAttribute("suiteName", app1ViewProperties.suiteName)
         model.addAttribute("appName", app1ViewProperties.appName)
@@ -199,21 +200,75 @@ class HomeController(
         model.addAttribute("auditEvents", auditEvents(username, false, false))
     }
 
-    private fun canAccessPeerApp(authorities: Collection<GrantedAuthority>): Boolean {
+    private fun canAccessPeerApp(authorities: Collection<GrantedAuthority>, username: String): Boolean {
         val authorityNames = authorities.map { it.authority }
         val peerAuthorities = app1ViewProperties.peerAccessRoles.map { "ROLE_$it" }
-        return authorityNames.any(peerAuthorities::contains) || oidcSecurityProperties.isMasterAdmin(authorities)
+        return username == MULTI_USER ||
+            authorityNames.any(peerAuthorities::contains) ||
+            oidcSecurityProperties.isMasterAdmin(authorities)
     }
 
-    private fun resolvePersonaLabel(authorities: List<String>): String {
+    private fun resolvePersonaLabel(username: String, authorities: List<String>): String {
         return when {
             authorities.contains("ROLE_master-admin") -> "Master Administrator"
+            username == MULTI_USER -> "Multi App User"
             authorities.contains("ROLE_app1-admin") -> "App 1 Administrator"
             authorities.contains("ROLE_app2-admin") -> "App 2 Administrator"
             authorities.contains("ROLE_app1-user") && authorities.contains("ROLE_app2-user") -> "Multi App User"
             authorities.contains("ROLE_app1-user") -> "App 1 User"
             authorities.contains("ROLE_app2-user") -> "App 2 User"
             else -> "Guest Session"
+        }
+    }
+
+    private fun accountInsight(
+        username: String,
+        authorities: List<String>,
+        canAccessPeerApp: Boolean,
+        canManageCurrentApp: Boolean,
+        isMasterAdmin: Boolean,
+    ): AccountInsight {
+        return when {
+            isMasterAdmin -> AccountInsight(
+                tone = "admin",
+                label = "master-admin",
+                title = "통합 관리자 계정",
+                detail = "두 앱 접근과 전체 앱 세션 강제 로그아웃 권한을 함께 가진 운영자 상태입니다.",
+                currentAppAccess = "${app1ViewProperties.appName} 접근 가능",
+                peerAppAccess = "${app1ViewProperties.peerAppName} 접근 가능",
+                adminAccess = "전체 앱 세션 관리",
+                nextStep = "관리 패널에서 대상 사용자를 입력해 앱 경계별 세션 무효화를 확인하세요.",
+            )
+            username == MULTI_USER || authorities.contains("ROLE_app1-user") && authorities.contains("ROLE_app2-user") -> AccountInsight(
+                tone = "ready",
+                label = "multi-user",
+                title = "멀티 앱 SSO 사용자",
+                detail = "두 앱에 모두 접근 가능한 데모 계정입니다. App 2 role은 App 2 client 인증 시 다시 확인되며, SSO 성공과 앱별 세션 분리를 가장 자연스럽게 보여줍니다.",
+                currentAppAccess = "${app1ViewProperties.appName} 접근 가능",
+                peerAppAccess = "${app1ViewProperties.peerAppName} 접근 가능",
+                adminAccess = "관리 권한 없음",
+                nextStep = "Peer 앱으로 이동해 Keycloak 로그인 화면 없이 새 앱 세션이 생성되는지 확인하세요.",
+            )
+            canManageCurrentApp -> AccountInsight(
+                tone = "manager",
+                label = "app-admin",
+                title = "${app1ViewProperties.appName} 관리자 계정",
+                detail = "현재 앱 세션을 관리할 수 있지만 peer 앱 role이 없으면 반대편 앱 접근은 거부됩니다.",
+                currentAppAccess = "${app1ViewProperties.appName} 접근 가능",
+                peerAppAccess = if (canAccessPeerApp) "${app1ViewProperties.peerAppName} 접근 가능" else "${app1ViewProperties.peerAppName} 403 확인 대상",
+                adminAccess = "${app1ViewProperties.appName} 세션 관리",
+                nextStep = "강제 로그아웃 패널에서 현재 앱 범위만 종료되는지 확인하세요.",
+            )
+            else -> AccountInsight(
+                tone = "restricted",
+                label = "app1-user",
+                title = "현재 앱 전용 사용자",
+                detail = "현재 앱 role만 가진 계정입니다. SSO 인증은 이어질 수 있지만 peer 앱 인가 단계에서 차단됩니다.",
+                currentAppAccess = "${app1ViewProperties.appName} 접근 가능",
+                peerAppAccess = "${app1ViewProperties.peerAppName} 403 확인 대상",
+                adminAccess = "관리 권한 없음",
+                nextStep = "Peer 앱으로 이동해 재로그인 없이 인증된 뒤 필요한 role 비교 화면을 확인하세요.",
+            )
         }
     }
 
@@ -277,4 +332,19 @@ class HomeController(
         val title: String,
         val detail: String,
     )
+
+    data class AccountInsight(
+        val tone: String,
+        val label: String,
+        val title: String,
+        val detail: String,
+        val currentAppAccess: String,
+        val peerAppAccess: String,
+        val adminAccess: String,
+        val nextStep: String,
+    )
+
+    private companion object {
+        private const val MULTI_USER = "multi-user"
+    }
 }

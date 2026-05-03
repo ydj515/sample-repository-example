@@ -60,7 +60,6 @@ app:
     peer-access-roles:
       - app2-user
       - app2-admin
-    organization-name: Hanul Commerce Group
     environment-name: Production Sandbox
     suite-name: Identity Federation Suite
 
