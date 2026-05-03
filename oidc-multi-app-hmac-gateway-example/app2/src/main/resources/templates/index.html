@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${appName} + ' Console'">App2 Console</title>
+    <link rel="stylesheet" th:href="@{/css/app2-console.css}">
+</head>
+<body>
+<main>
+    <section class="topbar">
+        <div class="brand">
+            <span class="kicker" th:text="${organizationName}">Multi App SSO Demo</span>
+            <strong th:text="${suiteName}">Identity Federation Suite</strong>
+        </div>
+        <div class="chip-row">
+            <div class="chip" th:text="'Environment · ' + ${environmentName}">Environment</div>
+            <div class="chip" th:text="'Workspace · ' + ${appName}">Workspace</div>
+            <div class="chip" th:text="'Client · ' + ${clientId}">Client</div>
+            <div class="chip">Provider · Keycloak OIDC</div>
+        </div>
+    </section>
+
+    <section class="hero">
+        <div>
+            <div class="eyebrow">App2 Identity Workspace</div>
+            <h1 th:text="${appName} + ' SSO Console'">App2 Access & SSO Console</h1>
+            <p th:text="${description}">설명</p>
+            <div class="hero-actions" th:if="${!authenticated}">
+                <a class="btn btn-primary" href="/oauth2/authorization/keycloak">Keycloak로 로그인</a>
+                <a class="btn btn-secondary" href="/public">공개 API 확인</a>
+                <a class="btn btn-ghost" th:href="${peerLandingUrl}">SSO 데모 랜딩 보기</a>
+            </div>
+            <div class="hero-actions" th:if="${authenticated}">
+                <a class="btn btn-primary" href="/api/me">내 정보 API</a>
+                <a class="btn btn-secondary" href="/api/sensitive">민감 API</a>
+                <a class="btn btn-ghost" th:href="${peerLandingUrl}" th:text="${peerAppName} + ' 홈 열기'">peer</a>
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit">로그아웃</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="hero-side">
+            <div class="metric-grid">
+                <article class="metric-card">
+                    <span>현재 사용자</span>
+                    <strong th:text="${username}">anonymous</strong>
+                    <small th:text="${personaLabel}">Guest Session</small>
+                </article>
+                <article class="metric-card">
+                    <span>환경 배지</span>
+                    <strong th:text="${environmentName}">Production Sandbox</strong>
+                    <small>데모는 운영 콘솔 분위기로 구성되어 있습니다.</small>
+                </article>
+                <article class="metric-card">
+                    <span>세션 개수</span>
+                    <strong th:text="${sessionCount}">0</strong>
+                    <small>현재 앱 범위에서 조회한 Redis indexed session 수입니다.</small>
+                </article>
+                <article class="metric-card">
+                    <span>관리 범위</span>
+                    <strong th:text="${adminScopeLabel}">관리자 권한 없음</strong>
+                    <small>앱 관리자와 master 관리자의 동작 범위를 구분합니다.</small>
+                </article>
+            </div>
+            <article class="service-map">
+                <h2>서비스 맵</h2>
+                <p>서로 다른 Workspace이 하나의 공통 IdP 세션을 신뢰하는 SSO 연동 구조를 보여줍니다.</p>
+                <div class="service-track">
+                    <div class="service-node">
+                        <strong th:text="${appName}">App2</strong>
+                        <small>업무 워크스페이스와 API를 담당하는 현재 서비스입니다.</small>
+                    </div>
+                    <div class="service-node">
+                        <strong>Keycloak Realm</strong>
+                        <small>중앙 인증, role 발급, IdP 세션 유지 역할을 담당합니다.</small>
+                    </div>
+                    <div class="service-node">
+                        <strong th:text="${peerAppName}">App1</strong>
+                        <small>다른 client와 쿠키를 사용하지만 같은 realm을 신뢰하는 peer 서비스입니다.</small>
+                    </div>
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <section class="banner" th:if="${showSsoBanner}" th:classappend="${authenticated and !canAccessPeerApp} ? ' warning'">
+        <div>
+            <h2 th:text="${ssoBannerTitle}">SSO 배너</h2>
+            <p th:text="${ssoBannerBody}">설명</p>
+            <div class="banner-status" th:if="${!#strings.isEmpty(fromApp)}" th:text="${'유입 앱: ' + fromApp}">유입 앱</div>
+            <div class="banner-status" id="handoffStatus" th:if="${authenticated and canAccessPeerApp}">
+                자동 전환 버튼을 누르면 3초 후 peer app 인증 엔드포인트로 이동합니다.
+            </div>
+        </div>
+        <div class="banner-actions">
+            <a class="btn btn-secondary" th:if="${!authenticated}" href="/oauth2/authorization/keycloak">지금 로그인</a>
+            <button type="button" class="btn btn-primary" id="autoHandoffButton"
+                    th:if="${authenticated and canAccessPeerApp}"
+                    th:attr="data-target=${peerAuthorizationUrl}">
+                3초 후 자동 전환
+            </button>
+            <a class="btn btn-secondary" th:if="${authenticated and canAccessPeerApp}" th:href="${peerAuthorizationUrl}">
+                즉시 SSO 이어가기
+            </a>
+            <a class="btn btn-ghost" th:href="${peerLandingUrl}" th:text="${peerAppName} + ' 홈 보기'">Peer 보기</a>
+        </div>
+    </section>
+
+    <section class="dashboard">
+        <div class="stack">
+            <article class="panel">
+                <h2>계정 접근 매트릭스</h2>
+                <p>계정별 접근 가능 앱, 관리자 범위를 표로 바로 보여줘서 데모 설명이 끊기지 않도록 구성했습니다.</p>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>계정</th>
+                            <th>비밀번호</th>
+                            <th>접근 가능한 앱</th>
+                            <th>관리 범위</th>
+                            <th>설명</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="account : ${accounts}" th:classappend="${username == account.username} ? 'current-row'">
+                            <td><strong th:text="${account.username}">multi-user</strong></td>
+                            <td th:text="${account.password}">multi1234</td>
+                            <td th:text="${account.accessApps}">App1, App2</td>
+                            <td th:text="${account.adminScope}">없음</td>
+                            <td th:text="${account.summary}">설명</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </article>
+
+            <article class="panel">
+                <h2>SSO 체험 런북</h2>
+                <p>멀티 앱 SSO 데모처럼 로그인에서 다른 Workspace로 전환하기까지의 단계를 정리했습니다.</p>
+                <div class="step-list">
+                    <article class="step-card" th:each="journey : ${journeySteps}">
+                        <div class="step-index" th:text="${journey.step}">1</div>
+                        <div>
+                            <strong th:text="${journey.title}">단계</strong>
+                            <p th:text="${journey.detail}">설명</p>
+                        </div>
+                    </article>
+                </div>
+            </article>
+
+            <article class="panel" th:if="${canManageCurrentApp}">
+                <h2>강제 로그아웃 실행 패널</h2>
+                <p>
+                    관리자 계정으로 로그인한 경우에만 보입니다.
+                    <span th:text="${adminScopeLabel}">관리 범위</span>
+                </p>
+                <div class="admin-panel">
+                    <span class="panel-label">Admin Action Console</span>
+                    <p>사용자명을 입력하면 현재 관리자 범위에 따라 세션을 강제 종료합니다.</p>
+                    <div class="quick-actions">
+                        <button type="button" class="btn btn-secondary preset-user" data-username="app1-user">app1-user</button>
+                        <button type="button" class="btn btn-secondary preset-user" data-username="multi-user">multi-user</button>
+                        <button type="button" class="btn btn-secondary preset-user" data-username="app2-user">app2-user</button>
+                    </div>
+                    <form id="adminLogoutForm">
+                        <input id="logoutTargetUsername" name="username" type="text" placeholder="강제 로그아웃할 사용자명 입력">
+                        <div class="quick-actions">
+                            <button type="submit">세션 강제 로그아웃 실행</button>
+                        </div>
+                    </form>
+                    <code id="adminLogoutResult">실행 결과가 여기에 표시됩니다.</code>
+                </div>
+            </article>
+        </div>
+
+        <div class="stack">
+            <article class="panel">
+                <h2>실시간 상태</h2>
+                <p>현재 로그인 상태, role, peer app 이동 가능 여부를 운영 대시보드처럼 요약합니다.</p>
+                <div class="summary-grid">
+                    <div class="summary-item">
+                        <span>로그인 상태</span>
+                        <strong th:text="${authenticated} ? 'Authenticated' : 'Anonymous'">Authenticated</strong>
+                    </div>
+                    <div class="summary-item">
+                        <span>현재 세션</span>
+                        <strong th:text="${sessionId ?: '미생성'}">없음</strong>
+                    </div>
+                    <div class="summary-item">
+                        <span>권한</span>
+                        <strong th:text="${#lists.isEmpty(authorities) ? '없음' : authorities}">권한</strong>
+                    </div>
+                    <div class="summary-item">
+                        <span>SSO Peer</span>
+                        <strong th:text="${canAccessPeerApp} ? 'Ready for ' + peerAppName : '권한 점검 필요'">Ready</strong>
+                    </div>
+                </div>
+            </article>
+
+            <article class="panel">
+                <h2>감사 로그 타임라인</h2>
+                <p>진짜 콘솔처럼 보이도록 현재 세션에서 중요한 인증/권한 이벤트를 시간 순서로 보여줍니다.</p>
+                <div class="timeline">
+                    <article class="timeline-item" th:each="event : ${auditEvents}">
+                        <span class="panel-label" th:text="${event.timestamp}">방금</span>
+                        <strong th:text="${event.title}">이벤트</strong>
+                        <small th:text="${event.detail}">상세</small>
+                    </article>
+                </div>
+            </article>
+
+            <article class="panel">
+                <h2>활성 세션</h2>
+                <p>현재 앱 범위에서 조회된 세션만 표시하며, 앱별 관리자는 여기 포함된 세션만 종료할 수 있습니다.</p>
+                <div class="session-list" th:if="${!#lists.isEmpty(activeSessions)}">
+                    <article class="session-card" th:each="userSession : ${activeSessions}">
+                        <strong th:text="${userSession.sessionId}">session-id</strong>
+                        <small th:text="'앱: ' + ${userSession.appId ?: 'unknown'}">앱 세션 태그</small>
+                        <small th:text="'마지막 접근: ' + ${userSession.lastAccessedTime}">마지막 접근</small>
+                        <small th:text="'생성 시각: ' + ${userSession.creationTime}">생성 시각</small>
+                    </article>
+                </div>
+                <div class="empty" th:if="${#lists.isEmpty(activeSessions)}">현재 사용자 기준으로 조회된 세션이 없습니다.</div>
+            </article>
+
+            <article class="panel">
+                <h2>OIDC Claims</h2>
+                <p>role 및 resource access 매핑을 데모할 때 바로 설명할 수 있도록 claims를 노출합니다.</p>
+                <div class="claims" th:text="${claims}"></div>
+                <div class="footer-note">
+                    권한이 없는 사용자가 다른 Workspace로 이동하면 전용 접근 거부 페이지에서 현재 role과 필요한 role을 비교해볼 수 있습니다.
+                </div>
+            </article>
+        </div>
+    </section>
+</main>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const handoffButton = document.getElementById("autoHandoffButton");
+        const handoffStatus = document.getElementById("handoffStatus");
+        if (handoffButton && handoffStatus) {
+            let running = false;
+            handoffButton.addEventListener("click", function () {
+                if (running) {
+                    return;
+                }
+                running = true;
+                let remaining = 3;
+                const target = handoffButton.dataset.target;
+                handoffStatus.textContent = remaining + "초 후 peer app 인증 엔드포인트로 이동합니다.";
+                const timer = window.setInterval(function () {
+                    remaining -= 1;
+                    if (remaining > 0) {
+                        handoffStatus.textContent = remaining + "초 후 peer app 인증 엔드포인트로 이동합니다.";
+                        return;
+                    }
+                    window.clearInterval(timer);
+                    handoffStatus.textContent = "이동 중입니다...";
+                    window.location.href = target;
+                }, 1000);
+            });
+        }
+
+        const adminForm = document.getElementById("adminLogoutForm");
+        const usernameInput = document.getElementById("logoutTargetUsername");
+        const resultBox = document.getElementById("adminLogoutResult");
+        const presetButtons = document.querySelectorAll(".preset-user");
+
+        presetButtons.forEach(function (button) {
+            button.addEventListener("click", function () {
+                if (usernameInput) {
+                    usernameInput.value = button.dataset.username || "";
+                    usernameInput.focus();
+                }
+            });
+        });
+
+        if (adminForm && usernameInput && resultBox) {
+            adminForm.addEventListener("submit", async function (event) {
+                event.preventDefault();
+                const username = usernameInput.value.trim();
+                if (!username) {
+                    resultBox.textContent = "사용자명을 입력해주세요.";
+                    return;
+                }
+
+                resultBox.textContent = "요청을 전송하는 중입니다...";
+                try {
+                    const response = await fetch("/api/admin/users/" + encodeURIComponent(username) + "/logout-all", {
+                        method: "POST",
+                        headers: {
+                            "Accept": "application/json"
+                        }
+                    });
+                    const body = await response.text();
+                    resultBox.textContent = "HTTP " + response.status + "\n" + body;
+                } catch (error) {
+                    resultBox.textContent = "요청 실패\n" + error;
+                }
+            });
+        }
+    });
+</script>
+</body>
+</html>

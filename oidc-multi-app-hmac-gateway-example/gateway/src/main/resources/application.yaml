@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: oidc-gateway
+
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+app:
+  gateway:
+    app1-uri: ${APP1_URI:http://localhost:8081}
+    app2-uri: ${APP2_URI:http://localhost:8082}
+  internal-auth:
+    secret: ${INTERNAL_AUTH_SECRET:local-dev-internal-auth-secret-change-me}
+
+logging:
+  level:
+    org.springframework.cloud.gateway: INFO

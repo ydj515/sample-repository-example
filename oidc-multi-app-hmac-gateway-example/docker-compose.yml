@@ -1,0 +1,96 @@
+services:
+  redis:
+    image: redis:7.4.3
+    ports:
+      - "6379:6379"
+
+  postgres:
+    image: postgres:17.9-alpine
+    environment:
+      POSTGRES_DB: ${KEYCLOAK_DB_NAME:-keycloak}
+      POSTGRES_USER: ${KEYCLOAK_DB_USER:-keycloak}
+      POSTGRES_PASSWORD: ${KEYCLOAK_DB_PASSWORD:-keycloak}
+    volumes:
+      - keycloak-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${KEYCLOAK_DB_USER:-keycloak} -d ${KEYCLOAK_DB_NAME:-keycloak}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0
+    command:
+      - start-dev
+      - --import-realm
+      - --http-port=8080
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+      KC_DB: postgres
+      KC_DB_URL_HOST: postgres
+      KC_DB_URL_PORT: 5432
+      KC_DB_URL_DATABASE: ${KEYCLOAK_DB_NAME:-keycloak}
+      KC_DB_USERNAME: ${KEYCLOAK_DB_USER:-keycloak}
+      KC_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD:-keycloak}
+      KC_HOSTNAME: http://localhost:9000
+      KC_HOSTNAME_BACKCHANNEL_DYNAMIC: "true"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "9000:8080"
+    volumes:
+      - ./infra/keycloak:/opt/keycloak/data/import
+
+  app1:
+    build:
+      context: .
+      args:
+        APP_MODULE: app1
+    depends_on:
+      redis:
+        condition: service_started
+      keycloak:
+        condition: service_started
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      APP_SESSION_INTERNAL_AUTH_SECRET: ${INTERNAL_AUTH_SECRET:-local-dev-internal-auth-secret-change-me}
+    ports:
+      - "8081:8081"
+
+  app2:
+    build:
+      context: .
+      args:
+        APP_MODULE: app2
+    depends_on:
+      redis:
+        condition: service_started
+      keycloak:
+        condition: service_started
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      APP_SESSION_INTERNAL_AUTH_SECRET: ${INTERNAL_AUTH_SECRET:-local-dev-internal-auth-secret-change-me}
+    ports:
+      - "8082:8082"
+
+  gateway:
+    build:
+      context: .
+      args:
+        APP_MODULE: gateway
+    depends_on:
+      app1:
+        condition: service_started
+      app2:
+        condition: service_started
+    environment:
+      APP1_URI: http://app1:8081
+      APP2_URI: http://app2:8082
+      INTERNAL_AUTH_SECRET: ${INTERNAL_AUTH_SECRET:-local-dev-internal-auth-secret-change-me}
+    ports:
+      - "8080:8080"
+
+volumes:
+  keycloak-postgres-data:

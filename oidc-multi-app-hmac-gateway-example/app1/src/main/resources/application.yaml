@@ -1,0 +1,74 @@
+spring:
+  application:
+    name: oidc-app1
+  security:
+    oauth2:
+      client:
+        registration:
+          keycloak:
+            client-id: ${OIDC_CLIENT_ID:oidc-app1}
+            client-secret: ${OIDC_CLIENT_SECRET:oidc-app1-secret}
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            scope:
+              - openid
+              - profile
+              - email
+  session:
+    store-type: redis
+    redis:
+      namespace: oidc-multi-app-example:session
+      repository-type: indexed
+
+server:
+  port: 8081
+  servlet:
+    session:
+      cookie:
+        name: APP1SESSION
+        http-only: true
+        same-site: lax
+      timeout: 30m
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+app:
+  session:
+    redis-enabled: true
+    app-id: app1
+    internal-auth:
+      enabled: true
+      required: false
+      secret: ${APP_SESSION_INTERNAL_AUTH_SECRET:local-dev-internal-auth-secret-change-me}
+      max-age: 30s
+    revalidation:
+      standard-ttl: 5s
+      sensitive-ttl: 1s
+  security:
+    logout-cookie-name: APP1SESSION
+    access:
+      user-roles:
+        - app1-user
+      admin-roles:
+        - app1-admin
+      master-admin-role: master-admin
+  view:
+    app-name: App1
+    app-description: 같은 Keycloak realm을 신뢰하는 첫 번째 애플리케이션입니다.
+    client-id: oidc-app1
+    peer-app-name: App2
+    peer-app-url: http://localhost:8082
+    peer-access-roles:
+      - app2-user
+      - app2-admin
+    organization-name: Multi App SSO Demo
+    environment-name: Gateway Security Sandbox
+    suite-name: Identity Federation Suite
+
+logging:
+  level:
+    org.springframework.security: INFO

@@ -1,0 +1,84 @@
+# =========================
+# Gradle / Build
+# =========================
+.gradle/
+build/
+*/build/
+
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# =========================
+# IDE - IntelliJ / STS / Eclipse
+# =========================
+.idea/
+*.iml
+*.ipr
+*.iws
+
+.classpath
+.project
+.factorypath
+.settings/
+.springBeans
+.sts4-cache
+
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
+
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+
+.apt_generated
+
+# =========================
+# IDE - VSCode
+# =========================
+.vscode/
+
+# =========================
+# IDE - NetBeans
+# =========================
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+# =========================
+# Kotlin
+# =========================
+.kotlin/
+
+# =========================
+# OS
+# =========================
+.DS_Store
+
+# =========================
+# Logs
+# =========================
+*.log
+logs/
+
+# =========================
+# Environment
+# =========================
+.env
+.env.*
+
+# =========================
+# Test / Automation
+# =========================
+output/
+playwright-report/
+.playwright-cli
+test-results/
+
+# =========================
+# Misc
+# =========================
+HELP.md

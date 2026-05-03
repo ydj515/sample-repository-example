@@ -1,0 +1,253 @@
+{
+  "realm": "oidc-multi-app-example",
+  "enabled": true,
+  "registrationAllowed": false,
+  "resetPasswordAllowed": false,
+  "rememberMe": true,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "roles": {
+    "realm": [
+      {
+        "name": "user",
+        "description": "기본 사용자 권한"
+      },
+      {
+        "name": "admin",
+        "description": "관리자 권한"
+      },
+      {
+        "name": "master-admin",
+        "description": "모든 앱을 관리할 수 있는 최상위 관리자 권한"
+      }
+    ],
+    "client": {
+      "oidc-app1": [
+        {
+          "name": "app1-user",
+          "description": "app1 접근 가능 사용자"
+        },
+        {
+          "name": "app1-admin",
+          "description": "app1 관리자"
+        }
+      ],
+      "oidc-app2": [
+        {
+          "name": "app2-user",
+          "description": "app2 접근 가능 사용자"
+        },
+        {
+          "name": "app2-admin",
+          "description": "app2 관리자"
+        }
+      ]
+    }
+  },
+  "clients": [
+    {
+      "clientId": "oidc-app1",
+      "name": "oidc-app1",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "secret": "oidc-app1-secret",
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "redirectUris": [
+        "http://localhost:8081/",
+        "http://localhost:8081/*",
+        "http://localhost:8081/login/oauth2/code/*",
+        "http://app1:8081/",
+        "http://app1:8081/*",
+        "http://app1:8081/login/oauth2/code/*"
+      ],
+      "webOrigins": [
+        "http://localhost:8081"
+      ],
+      "attributes": {
+        "post.logout.redirect.uris": "http://localhost:8081/##http://localhost:8081/*##http://app1:8081/##http://app1:8081/*"
+      },
+      "defaultClientScopes": [
+        "profile",
+        "email",
+        "roles"
+      ]
+    },
+    {
+      "clientId": "oidc-app2",
+      "name": "oidc-app2",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "secret": "oidc-app2-secret",
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "redirectUris": [
+        "http://localhost:8082/",
+        "http://localhost:8082/*",
+        "http://localhost:8082/login/oauth2/code/*",
+        "http://app2:8082/",
+        "http://app2:8082/*",
+        "http://app2:8082/login/oauth2/code/*"
+      ],
+      "webOrigins": [
+        "http://localhost:8082"
+      ],
+      "attributes": {
+        "post.logout.redirect.uris": "http://localhost:8082/##http://localhost:8082/*##http://app2:8082/##http://app2:8082/*"
+      },
+      "defaultClientScopes": [
+        "profile",
+        "email",
+        "roles"
+      ]
+    }
+  ],
+  "users": [
+    {
+      "username": "app1-user",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "App1",
+      "lastName": "User",
+      "email": "app1-user@example.com",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "app1user1234",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "user"
+      ],
+      "clientRoles": {
+        "oidc-app1": [
+          "app1-user"
+        ]
+      }
+    },
+    {
+      "username": "multi-user",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Multi",
+      "lastName": "User",
+      "email": "multi-user@example.com",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "multi1234",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "user"
+      ],
+      "clientRoles": {
+        "oidc-app1": [
+          "app1-user"
+        ],
+        "oidc-app2": [
+          "app2-user"
+        ]
+      }
+    },
+    {
+      "username": "app2-user",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "App2",
+      "lastName": "User",
+      "email": "app2-user@example.com",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "app2user1234",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "user"
+      ],
+      "clientRoles": {
+        "oidc-app2": [
+          "app2-user"
+        ]
+      }
+    },
+    {
+      "username": "app1-admin",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "App1",
+      "lastName": "Admin",
+      "email": "app1-admin@example.com",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "app1admin1234",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "user",
+        "admin"
+      ],
+      "clientRoles": {
+        "oidc-app1": [
+          "app1-user",
+          "app1-admin"
+        ]
+      }
+    },
+    {
+      "username": "app2-admin",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "App2",
+      "lastName": "Admin",
+      "email": "app2-admin@example.com",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "app2admin1234",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "user",
+        "admin"
+      ],
+      "clientRoles": {
+        "oidc-app2": [
+          "app2-user",
+          "app2-admin"
+        ]
+      }
+    },
+    {
+      "username": "master-admin",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Master",
+      "lastName": "Admin",
+      "email": "master-admin@example.com",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "master1234",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "user",
+        "admin",
+        "master-admin"
+      ]
+    }
+  ]
+}
