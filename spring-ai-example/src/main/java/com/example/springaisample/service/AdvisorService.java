@@ -29,6 +29,11 @@ public class AdvisorService {
     }
 
     // Constructor
+    //    - SimpleLoggerAdvisor: 개발자 console에 log를출력
+    //    - SimpleLoggerAdvisorLow: 특정 파일에 질의 내용과 응답 내용만 log로 저장
+    //    - SimpleLoggerAdvisorHigh: 특정 파일에 LLM과 연동 될때 사용되는 메시지를 log로 저장
+    //    - SafeGuardAdvisor: 특정 문자가 입력 되면 진행을 중지
+    //    - CheckCharSizeAdvisor: 입렫 되는 단어의 크기에 따라 진행을 중지
     @Autowired
     public AdvisorService(ChatClient.Builder chatClientBuilder, SafeGuardPolicy safeGuardPolicy) {
         // Logger Advisor - yml파일에서 반드시 debug로 셋팅 해야 출력 됨

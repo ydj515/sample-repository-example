@@ -8,10 +8,37 @@ logging:
 spring:
   application:
     name: spring-ai-example
+  # PostgreSQL Datasource (PgVector용)
+  datasource:
+    url: jdbc:postgresql://${PGVECTOR_HOST:localhost}:${PGVECTOR_PORT:5432}/${PGVECTOR_DB:mydatabase}
+    username: ${PGVECTOR_USER:myuser}
+    password: ${PGVECTOR_PASSWORD:mypassword}
+    driver-class-name: org.postgresql.Driver
+  sql:
+    init:
+      mode: always
+      # Chat Memory용 PgVector 테이블 수동 생성
+      schema-locations:
+        - "classpath:/schema/chat_pgvector.sql"
+  # 파일 업로드(Multipart) 설정
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 20MB
+      max-request-size: 20MB
   ai:
     chat:
       client:
         enabled: false
+      # JDBC Chat Memory 자동 스키마 초기화
+      memory:
+        repository:
+          jdbc:
+            initialize-schema: always
+    # PgVector VectorStore 자동 스키마 초기화
+    vectorstore:
+      pgvector:
+        initialize-schema: true
     openai:
       api-key: ${OPENAI_API_KEY:test-openai-key}
       chat:
