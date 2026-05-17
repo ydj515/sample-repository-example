@@ -39,6 +39,19 @@ dependencies {
     // client-webflux는 mcpserver로 webflux, mvc, stdio 전부 대응 가능해서 webflux로 사용
     implementation("org.springframework.ai:spring-ai-starter-mcp-client-webflux")
 
+    // PgVector VectorStore
+    implementation("org.springframework.ai:spring-ai-starter-vector-store-pgvector")
+    implementation("org.springframework.ai:spring-ai-advisors-vector-store")
+    runtimeOnly("org.postgresql:postgresql")
+
+    // RAG 및 문서 리더
+    implementation("org.springframework.ai:spring-ai-rag")
+    implementation("org.springframework.ai:spring-ai-pdf-document-reader")
+    implementation("org.springframework.ai:spring-ai-tika-document-reader")
+
+    // JDBC Chat Memory
+    implementation("org.springframework.ai:spring-ai-starter-model-chat-memory-repository-jdbc")
+
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
