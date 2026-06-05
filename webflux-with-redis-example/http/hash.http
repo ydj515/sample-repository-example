@@ -13,3 +13,23 @@ Content-Type: application/json
 ###
 GET http://localhost:8080/get-hash-value?key=hash key&field=one
 Content-Type: application/json
+
+###
+GET http://localhost:8080/hash/all?key=hash key
+Content-Type: application/json
+
+###
+GET http://localhost:8080/hash/multi?key=hash key&fields=one,two
+Content-Type: application/json
+
+###
+GET http://localhost:8080/hash/exists?key=hash key&field=one
+Content-Type: application/json
+
+###
+GET http://localhost:8080/hash/keys?key=hash key
+Content-Type: application/json
+
+###
+GET http://localhost:8080/hash/values?key=hash key
+Content-Type: application/json

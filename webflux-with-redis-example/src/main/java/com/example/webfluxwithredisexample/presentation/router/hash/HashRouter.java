@@ -16,6 +16,11 @@ public class HashRouter {
     public RouterFunction<ServerResponse> hashRoute(HashHandler handler) {
         return RouterFunctions
                 .route(POST("/put-hashes"), handler::putHashes)
-                .andRoute(GET("/get-hash-value"), handler::getHashes);
+                .andRoute(GET("/get-hash-value"), handler::getHashes)
+                .andRoute(GET("/hash/all"), handler::getAllHashes)
+                .andRoute(GET("/hash/multi"), handler::multiGetHashes)
+                .andRoute(GET("/hash/exists"), handler::existsHashField)
+                .andRoute(GET("/hash/keys"), handler::getHashKeys)
+                .andRoute(GET("/hash/values"), handler::getHashValues);
     }
 }

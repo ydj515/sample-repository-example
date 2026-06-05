@@ -1,0 +1,37 @@
+### 재고 값은 먼저 문자열 API로 세팅
+POST http://localhost:8080/string/raw-set
+Content-Type: application/json
+
+{
+  "baseRequest": {
+    "key": "product:1001:stock"
+  },
+  "value": "100"
+}
+
+###
+POST http://localhost:8080/lua/stock/decrease
+Content-Type: application/json
+
+{
+  "baseRequest": {
+    "key": "product:1001:stock"
+  },
+  "quantity": 30
+}
+
+###
+GET http://localhost:8080/lua/stock/script-sha
+Content-Type: application/json
+
+###
+POST http://localhost:8080/lua/stock/decrease-by-sha
+Content-Type: application/json
+
+{
+  "baseRequest": {
+    "key": "product:1001:stock"
+  },
+  "sha": "REPLACE_WITH_SHA",
+  "quantity": 40
+}

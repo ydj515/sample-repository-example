@@ -17,6 +17,13 @@ public class StringRouter {
         return RouterFunctions
                 .route(POST("/set-string-collection"), handler::setString)
                 .andRoute(GET("/get-string-collection"), handler::getString)
-                .andRoute(POST("/multi-set-collection"), handler::multiSetString);
+                .andRoute(POST("/multi-set-collection"), handler::multiSetString)
+                .andRoute(POST("/string/raw-set"), handler::setRawString)
+                .andRoute(GET("/string/raw-get"), handler::getRawString)
+                .andRoute(GET("/string/multi-get"), handler::multiGetStrings)
+                .andRoute(POST("/string/increment"), handler::increment)
+                .andRoute(POST("/string/decrement"), handler::decrement)
+                .andRoute(GET("/string/ttl"), handler::getTtl)
+                .andRoute(POST("/string/set-if-absent"), handler::setIfAbsent);
     }
 }

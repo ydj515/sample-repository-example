@@ -23,3 +23,23 @@ Content-Type: application/json
 ###
 GET http://localhost:8080/all?key=list key
 Content-Type: application/json
+
+###
+GET http://localhost:8080/list/size?key=list key
+Content-Type: application/json
+
+###
+GET http://localhost:8080/list/index?key=list key&index=0
+Content-Type: application/json
+
+###
+POST http://localhost:8080/list/left-pop?key=list key&count=1
+Content-Type: application/json
+
+###
+POST http://localhost:8080/list/right-pop?key=list key&count=2
+Content-Type: application/json
+
+###
+POST http://localhost:8080/list/blocking-left-pop?key=async_queue&timeoutSeconds=5
+Content-Type: application/json

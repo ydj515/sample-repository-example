@@ -1,0 +1,83 @@
+### 1. 가짜 DB 사용자 저장
+PUT http://localhost:8080/strategy/db/user
+Content-Type: application/json
+
+{
+  "userId": 100,
+  "name": "홍길동",
+  "email": "hong@test.com",
+  "age": 30
+}
+
+###
+GET http://localhost:8080/strategy/db/user?userId=100
+Content-Type: application/json
+
+### 2. Cache Aside
+GET http://localhost:8080/strategy/cache-aside/user?userId=100
+Content-Type: application/json
+
+###
+PUT http://localhost:8080/strategy/cache-aside/user
+Content-Type: application/json
+
+{
+  "userId": 100,
+  "name": "홍길동-수정",
+  "email": "hong-updated@test.com",
+  "age": 31
+}
+
+### 3. Write Through
+PUT http://localhost:8080/strategy/write-through/user
+Content-Type: application/json
+
+{
+  "userId": 101,
+  "name": "김철수",
+  "email": "kim@test.com",
+  "age": 28
+}
+
+###
+GET http://localhost:8080/strategy/write-through/user?userId=101
+Content-Type: application/json
+
+### 4. Read Through
+GET http://localhost:8080/strategy/read-through/user?userId=102
+Content-Type: application/json
+
+### 5. Write Behind
+PUT http://localhost:8080/strategy/write-behind/user
+Content-Type: application/json
+
+{
+  "userId": 103,
+  "name": "이영희",
+  "email": "lee@test.com",
+  "age": 26
+}
+
+###
+POST http://localhost:8080/strategy/write-behind/process-next
+Content-Type: application/json
+
+### 6. PER
+GET http://localhost:8080/strategy/per/user?userId=100
+Content-Type: application/json
+
+### 7. Lock
+GET http://localhost:8080/strategy/lock/user?userId=104
+Content-Type: application/json
+
+### 8. Background Refresh
+POST http://localhost:8080/strategy/background-refresh
+Content-Type: application/json
+
+{
+  "userIds": [100, 101, 102, 103, 104]
+}
+
+### 9. TTL 확인
+GET http://localhost:8080/strategy/cache/value-with-ttl?key=strategy:user:100
+Content-Type: application/json

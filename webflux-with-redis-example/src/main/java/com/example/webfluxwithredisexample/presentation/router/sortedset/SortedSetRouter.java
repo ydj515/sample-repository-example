@@ -17,6 +17,11 @@ public class SortedSetRouter {
         return RouterFunctions
                 .route(POST("/sorted-set--collection"), handler::setSortedSet)
                 .andRoute(GET("/get-sorted-set-by-range"), handler::getSortedSet)
-                .andRoute(GET("/get-sorted-set-by-top"), handler::getTopN);
+                .andRoute(GET("/get-sorted-set-by-top"), handler::getTopN)
+                .andRoute(GET("/sorted-set/rank"), handler::getRank)
+                .andRoute(GET("/sorted-set/reverse-rank"), handler::getReverseRank)
+                .andRoute(GET("/sorted-set/score"), handler::getScore)
+                .andRoute(POST("/sorted-set/increment-score"), handler::incrementScore)
+                .andRoute(POST("/sorted-set/add-with-option"), handler::addWithOption);
     }
 }

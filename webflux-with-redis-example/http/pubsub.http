@@ -1,0 +1,25 @@
+### SSE 구독은 별도 탭에서 먼저 실행
+GET http://localhost:8080/pubsub/subscribe?channel=test:notification
+Accept: text/event-stream
+
+###
+POST http://localhost:8080/pubsub/publish
+Content-Type: application/json
+
+{
+  "channel": "test:notification",
+  "message": "Hello, Redis Pub/Sub!"
+}
+
+###
+GET http://localhost:8080/pubsub/psubscribe?pattern=news:*
+Accept: text/event-stream
+
+###
+POST http://localhost:8080/pubsub/publish
+Content-Type: application/json
+
+{
+  "channel": "news:weather",
+  "message": "오늘의 날씨는 맑음입니다."
+}

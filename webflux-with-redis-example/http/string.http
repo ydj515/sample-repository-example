@@ -24,3 +24,61 @@ Content-Type: application/json
   },
   "names": ["a", "b", "c"]
 }
+
+###
+POST http://localhost:8080/string/raw-set
+Content-Type: application/json
+
+{
+  "baseRequest": {
+    "key": "page_views"
+  },
+  "value": "10",
+  "ttlSeconds": 300
+}
+
+###
+GET http://localhost:8080/string/raw-get?key=page_views
+Content-Type: application/json
+
+###
+POST http://localhost:8080/string/increment
+Content-Type: application/json
+
+{
+  "baseRequest": {
+    "key": "page_views"
+  },
+  "delta": 5
+}
+
+###
+POST http://localhost:8080/string/decrement
+Content-Type: application/json
+
+{
+  "baseRequest": {
+    "key": "page_views"
+  },
+  "delta": 2
+}
+
+###
+GET http://localhost:8080/string/multi-get?keys=page_views,user:100:name
+Content-Type: application/json
+
+###
+GET http://localhost:8080/string/ttl?key=page_views
+Content-Type: application/json
+
+###
+POST http://localhost:8080/string/set-if-absent
+Content-Type: application/json
+
+{
+  "baseRequest": {
+    "key": "config:featureX"
+  },
+  "value": "enabled",
+  "ttlSeconds": 300
+}

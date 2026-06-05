@@ -36,4 +36,34 @@ public class SortedSetHandler {
         return sortedSetAsyncService.getTopN(key, n)
                 .flatMap(topN -> ServerResponse.ok().body(Flux.fromIterable(topN), SortedSetModel.class));
     }
+
+    public Mono<ServerResponse> getRank(ServerRequest request) {
+        String key = request.queryParam("key").orElse("");
+        String member = request.queryParam("member").orElse("");
+        return ServerResponse.ok().body(sortedSetAsyncService.rank(key, member), Long.class);
+    }
+
+    public Mono<ServerResponse> getReverseRank(ServerRequest request) {
+        String key = request.queryParam("key").orElse("");
+        String member = request.queryParam("member").orElse("");
+        return ServerResponse.ok().body(sortedSetAsyncService.reverseRank(key, member), Long.class);
+    }
+
+    public Mono<ServerResponse> getScore(ServerRequest request) {
+        String key = request.queryParam("key").orElse("");
+        String member = request.queryParam("member").orElse("");
+        return ServerResponse.ok().body(sortedSetAsyncService.score(key, member), Double.class);
+    }
+
+    public Mono<ServerResponse> incrementScore(ServerRequest request) {
+        return request.bodyToMono(SortedSetDeltaRequest.class)
+                .flatMap(sortedSetAsyncService::incrementScore)
+                .flatMap(result -> ServerResponse.ok().bodyValue(result));
+    }
+
+    public Mono<ServerResponse> addWithOption(ServerRequest request) {
+        return request.bodyToMono(SortedSetConditionalAddRequest.class)
+                .flatMap(sortedSetAsyncService::addWithOption)
+                .flatMap(result -> ServerResponse.ok().bodyValue(result));
+    }
 }

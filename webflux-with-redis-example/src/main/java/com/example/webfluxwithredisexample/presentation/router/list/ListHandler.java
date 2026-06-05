@@ -33,4 +33,43 @@ public class ListHandler {
                 .collectList()
                 .flatMap(data -> ServerResponse.ok().body(Mono.just(data), List.class));
     }
+
+    public Mono<ServerResponse> getListSize(ServerRequest request) {
+        String key = request.queryParam("key").orElse("");
+        return ServerResponse.ok().body(listAsyncService.size(key), Long.class);
+    }
+
+    public Mono<ServerResponse> getListIndex(ServerRequest request) {
+        String key = request.queryParam("key").orElse("");
+        long index = Long.parseLong(request.queryParam("index").orElse("0"));
+        return ServerResponse.ok().body(listAsyncService.index(key, index), String.class);
+    }
+
+    public Mono<ServerResponse> leftPop(ServerRequest request) {
+        String key = request.queryParam("key").orElse("");
+        long count = Long.parseLong(request.queryParam("count").orElse("1"));
+
+        if (count <= 1) {
+            return ServerResponse.ok().body(listAsyncService.leftPop(key), String.class);
+        }
+
+        return ServerResponse.ok().body(listAsyncService.leftPop(key, count), List.class);
+    }
+
+    public Mono<ServerResponse> rightPop(ServerRequest request) {
+        String key = request.queryParam("key").orElse("");
+        long count = Long.parseLong(request.queryParam("count").orElse("1"));
+
+        if (count <= 1) {
+            return ServerResponse.ok().body(listAsyncService.rightPop(key), String.class);
+        }
+
+        return ServerResponse.ok().body(listAsyncService.rightPop(key, count), List.class);
+    }
+
+    public Mono<ServerResponse> blockingLeftPop(ServerRequest request) {
+        String key = request.queryParam("key").orElse("");
+        long timeoutSeconds = Long.parseLong(request.queryParam("timeoutSeconds").orElse("5"));
+        return ServerResponse.ok().body(listAsyncService.leftPopBlocking(key, timeoutSeconds), String.class);
+    }
 }

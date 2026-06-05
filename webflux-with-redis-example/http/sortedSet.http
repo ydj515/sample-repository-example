@@ -17,3 +17,40 @@ Content-Type: application/json
 ###
 GET http://localhost:8080/get-sorted-set-by-top?key=sortedset key&n=5
 Content-Type: application/json
+
+###
+GET http://localhost:8080/sorted-set/rank?key=sortedset key&member=one
+Content-Type: application/json
+
+###
+GET http://localhost:8080/sorted-set/reverse-rank?key=sortedset key&member=one
+Content-Type: application/json
+
+###
+GET http://localhost:8080/sorted-set/score?key=sortedset key&member=one
+Content-Type: application/json
+
+###
+POST http://localhost:8080/sorted-set/increment-score
+Content-Type: application/json
+
+{
+  "baseRequest": {
+    "key": "sortedset key"
+  },
+  "name": "one",
+  "delta": 10
+}
+
+###
+POST http://localhost:8080/sorted-set/add-with-option
+Content-Type: application/json
+
+{
+  "baseRequest": {
+    "key": "sortedset key"
+  },
+  "name": "two",
+  "score": 100,
+  "option": "NX"
+}

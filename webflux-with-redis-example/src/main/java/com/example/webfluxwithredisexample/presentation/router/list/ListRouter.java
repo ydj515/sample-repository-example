@@ -17,6 +17,11 @@ public class ListRouter {
         return RouterFunctions
                 .route(POST("/list-add-left"), handler::addToListLeft)
                 .andRoute(POST("/list-add-right"), handler::addToListRight)
-                .andRoute(GET("/all"), handler::getAllData);
+                .andRoute(GET("/all"), handler::getAllData)
+                .andRoute(GET("/list/size"), handler::getListSize)
+                .andRoute(GET("/list/index"), handler::getListIndex)
+                .andRoute(POST("/list/left-pop"), handler::leftPop)
+                .andRoute(POST("/list/right-pop"), handler::rightPop)
+                .andRoute(POST("/list/blocking-left-pop"), handler::blockingLeftPop);
     }
 }

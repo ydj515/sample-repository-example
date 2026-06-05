@@ -2,6 +2,7 @@ package com.example.webfluxwithredisexample.infrastructure.repository;
 
 import com.example.webfluxwithredisexample.domain.ValueWithTTL;
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,7 +23,7 @@ public class StrategyRepository {
     private final ReactiveRedisTemplate<String, String> template;
     private final Gson gson;
 
-    @Value("${spring.data.redis.default-time}")
+    @Value("${app.redis.default-ttl}")
     private Duration defaultExpireTime;
 
     public <T> Mono<ValueWithTTL<T>> getValueWithTtl(String key, Class<T> clazz) {
@@ -60,6 +61,56 @@ public class StrategyRepository {
         return template.execute(script, List.of(key1, key2, resultKey));
     }
 
+    public <T> Mono<T> getData(String key, Class<T> clazz) {
+        return template.opsForValue().get(key)
+                .map(json -> gson.fromJson(json, clazz));
+    }
+
+    public <T> Mono<Boolean> setData(String key, T value) {
+        return setData(key, value, defaultExpireTime);
+    }
+
+    public <T> Mono<Boolean> setData(String key, T value, Duration ttl) {
+        String jsonValue = gson.toJson(value);
+
+        if (ttl == null) {
+            return template.opsForValue().set(key, jsonValue);
+        }
+
+        return template.opsForValue().set(key, jsonValue, ttl);
+    }
+
+    public Mono<Boolean> delete(String key) {
+        return template.unlink(key).map(count -> count > 0);
+    }
+
+    public Mono<Long> enqueue(String queueKey, Object payload) {
+        return template.opsForList().rightPush(queueKey, gson.toJson(payload));
+    }
+
+    public Mono<String> dequeue(String queueKey) {
+        return template.opsForList().leftPop(queueKey)
+                .map(this::deserializeString);
+    }
+
+    public Mono<Long> queueSize(String queueKey) {
+        return template.opsForList().size(queueKey);
+    }
+
+    public Duration getDefaultExpireTime() {
+        return defaultExpireTime;
+    }
+
+    private String deserializeString(String rawValue) {
+        if (rawValue == null) {
+            return null;
+        }
+
+        try {
+            return gson.fromJson(rawValue, String.class);
+        } catch (JsonSyntaxException e) {
+            return rawValue;
+        }
+    }
 
 }
-

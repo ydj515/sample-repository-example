@@ -25,7 +25,7 @@ public class ReactiveRedisRepository {
     private final ReactiveRedisTemplate<String, String> template;
     private final Gson gson;
 
-    @Value("${spring.data.redis.default-time}")
+    @Value("${app.redis.default-ttl}")
     private Duration defaultExpireTime;
 
     public <T> Mono<T> getData(String key, Class<T> clazz) {

@@ -1,0 +1,64 @@
+###
+POST http://localhost:8080/set/add
+Content-Type: application/json
+
+{
+  "baseRequest": {
+    "key": "fruits"
+  },
+  "members": ["apple", "banana", "orange"]
+}
+
+###
+GET http://localhost:8080/set/members?key=fruits
+Content-Type: application/json
+
+###
+GET http://localhost:8080/set/is-member?key=fruits&member=apple
+Content-Type: application/json
+
+###
+GET http://localhost:8080/set/size?key=fruits
+Content-Type: application/json
+
+###
+POST http://localhost:8080/set/pop?key=fruits&count=1
+Content-Type: application/json
+
+###
+GET http://localhost:8080/set/random-members?key=fruits&count=2&distinct=true
+Content-Type: application/json
+
+###
+POST http://localhost:8080/set/add
+Content-Type: application/json
+
+{
+  "baseRequest": {
+    "key": "numbers"
+  },
+  "members": ["1", "2", "3"]
+}
+
+###
+POST http://localhost:8080/set/add
+Content-Type: application/json
+
+{
+  "baseRequest": {
+    "key": "numbers2"
+  },
+  "members": ["2", "3", "4"]
+}
+
+###
+GET http://localhost:8080/set/intersection?keys=numbers,numbers2
+Content-Type: application/json
+
+###
+GET http://localhost:8080/set/union?keys=numbers,numbers2
+Content-Type: application/json
+
+###
+GET http://localhost:8080/set/difference?keys=numbers,numbers2
+Content-Type: application/json
