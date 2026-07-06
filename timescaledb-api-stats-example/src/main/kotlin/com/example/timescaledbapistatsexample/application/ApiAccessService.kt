@@ -26,6 +26,9 @@ class ApiAccessService(
     @Volatile
     private var cachedSnapshot: ApiAccessSnapshot? = null
 
+    @Volatile
+    private var cachedMatcher: RoutePatternMatcher? = null
+
     @PostConstruct
     fun initialize() {
         if (loadOnStartup) {
@@ -34,12 +37,16 @@ class ApiAccessService(
     }
 
     fun refresh() {
-        cachedSnapshot = snapshotProvider.loadSnapshot()
+        val snapshot = snapshotProvider.loadSnapshot()
+        cachedSnapshot = snapshot
+        // route 정규식 컴파일/정렬 비용을 요청마다 치르지 않도록 snapshot 갱신 시 matcher도 함께 캐싱한다.
+        cachedMatcher = RoutePatternMatcher(snapshot.routes)
     }
 
     fun authorize(apiKey: String?, method: String, path: String): AuthorizationDecision {
         val snapshot = currentSnapshot()
-        val route = RoutePatternMatcher(snapshot.routes).find(method, path)
+        val matcher = cachedMatcher ?: RoutePatternMatcher(snapshot.routes).also { cachedMatcher = it }
+        val route = matcher.find(method, path)
 
         if (route == null) {
             return AuthorizationDecision(

@@ -12,7 +12,8 @@ class ApiKeyAuthFilter(
     private val apiAccessService: ApiAccessService,
 ) : OncePerRequestFilter() {
     override fun shouldNotFilter(request: HttpServletRequest): Boolean {
-        return RequestFilterExclusions.isExcluded(request.requestURI)
+        // context path가 설정돼도 앱 내부 경로로 매칭되도록 servletPath를 사용한다.
+        return RequestFilterExclusions.isExcluded(request.servletPath)
     }
 
     override fun doFilterInternal(
@@ -23,7 +24,7 @@ class ApiKeyAuthFilter(
         val decision = apiAccessService.authorize(
             apiKey = request.getHeader("X-API-Key"),
             method = request.method,
-            path = request.requestURI,
+            path = request.servletPath,
         )
 
         request.setAttribute(ATTR_AUTH_RESULT, decision.authResult.name)

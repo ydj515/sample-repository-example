@@ -9,6 +9,7 @@ import com.example.timescaledbapistatsexample.domain.model.TopEndpoint
 import com.example.timescaledbapistatsexample.domain.port.ApiStatsReader
 import java.sql.Timestamp
 import java.time.Instant
+import java.time.OffsetDateTime
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
@@ -28,7 +29,7 @@ class ApiStatsRepository(
             """.trimIndent(),
             params(bucket, from, to),
         ) { rs, _ ->
-            BucketCount(rs.getTimestamp("bucket").toInstant(), rs.getLong("total_calls"))
+            BucketCount(rs.getObject("bucket", OffsetDateTime::class.java).toInstant(), rs.getLong("total_calls"))
         }
     }
 
@@ -46,7 +47,7 @@ class ApiStatsRepository(
             params(bucket, from, to),
         ) { rs, _ ->
             BucketLatency(
-                bucket = rs.getTimestamp("bucket").toInstant(),
+                bucket = rs.getObject("bucket", OffsetDateTime::class.java).toInstant(),
                 averageDurationMs = rs.getDouble("average_duration_ms"),
                 maxDurationMs = rs.getLong("max_duration_ms"),
             )
@@ -69,7 +70,7 @@ class ApiStatsRepository(
             val totalCalls = rs.getLong("total_calls")
             val failedCalls = rs.getLong("failed_calls")
             BucketFailureRate(
-                bucket = rs.getTimestamp("bucket").toInstant(),
+                bucket = rs.getObject("bucket", OffsetDateTime::class.java).toInstant(),
                 totalCalls = totalCalls,
                 failedCalls = failedCalls,
                 failureRate = if (totalCalls == 0L) 0.0 else failedCalls.toDouble() / totalCalls.toDouble(),

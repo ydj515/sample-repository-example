@@ -14,7 +14,8 @@ class ApiCallCaptureFilter(
     private val publisher: ApiCallEventPublisher,
 ) : OncePerRequestFilter() {
     override fun shouldNotFilter(request: HttpServletRequest): Boolean {
-        return RequestFilterExclusions.isExcluded(request.requestURI)
+        // context path가 설정돼도 앱 내부 경로로 매칭되도록 servletPath를 사용한다.
+        return RequestFilterExclusions.isExcluded(request.servletPath)
     }
 
     override fun doFilterInternal(
@@ -42,11 +43,11 @@ class ApiCallCaptureFilter(
                     authResult = request.getAttribute(ApiKeyAuthFilter.ATTR_AUTH_RESULT) as? String ?: ApiAuthResult.ALLOWED.name,
                     deniedReason = request.getAttribute(ApiKeyAuthFilter.ATTR_DENIED_REASON) as? String,
                     method = request.method,
-                    path = request.requestURI,
+                    path = request.servletPath,
                     pathPattern = resolvePathPattern(request),
                     status = response.status,
                     durationMs = durationMs,
-                    clientIp = request.getHeader("X-Forwarded-For")?.substringBefore(",") ?: request.remoteAddr,
+                    clientIp = request.getHeader("X-Forwarded-For")?.takeIf { it.isNotBlank() }?.substringBefore(",")?.trim() ?: request.remoteAddr,
                     userAgent = request.getHeader("User-Agent"),
                     errorType = errorType,
                 ),
@@ -57,6 +58,6 @@ class ApiCallCaptureFilter(
     private fun resolvePathPattern(request: HttpServletRequest): String {
         return request.getAttribute(ApiKeyAuthFilter.ATTR_ROUTE_PATTERN) as? String
             ?: request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE) as? String
-            ?: request.requestURI
+            ?: request.servletPath
     }
 }

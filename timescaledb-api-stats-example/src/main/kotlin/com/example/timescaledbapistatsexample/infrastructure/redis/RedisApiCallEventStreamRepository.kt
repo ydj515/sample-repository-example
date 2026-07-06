@@ -80,7 +80,9 @@ class RedisApiCallEventStreamRepository(
     }
 
     override fun claimStale(minIdle: Duration, batchSize: Long): List<StreamEntry> {
+        // Spring Data Redis 반환값은 플랫폼 타입이라 null 가능성이 있어 방어적으로 처리한다.
         val pending = streamOps.pending(streamKey, group, Range.unbounded<String>(), batchSize)
+            ?: return emptyList()
 
         val staleIds = mutableListOf<RecordId>()
         for (message in pending) {
@@ -91,7 +93,8 @@ class RedisApiCallEventStreamRepository(
         if (staleIds.isEmpty()) return emptyList()
 
         return streamOps.claim(streamKey, group, consumerName, minIdle, *staleIds.toTypedArray())
-            .map { it.toStreamEntry() }
+            ?.map { it.toStreamEntry() }
+            .orEmpty()
     }
 
     override fun acknowledge(ids: List<String>) {
