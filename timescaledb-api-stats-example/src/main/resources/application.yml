@@ -1,0 +1,43 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: timescaledb-api-stats-example
+  datasource:
+    url: jdbc:postgresql://localhost:5432/api_stats
+    username: api_stats
+    password: api_stats
+    driver-class-name: org.postgresql.Driver
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
+api-stats:
+  auth:
+    load-on-startup: true
+  redis:
+    stream-key: api-call-events
+    group: api-call-event-writers
+    consumer-name: api-stats-app-1
+    max-len: 100000
+  consumer:
+    enabled: true
+    batch-size: 100
+    poll-timeout-ms: 1000
+    fixed-delay-ms: 1000
+    reclaim:
+      enabled: true
+      min-idle-ms: 60000
+      batch-size: 100
+      fixed-delay-ms: 30000
