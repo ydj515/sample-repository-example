@@ -13,6 +13,7 @@ import org.springframework.data.redis.connection.stream.ReadOffset
 import org.springframework.data.redis.connection.stream.RecordId
 import org.springframework.data.redis.connection.stream.StreamOffset
 import org.springframework.data.redis.connection.stream.StreamReadOptions
+import org.springframework.data.redis.core.RedisCallback
 import org.springframework.data.redis.core.StringRedisTemplate
 import org.springframework.stereotype.Repository
 
@@ -32,9 +33,23 @@ class RedisApiCallEventStreamRepository(
     private val streamOps
         get() = redisTemplate.opsForStream<String, String>()
 
-    override fun append(fields: Map<String, String>) {
-        val record = MapRecord.create(streamKey, fields).withId(RecordId.autoGenerate())
-        streamOps.add(record)
+    override fun appendAll(fieldsList: List<Map<String, String>>) {
+        if (fieldsList.isEmpty()) return
+
+        val keyBytes = streamKey.toByteArray(Charsets.UTF_8)
+        // 배치 전체를 한 번의 파이프라인(왕복 1회)으로 XADD 한다.
+        redisTemplate.executePipelined(
+            RedisCallback<Any?> { connection ->
+                fieldsList.forEach { fields ->
+                    val body = LinkedHashMap<ByteArray, ByteArray>(fields.size)
+                    fields.forEach { (key, value) ->
+                        body[key.toByteArray(Charsets.UTF_8)] = value.toByteArray(Charsets.UTF_8)
+                    }
+                    connection.streamCommands().xAdd(keyBytes, body)
+                }
+                null
+            },
+        )
     }
 
     override fun ensureConsumerGroup() {

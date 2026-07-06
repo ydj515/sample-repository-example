@@ -154,7 +154,24 @@ docker compose exec redis redis-cli XPENDING api-call-events api-call-event-writ
 
 ### Stream 접근 구조
 
-Redis Stream 접근은 도메인 인터페이스 `ApiCallEventStreamRepository`로 일원화하고, `StringRedisTemplate` 기반 구현체 `RedisApiCallEventStreamRepository`가 XADD/XREADGROUP/XACK/XTRIM/XPENDING/XCLAIM을 담당합니다. publisher와 consumer는 `StringRedisTemplate`을 직접 다루지 않고 이 인터페이스에만 의존합니다.
+Redis Stream 접근은 도메인 인터페이스 `ApiCallEventStreamRepository`로 일원화하고, `StringRedisTemplate` 기반 구현체 `RedisApiCallEventStreamRepository`가 batch XADD/XREADGROUP/XACK/XTRIM/XPENDING/XCLAIM을 담당합니다. publisher와 consumer는 `StringRedisTemplate`을 직접 다루지 않고 이 인터페이스에만 의존합니다.
+
+### 비동기 발행 (bounded queue + batch XADD)
+
+요청 스레드는 Redis I/O를 직접 수행하지 않습니다. `ApiCallEventPublisher`가 이벤트를 bounded 인메모리 큐에 offer만 하고(논블로킹), 전용 워커 스레드가 큐를 배치로 비워 파이프라인 XADD(왕복 1회)로 발행합니다. 이렇게 하면 Redis 지연/장애가 요청 지연으로 전파되지 않습니다.
+
+- 큐가 가득 차면 이벤트를 drop 하고 카운트만 올립니다(텔레메트리가 본 트래픽을 밀어내지 않도록 하는 명시적 backpressure).
+- 정상 종료(`@PreDestroy`) 시 남은 큐를 flush 해 유실을 막습니다. 단 인메모리 버퍼이므로 하드킬(SIGKILL/정전) 시에는 아직 발행되지 않은 이벤트가 유실될 수 있습니다.
+
+관련 설정(`application.yml`):
+
+```yaml
+api-stats:
+  publisher:
+    queue-capacity: 10000  # bounded 큐 크기(초과분은 drop)
+    batch-size: 500        # 한 번의 파이프라인 XADD로 묶는 최대 개수
+    poll-timeout-ms: 200   # 워커가 큐를 기다리는 최대 시간
+```
 
 ### Pending 메시지 회수 (XPENDING + XCLAIM)
 

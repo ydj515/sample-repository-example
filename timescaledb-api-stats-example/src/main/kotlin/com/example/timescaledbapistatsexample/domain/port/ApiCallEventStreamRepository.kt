@@ -9,8 +9,8 @@ import java.time.Duration
  * Redis 접근 방식은 infrastructure 구현체에 캡슐화한다.
  */
 interface ApiCallEventStreamRepository {
-    /** 이벤트 필드를 스트림에 추가한다(XADD). */
-    fun append(fields: Map<String, String>)
+    /** 여러 이벤트 필드를 한 번의 파이프라인으로 스트림에 추가한다(batch XADD). */
+    fun appendAll(fieldsList: List<Map<String, String>>)
 
     /** consumer group을 생성한다. 이미 존재하면 무시한다(XGROUP CREATE MKSTREAM). */
     fun ensureConsumerGroup()

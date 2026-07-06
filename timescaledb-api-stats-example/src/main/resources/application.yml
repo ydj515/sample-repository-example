@@ -31,6 +31,10 @@ api-stats:
     group: api-call-event-writers
     consumer-name: api-stats-app-1
     max-len: 100000
+  publisher:
+    queue-capacity: 10000
+    batch-size: 500
+    poll-timeout-ms: 200
   consumer:
     enabled: true
     batch-size: 100
