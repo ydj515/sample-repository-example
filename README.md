@@ -27,6 +27,7 @@
 - proxy-query-plan-example([link](https://github.com/ydj515/sample-repository-example/tree/main/proxy-query-plan-example))
 - cte-example([link](https://github.com/ydj515/sample-repository-example/tree/main/cte-example))
 - load-test-example([link](https://github.com/ydj515/sample-repository-example/tree/main/load-test-example))
+- timescaledb-api-stats-example([link](https://github.com/ydj515/sample-repository-example/tree/main/timescaledb-api-stats-example))
 - jpa-java-example([link](https://github.com/ydj515/sample-repository-example/tree/main/jpa-java-example))
 - stream-example([link](https://github.com/ydj515/sample-repository-example/tree/main/stream-example))
 - git-master-to-main-example([link](https://github.com/ydj515/sample-repository-example/tree/main/git-master-to-main))
