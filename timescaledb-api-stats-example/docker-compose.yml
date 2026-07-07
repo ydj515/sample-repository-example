@@ -1,6 +1,6 @@
 services:
   timescaledb:
-    image: timescale/timescaledb:2.28.2-pg17-oss
+    image: timescale/timescaledb:2.28.2-pg17
     container_name: timescaledb-api-stats-db
     environment:
       POSTGRES_DB: api_stats

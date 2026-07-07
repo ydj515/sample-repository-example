@@ -56,3 +56,69 @@ CREATE INDEX IF NOT EXISTS idx_api_call_events_path_pattern_time
 
 CREATE INDEX IF NOT EXISTS idx_api_call_events_status_time
     ON api_call_events (status, occurred_at DESC);
+
+CREATE MATERIALIZED VIEW IF NOT EXISTS api_key_call_stats_daily
+WITH (timescaledb.continuous) AS
+SELECT
+    time_bucket('1 day', occurred_at) AS bucket,
+    api_client_id,
+    api_client_name,
+    method,
+    path_pattern,
+    count(*) AS total_calls,
+    count(*) FILTER (WHERE status >= 400) AS failed_calls,
+    avg(duration_ms) AS average_duration_ms,
+    max(duration_ms) AS max_duration_ms
+FROM api_call_events
+GROUP BY bucket, api_client_id, api_client_name, method, path_pattern;
+
+CREATE MATERIALIZED VIEW IF NOT EXISTS api_key_call_stats_monthly
+WITH (timescaledb.continuous) AS
+SELECT
+    time_bucket('1 month', occurred_at) AS bucket,
+    api_client_id,
+    api_client_name,
+    method,
+    path_pattern,
+    count(*) AS total_calls,
+    count(*) FILTER (WHERE status >= 400) AS failed_calls,
+    avg(duration_ms) AS average_duration_ms,
+    max(duration_ms) AS max_duration_ms
+FROM api_call_events
+GROUP BY bucket, api_client_id, api_client_name, method, path_pattern;
+
+CREATE MATERIALIZED VIEW IF NOT EXISTS api_key_call_stats_yearly
+WITH (timescaledb.continuous) AS
+SELECT
+    time_bucket('1 year', occurred_at) AS bucket,
+    api_client_id,
+    api_client_name,
+    method,
+    path_pattern,
+    count(*) AS total_calls,
+    count(*) FILTER (WHERE status >= 400) AS failed_calls,
+    avg(duration_ms) AS average_duration_ms,
+    max(duration_ms) AS max_duration_ms
+FROM api_call_events
+GROUP BY bucket, api_client_id, api_client_name, method, path_pattern;
+
+SELECT add_continuous_aggregate_policy('api_key_call_stats_daily',
+    start_offset => INTERVAL '90 days',
+    end_offset => INTERVAL '1 hour',
+    schedule_interval => INTERVAL '10 minutes',
+    if_not_exists => TRUE
+);
+
+SELECT add_continuous_aggregate_policy('api_key_call_stats_monthly',
+    start_offset => INTERVAL '2 years',
+    end_offset => INTERVAL '1 hour',
+    schedule_interval => INTERVAL '1 hour',
+    if_not_exists => TRUE
+);
+
+SELECT add_continuous_aggregate_policy('api_key_call_stats_yearly',
+    start_offset => INTERVAL '10 years',
+    end_offset => INTERVAL '1 hour',
+    schedule_interval => INTERVAL '1 day',
+    if_not_exists => TRUE
+);

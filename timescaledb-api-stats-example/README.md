@@ -7,7 +7,7 @@ API 호출 이벤트를 Redis Stream에 적재하고 내부 consumer가 Timescal
 - Kotlin
 - Spring Boot
 - Gradle Kotlin DSL
-- TimescaleDB: `timescale/timescaledb:2.28.2-pg17-oss`
+- TimescaleDB: `timescale/timescaledb:2.28.2-pg17`
 - Redis: `redis:7.2-alpine`
 - Grafana: `grafana/grafana:11.5.2`
 - Prometheus: `prom/prometheus:v2.48.0`
@@ -121,10 +121,13 @@ TO=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 curl "http://localhost:8080/api/stats/calls?bucket=1%20minute&from=$FROM&to=$TO"
 curl "http://localhost:8080/api/stats/latency?bucket=1%20minute&from=$FROM&to=$TO"
 curl "http://localhost:8080/api/stats/failure-rate?bucket=1%20minute&from=$FROM&to=$TO"
+curl "http://localhost:8080/api/stats/api-key-calls?period=day&from=$FROM&to=$TO&limit=100"
 curl "http://localhost:8080/api/stats/top-endpoints?from=$FROM&to=$TO&limit=10"
 curl "http://localhost:8080/api/stats/clients?from=$FROM&to=$TO"
 curl "http://localhost:8080/api/stats/auth-failures?from=$FROM&to=$TO"
 ```
+
+`/api/stats/api-key-calls`는 `period=day|month|year`를 지원하고, `apiClientId`, `method`, `pathPattern`, `limit` 필터를 선택적으로 받을 수 있습니다. API Key 원문은 저장하지 않으므로 결과는 `apiClientId`와 `apiClientName` 기준으로 집계됩니다.
 
 ## SQL
 
@@ -143,6 +146,21 @@ FROM api_call_events
 GROUP BY method, path_pattern
 ORDER BY total_calls DESC;
 ```
+
+Continuous aggregate는 API Key client와 API route 기준으로 일/월/년별 집계 view를 제공합니다.
+
+```sql
+SELECT bucket, api_client_name, method, path_pattern, total_calls
+FROM api_key_call_stats_daily
+ORDER BY bucket DESC, total_calls DESC
+LIMIT 20;
+```
+
+생성되는 continuous aggregate view:
+
+- `api_key_call_stats_daily`
+- `api_key_call_stats_monthly`
+- `api_key_call_stats_yearly`
 
 ## Redis Stream
 
@@ -205,7 +223,15 @@ Grafana는 provisioning으로 datasource와 dashboard를 자동 등록합니다.
 - `API Stats - TimescaleDB`: TimescaleDB를 직접 조회하는 API 통계 dashboard
 - `Operations - Prometheus`: Prometheus를 조회하는 JVM/DB 운영 dashboard
 
-API 통계 dashboard는 Grafana PostgreSQL datasource가 `api_call_events` hypertable을 직접 조회합니다. JVM/DB 운영 dashboard는 Prometheus datasource를 통해 Spring Boot actuator와 PostgreSQL exporter metric을 조회합니다.
+API 통계 dashboard는 Grafana PostgreSQL datasource가 `api_call_events` hypertable과 continuous aggregate view를 직접 조회합니다. JVM/DB 운영 dashboard는 Prometheus datasource를 통해 Spring Boot actuator와 PostgreSQL exporter metric을 조회합니다.
+
+`API Stats - TimescaleDB` dashboard에는 raw hypertable과 continuous aggregate를 비교하는 패널이 분리되어 있습니다.
+
+- `Raw API Key Calls - Daily` / `Continuous Aggregate API Key Calls - Daily`
+- `Raw API Key Calls - Monthly` / `Continuous Aggregate API Key Calls - Monthly`
+- `Raw API Key Calls - Yearly` / `Continuous Aggregate API Key Calls - Yearly`
+
+기존 Docker volume이 이미 생성된 상태라면 새 continuous aggregate init SQL은 자동 적용되지 않습니다. 비교 패널을 보려면 `docker compose down -v && docker compose up -d`로 volume을 다시 만들거나, `infra/timescaledb/init/01_schema.sql`의 continuous aggregate SQL을 TimescaleDB에 수동 적용해야 합니다.
 
 Spring Boot actuator metric을 Prometheus가 수집하려면 앱이 실행 중이어야 합니다.
 

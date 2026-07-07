@@ -1,10 +1,12 @@
 package com.example.timescaledbapistatsexample.infrastructure.persistence
 
 import com.example.timescaledbapistatsexample.domain.model.AuthFailure
+import com.example.timescaledbapistatsexample.domain.model.ApiKeyCallStat
 import com.example.timescaledbapistatsexample.domain.model.BucketCount
 import com.example.timescaledbapistatsexample.domain.model.BucketFailureRate
 import com.example.timescaledbapistatsexample.domain.model.BucketLatency
 import com.example.timescaledbapistatsexample.domain.model.ClientCall
+import com.example.timescaledbapistatsexample.domain.model.StatsPeriod
 import com.example.timescaledbapistatsexample.domain.model.TopEndpoint
 import com.example.timescaledbapistatsexample.domain.port.ApiStatsReader
 import java.sql.Timestamp
@@ -74,6 +76,71 @@ class ApiStatsRepository(
                 totalCalls = totalCalls,
                 failedCalls = failedCalls,
                 failureRate = if (totalCalls == 0L) 0.0 else failedCalls.toDouble() / totalCalls.toDouble(),
+            )
+        }
+    }
+
+    override fun apiKeyCalls(
+        period: StatsPeriod,
+        from: Instant,
+        to: Instant,
+        apiClientId: Long?,
+        method: String?,
+        pathPattern: String?,
+        limit: Int,
+    ): List<ApiKeyCallStat> {
+        val parameters = params(period.bucket, from, to)
+            .addValue("limit", limit)
+        val conditions = mutableListOf(
+            "occurred_at >= :from",
+            "occurred_at < :to",
+        )
+
+        if (apiClientId != null) {
+            conditions += "api_client_id = :apiClientId"
+            parameters.addValue("apiClientId", apiClientId)
+        }
+        if (method != null) {
+            conditions += "method = :method"
+            parameters.addValue("method", method)
+        }
+        if (pathPattern != null) {
+            conditions += "path_pattern = :pathPattern"
+            parameters.addValue("pathPattern", pathPattern)
+        }
+
+        return jdbcTemplate.query(
+            """
+            SELECT time_bucket(CAST(:bucket AS interval), occurred_at) AS bucket,
+                   api_client_id,
+                   coalesce(api_client_name, 'anonymous') AS api_client_name,
+                   method,
+                   path_pattern,
+                   count(*) AS total_calls,
+                   count(*) FILTER (WHERE status >= 400) AS failed_calls,
+                   avg(duration_ms) AS average_duration_ms,
+                   max(duration_ms) AS max_duration_ms
+            FROM api_call_events
+            WHERE ${conditions.joinToString("\n              AND ")}
+            GROUP BY bucket, api_client_id, coalesce(api_client_name, 'anonymous'), method, path_pattern
+            ORDER BY bucket, total_calls DESC, api_client_name, method, path_pattern
+            LIMIT :limit
+            """.trimIndent(),
+            parameters,
+        ) { rs, _ ->
+            val totalCalls = rs.getLong("total_calls")
+            val failedCalls = rs.getLong("failed_calls")
+            ApiKeyCallStat(
+                bucket = rs.getObject("bucket", OffsetDateTime::class.java).toInstant(),
+                apiClientId = rs.getObject("api_client_id")?.let { (it as Number).toLong() },
+                apiClientName = rs.getString("api_client_name"),
+                method = rs.getString("method"),
+                pathPattern = rs.getString("path_pattern"),
+                totalCalls = totalCalls,
+                failedCalls = failedCalls,
+                failureRate = if (totalCalls == 0L) 0.0 else failedCalls.toDouble() / totalCalls.toDouble(),
+                averageDurationMs = rs.getDouble("average_duration_ms"),
+                maxDurationMs = rs.getLong("max_duration_ms"),
             )
         }
     }

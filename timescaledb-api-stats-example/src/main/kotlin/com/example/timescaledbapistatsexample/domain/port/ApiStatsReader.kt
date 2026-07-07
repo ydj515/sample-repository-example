@@ -1,10 +1,12 @@
 package com.example.timescaledbapistatsexample.domain.port
 
 import com.example.timescaledbapistatsexample.domain.model.AuthFailure
+import com.example.timescaledbapistatsexample.domain.model.ApiKeyCallStat
 import com.example.timescaledbapistatsexample.domain.model.BucketCount
 import com.example.timescaledbapistatsexample.domain.model.BucketFailureRate
 import com.example.timescaledbapistatsexample.domain.model.BucketLatency
 import com.example.timescaledbapistatsexample.domain.model.ClientCall
+import com.example.timescaledbapistatsexample.domain.model.StatsPeriod
 import com.example.timescaledbapistatsexample.domain.model.TopEndpoint
 import java.time.Instant
 
@@ -17,6 +19,16 @@ interface ApiStatsReader {
     fun latency(bucket: String, from: Instant, to: Instant): List<BucketLatency>
 
     fun failureRate(bucket: String, from: Instant, to: Instant): List<BucketFailureRate>
+
+    fun apiKeyCalls(
+        period: StatsPeriod,
+        from: Instant,
+        to: Instant,
+        apiClientId: Long?,
+        method: String?,
+        pathPattern: String?,
+        limit: Int,
+    ): List<ApiKeyCallStat>
 
     fun topEndpoints(from: Instant, to: Instant, limit: Int): List<TopEndpoint>
 

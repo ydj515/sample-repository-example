@@ -1,5 +1,6 @@
 package com.example.timescaledbapistatsexample.observability
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.test.Test
@@ -11,11 +12,15 @@ import org.yaml.snakeyaml.Yaml
 class ObservabilityConfigurationTest {
     private val projectRoot: Path = Path.of("").toAbsolutePath()
     private val yaml = Yaml()
+    private val objectMapper = jacksonObjectMapper()
 
     @Test
     fun `compose defines grafana prometheus and postgres exporter services`() {
         val compose = readYaml(projectRoot.resolve("docker-compose.yml"))
         val services = compose.map("services")
+
+        val timescaledb = services.map("timescaledb")
+        assertEquals("timescale/timescaledb:2.28.2-pg17", timescaledb["image"])
 
         val grafana = services.map("grafana")
         assertEquals("grafana/grafana:11.5.2", grafana["image"])
@@ -76,6 +81,73 @@ class ObservabilityConfigurationTest {
         assertEquals("/var/lib/grafana/dashboards", providers.first().map("options")["path"])
         assertTrue(Files.exists(projectRoot.resolve("infra/grafana/dashboards/api-stats-timescaledb.json")))
         assertTrue(Files.exists(projectRoot.resolve("infra/grafana/dashboards/operations-prometheus.json")))
+    }
+
+    @Test
+    fun `timescaledb dashboard includes api key period stats panels`() {
+        val dashboardText = Files.readString(projectRoot.resolve("infra/grafana/dashboards/api-stats-timescaledb.json"))
+        val dashboard = objectMapper.readTree(dashboardText)
+        val variables = dashboard.path("templating").path("list").elements().asSequence()
+            .associateBy { it.path("name").asText() }
+        val panelTitles = dashboard.path("panels").elements().asSequence()
+            .map { it.path("title").asText() }
+            .toSet()
+
+        assertTrue(!dashboardText.contains("status_code"), "Dashboard SQL should use the api_call_events.status column")
+        assertEquals("custom", assertNotNull(variables["period"])["type"].asText())
+        assertEquals("query", assertNotNull(variables["api_client"])["type"].asText())
+        assertTrue(panelTitles.contains("API Key Calls by Period"))
+        assertTrue(panelTitles.contains("API Key Route Details"))
+    }
+
+    @Test
+    fun `schema defines api key continuous aggregates by day month and year`() {
+        val schema = Files.readString(projectRoot.resolve("infra/timescaledb/init/01_schema.sql"))
+        val viewNames = listOf(
+            "api_key_call_stats_daily",
+            "api_key_call_stats_monthly",
+            "api_key_call_stats_yearly",
+        )
+
+        viewNames.forEach { viewName ->
+            assertTrue(
+                schema.contains("CREATE MATERIALIZED VIEW IF NOT EXISTS $viewName"),
+                "Expected continuous aggregate view to exist: $viewName",
+            )
+            assertTrue(
+                schema.contains("WITH (timescaledb.continuous)"),
+                "Expected TimescaleDB continuous aggregate option",
+            )
+            assertTrue(
+                schema.contains("add_continuous_aggregate_policy('$viewName'"),
+                "Expected refresh policy for continuous aggregate: $viewName",
+            )
+        }
+    }
+
+    @Test
+    fun `timescaledb dashboard separates raw and continuous aggregate comparison panels`() {
+        val dashboardText = Files.readString(projectRoot.resolve("infra/grafana/dashboards/api-stats-timescaledb.json"))
+        val dashboard = objectMapper.readTree(dashboardText)
+        val panelTitles = dashboard.path("panels").elements().asSequence()
+            .map { it.path("title").asText() }
+            .toSet()
+
+        listOf(
+            "Raw API Key Calls - Daily",
+            "Continuous Aggregate API Key Calls - Daily",
+            "Raw API Key Calls - Monthly",
+            "Continuous Aggregate API Key Calls - Monthly",
+            "Raw API Key Calls - Yearly",
+            "Continuous Aggregate API Key Calls - Yearly",
+        ).forEach { title ->
+            assertTrue(panelTitles.contains(title), "Expected dashboard panel: $title")
+        }
+
+        assertTrue(dashboardText.contains("FROM api_call_events"), "Expected raw hypertable panels")
+        assertTrue(dashboardText.contains("FROM api_key_call_stats_daily"), "Expected daily continuous aggregate panel")
+        assertTrue(dashboardText.contains("FROM api_key_call_stats_monthly"), "Expected monthly continuous aggregate panel")
+        assertTrue(dashboardText.contains("FROM api_key_call_stats_yearly"), "Expected yearly continuous aggregate panel")
     }
 
     private fun readYaml(path: Path): Map<String, Any?> {
