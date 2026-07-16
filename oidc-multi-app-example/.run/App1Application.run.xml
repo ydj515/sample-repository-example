@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="App1Application" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+    <module name="oidc-multi-app-example.app1.main" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="com.example.app1.App1ApplicationKt" />
+    <shortenClasspath name="CLASSPATH_FILE" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="App2Application" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+    <module name="oidc-multi-app-realm-broker-example.app2.main" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="com.example.app2.App2ApplicationKt" />
+    <shortenClasspath name="CLASSPATH_FILE" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

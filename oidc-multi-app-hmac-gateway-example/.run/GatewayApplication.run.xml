@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="GatewayApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+    <module name="oidc-multi-app-hmac-gateway-example.gateway.main" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="com.example.gateway.GatewayApplicationKt" />
+    <shortenClasspath name="CLASSPATH_FILE" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
