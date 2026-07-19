@@ -1,6 +1,7 @@
 package com.example.timescaledbapistatsexample.presentation
 
 import com.example.timescaledbapistatsexample.domain.model.StatsPeriod
+import com.example.timescaledbapistatsexample.domain.model.StatsSource
 import com.example.timescaledbapistatsexample.domain.port.ApiStatsReader
 import com.example.timescaledbapistatsexample.presentation.response.ApiKeyCallStatResponse
 import com.example.timescaledbapistatsexample.presentation.response.AuthFailureResponse
@@ -45,9 +46,16 @@ class ApiStatsController(
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) to: Instant,
     ): List<BucketFailureRateResponse> = reader.failureRate(bucket, from, to).map { it.toResponse() }
 
+    /**
+     * `source`로 같은 통계를 두 경로에서 뽑아 비교할 수 있다.
+     *
+     * - `source=aggregate`(기본): continuous aggregate 조회. 가공을 TimescaleDB에 위임한 결과.
+     * - `source=raw`: hypertable을 조회 시점에 집계. 배치/온디맨드로 직접 가공하는 방식과 같은 비용.
+     */
     @GetMapping("/api-key-calls")
     fun apiKeyCalls(
         @RequestParam(defaultValue = "day") period: String = "day",
+        @RequestParam(defaultValue = "aggregate") source: String = "aggregate",
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) from: Instant,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) to: Instant,
         @RequestParam(required = false) apiClientId: Long? = null,
@@ -57,9 +65,12 @@ class ApiStatsController(
     ): List<ApiKeyCallStatResponse> {
         val statsPeriod = StatsPeriod.from(period)
             ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "period must be day, month, or year")
+        val statsSource = StatsSource.from(source)
+            ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "source must be raw or aggregate")
 
         return reader.apiKeyCalls(
             period = statsPeriod,
+            source = statsSource,
             from = from,
             to = to,
             apiClientId = apiClientId,

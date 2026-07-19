@@ -7,6 +7,7 @@ import com.example.timescaledbapistatsexample.domain.model.BucketFailureRate
 import com.example.timescaledbapistatsexample.domain.model.BucketLatency
 import com.example.timescaledbapistatsexample.domain.model.ClientCall
 import com.example.timescaledbapistatsexample.domain.model.StatsPeriod
+import com.example.timescaledbapistatsexample.domain.model.StatsSource
 import com.example.timescaledbapistatsexample.domain.model.TopEndpoint
 import java.time.Instant
 
@@ -22,6 +23,7 @@ interface ApiStatsReader {
 
     fun apiKeyCalls(
         period: StatsPeriod,
+        source: StatsSource,
         from: Instant,
         to: Instant,
         apiClientId: Long?,

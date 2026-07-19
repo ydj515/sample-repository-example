@@ -7,6 +7,7 @@ import com.example.timescaledbapistatsexample.domain.model.BucketFailureRate
 import com.example.timescaledbapistatsexample.domain.model.BucketLatency
 import com.example.timescaledbapistatsexample.domain.model.ClientCall
 import com.example.timescaledbapistatsexample.domain.model.StatsPeriod
+import com.example.timescaledbapistatsexample.domain.model.StatsSource
 import com.example.timescaledbapistatsexample.domain.model.TopEndpoint
 import com.example.timescaledbapistatsexample.domain.port.ApiStatsReader
 import com.example.timescaledbapistatsexample.presentation.response.ApiKeyCallStatResponse
@@ -30,12 +31,37 @@ class ApiStatsControllerTest {
 
         val request = reader.lastApiKeyCallsRequest
         assertEquals(StatsPeriod.DAY, request?.period)
+        // 기본값은 continuous aggregate 조회다.
+        assertEquals(StatsSource.AGGREGATE, request?.source)
         assertEquals(from, request?.from)
         assertEquals(to, request?.to)
         assertEquals(null, request?.apiClientId)
         assertEquals(null, request?.method)
         assertEquals(null, request?.pathPattern)
         assertEquals(100, request?.limit)
+    }
+
+    @Test
+    fun `api key 호출 통계는 source=raw를 hypertable 조회로 전달한다`() {
+        controller.apiKeyCalls(source = "raw", from = from, to = to)
+
+        assertEquals(StatsSource.RAW, reader.lastApiKeyCallsRequest?.source)
+    }
+
+    @Test
+    fun `api key 호출 통계는 지원하지 않는 source를 거부한다`() {
+        val ex = assertFailsWith<ResponseStatusException> {
+            controller.apiKeyCalls(source = "batch", from = from, to = to)
+        }
+
+        assertEquals(HttpStatus.BAD_REQUEST, ex.statusCode)
+    }
+
+    @Test
+    fun `기간별로 대응하는 continuous aggregate view가 지정되어 있다`() {
+        assertEquals("api_key_call_stats_daily", StatsPeriod.DAY.aggregateView)
+        assertEquals("api_key_call_stats_monthly", StatsPeriod.MONTH.aggregateView)
+        assertEquals("api_key_call_stats_yearly", StatsPeriod.YEAR.aggregateView)
     }
 
     @Test
@@ -144,6 +170,7 @@ class ApiStatsControllerTest {
 
         override fun apiKeyCalls(
             period: StatsPeriod,
+            source: StatsSource,
             from: Instant,
             to: Instant,
             apiClientId: Long?,
@@ -151,13 +178,15 @@ class ApiStatsControllerTest {
             pathPattern: String?,
             limit: Int,
         ): List<ApiKeyCallStat> {
-            lastApiKeyCallsRequest = ApiKeyCallsRequest(period, from, to, apiClientId, method, pathPattern, limit)
+            lastApiKeyCallsRequest =
+                ApiKeyCallsRequest(period, source, from, to, apiClientId, method, pathPattern, limit)
             return apiKeyCallsResult
         }
     }
 
     private data class ApiKeyCallsRequest(
         val period: StatsPeriod,
+        val source: StatsSource,
         val from: Instant,
         val to: Instant,
         val apiClientId: Long?,
