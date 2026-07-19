@@ -549,7 +549,9 @@
         }
       ],
       "title": "Raw API Key Calls - Monthly",
-      "type": "timeseries"
+      "type": "timeseries",
+      "timeFrom": "2y",
+      "description": "월/년 버킷의 타임스탬프는 해당 기간의 1일이라 대시보드 기본 시간범위에는 잡히지 않는다. 패널 단위로 범위를 넓혀 둔다."
     },
     {
       "datasource": {
@@ -606,7 +608,9 @@
         }
       ],
       "title": "Continuous Aggregate API Key Calls - Monthly",
-      "type": "timeseries"
+      "type": "timeseries",
+      "timeFrom": "2y",
+      "description": "월/년 버킷의 타임스탬프는 해당 기간의 1일이라 대시보드 기본 시간범위에는 잡히지 않는다. 패널 단위로 범위를 넓혀 둔다."
     },
     {
       "datasource": {
@@ -663,7 +667,9 @@
         }
       ],
       "title": "Raw API Key Calls - Yearly",
-      "type": "timeseries"
+      "type": "timeseries",
+      "timeFrom": "5y",
+      "description": "월/년 버킷의 타임스탬프는 해당 기간의 1일이라 대시보드 기본 시간범위에는 잡히지 않는다. 패널 단위로 범위를 넓혀 둔다."
     },
     {
       "datasource": {
@@ -720,7 +726,399 @@
         }
       ],
       "title": "Continuous Aggregate API Key Calls - Yearly",
-      "type": "timeseries"
+      "type": "timeseries",
+      "timeFrom": "5y",
+      "description": "월/년 버킷의 타임스탬프는 해당 기간의 1일이라 대시보드 기본 시간범위에는 잡히지 않는다. 패널 단위로 범위를 넓혀 둔다."
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 58
+      },
+      "id": 100,
+      "panels": [],
+      "title": "Storage - Compression & Chunks",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "timescaledb-api-stats"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 0,
+        "y": 59
+      },
+      "id": 101,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "showPercentChange": false,
+        "textMode": "value_and_name",
+        "wideLayout": true,
+        "text": {
+          "valueSize": 28
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "timescaledb-api-stats"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT coalesce(sum(before_compression_total_bytes),0) AS \"before\" FROM hypertable_compression_stats('api_call_events')",
+          "refId": "A"
+        }
+      ],
+      "title": "압축 전 크기",
+      "type": "stat",
+      "description": "압축 정책이 적용되기 전 기준 크기."
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "timescaledb-api-stats"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 6,
+        "y": 59
+      },
+      "id": 102,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "showPercentChange": false,
+        "textMode": "value_and_name",
+        "wideLayout": true,
+        "text": {
+          "valueSize": 28
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "timescaledb-api-stats"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT coalesce(sum(after_compression_total_bytes),0) AS \"after\" FROM hypertable_compression_stats('api_call_events')",
+          "refId": "A"
+        }
+      ],
+      "title": "압축 후 크기",
+      "type": "stat",
+      "description": "압축된 청크가 실제로 차지하는 크기."
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "timescaledb-api-stats"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              }
+            ]
+          },
+          "unit": "percent",
+          "decimals": 1
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 12,
+        "y": 59
+      },
+      "id": 103,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "showPercentChange": false,
+        "textMode": "value_and_name",
+        "wideLayout": true,
+        "text": {
+          "valueSize": 28
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "timescaledb-api-stats"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT round(100.0 * (1 - sum(after_compression_total_bytes)::numeric / nullif(sum(before_compression_total_bytes),0)), 1) AS saved_percent FROM hypertable_compression_stats('api_call_events')",
+          "refId": "A"
+        }
+      ],
+      "title": "절감률",
+      "type": "stat",
+      "description": "압축으로 줄어든 비율. 데이터가 쌓일수록 올라간다."
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "timescaledb-api-stats"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 18,
+        "y": 59
+      },
+      "id": 104,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "showPercentChange": false,
+        "textMode": "value_and_name",
+        "wideLayout": true,
+        "text": {
+          "valueSize": 22
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "timescaledb-api-stats"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT count(*) AS \"전체 청크\", count(*) FILTER (WHERE is_compressed) AS \"압축된 청크\" FROM timescaledb_information.chunks WHERE hypertable_name = 'api_call_events'",
+          "refId": "A"
+        }
+      ],
+      "title": "청크 (전체 / 압축됨)",
+      "type": "stat",
+      "description": "chunk_time_interval은 1일. 7일이 지난 청크부터 압축 정책이 적용된다."
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "timescaledb-api-stats"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 0,
+        "y": 64
+      },
+      "id": 105,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "timescaledb-api-stats"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT chunk_name, range_start, range_end, is_compressed, pg_size_pretty(total_bytes) AS size FROM timescaledb_information.chunks c JOIN LATERAL (SELECT total_bytes FROM chunks_detailed_size('api_call_events') s WHERE s.chunk_name = c.chunk_name LIMIT 1) sz ON true WHERE c.hypertable_name = 'api_call_events' ORDER BY range_start DESC LIMIT 20",
+          "refId": "A"
+        }
+      ],
+      "title": "청크 상세 (최근 20개)",
+      "type": "table",
+      "description": "압축 여부와 청크별 크기. 최근 청크는 아직 압축되지 않은 상태가 정상이다."
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "timescaledb-api-stats"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 12,
+        "y": 64
+      },
+      "id": 106,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "timescaledb-api-stats"
+          },
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT j.proc_name AS policy, j.schedule_interval, coalesce(j.hypertable_name, '-') AS target, j.scheduled, s.last_run_status, s.last_successful_finish FROM timescaledb_information.jobs j LEFT JOIN timescaledb_information.job_stats s ON s.job_id = j.job_id WHERE j.proc_name IN ('policy_compression','policy_retention','policy_refresh_continuous_aggregate') ORDER BY j.job_id",
+          "refId": "A"
+        }
+      ],
+      "title": "정책 / 백그라운드 job",
+      "type": "table",
+      "description": "refresh / 압축 / 보존 정책의 실행 상태."
     }
   ],
   "refresh": "10s",
