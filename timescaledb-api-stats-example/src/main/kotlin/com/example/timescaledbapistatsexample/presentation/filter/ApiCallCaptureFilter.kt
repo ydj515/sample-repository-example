@@ -30,6 +30,8 @@ class ApiCallCaptureFilter(
         try {
             filterChain.doFilter(request, response)
         } catch (ex: Exception) {
+            // 필터 체인 자체에서 터진 예외. 컨트롤러 예외는 여기까지 오지 않고
+            // ApiExceptionHandler가 ATTR_ERROR_TYPE에 남긴다.
             errorType = ex.javaClass.simpleName
             response.status = HttpServletResponse.SC_INTERNAL_SERVER_ERROR
             throw ex
@@ -49,7 +51,7 @@ class ApiCallCaptureFilter(
                     durationMs = durationMs,
                     clientIp = request.getHeader("X-Forwarded-For")?.takeIf { it.isNotBlank() }?.substringBefore(",")?.trim() ?: request.remoteAddr,
                     userAgent = request.getHeader("User-Agent"),
-                    errorType = errorType,
+                    errorType = errorType ?: request.getAttribute(ATTR_ERROR_TYPE) as? String,
                 ),
             )
         }
@@ -59,5 +61,9 @@ class ApiCallCaptureFilter(
         return request.getAttribute(ApiKeyAuthFilter.ATTR_ROUTE_PATTERN) as? String
             ?: request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE) as? String
             ?: request.servletPath
+    }
+
+    companion object {
+        const val ATTR_ERROR_TYPE = "apiStats.errorType"
     }
 }

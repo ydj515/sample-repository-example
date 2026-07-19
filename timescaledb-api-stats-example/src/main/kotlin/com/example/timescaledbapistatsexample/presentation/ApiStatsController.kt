@@ -30,21 +30,21 @@ class ApiStatsController(
         @RequestParam(defaultValue = "1 minute") bucket: String,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) from: Instant,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) to: Instant,
-    ): List<BucketCountResponse> = reader.calls(bucket, from, to).map { it.toResponse() }
+    ): List<BucketCountResponse> = reader.calls(bucket.toValidatedBucket(), from, to).map { it.toResponse() }
 
     @GetMapping("/latency")
     fun latency(
         @RequestParam(defaultValue = "1 minute") bucket: String,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) from: Instant,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) to: Instant,
-    ): List<BucketLatencyResponse> = reader.latency(bucket, from, to).map { it.toResponse() }
+    ): List<BucketLatencyResponse> = reader.latency(bucket.toValidatedBucket(), from, to).map { it.toResponse() }
 
     @GetMapping("/failure-rate")
     fun failureRate(
         @RequestParam(defaultValue = "1 minute") bucket: String,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) from: Instant,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) to: Instant,
-    ): List<BucketFailureRateResponse> = reader.failureRate(bucket, from, to).map { it.toResponse() }
+    ): List<BucketFailureRateResponse> = reader.failureRate(bucket.toValidatedBucket(), from, to).map { it.toResponse() }
 
     /**
      * `source`로 같은 통계를 두 경로에서 뽑아 비교할 수 있다.
@@ -105,5 +105,27 @@ class ApiStatsController(
 
     private fun String?.normalizedMethod(): String? {
         return blankToNull()?.uppercase()
+    }
+
+    /**
+     * `bucket`은 Postgres interval로 캐스팅된다.
+     *
+     * 파라미터 바인딩이라 SQL injection은 없지만, 검증 없이 넘기면 잘못된 문자열이
+     * DB까지 내려가 PSQLException으로 500이 된다. 형식을 먼저 확인해 400으로 돌려준다.
+     */
+    private fun String.toValidatedBucket(): String {
+        val normalized = trim()
+        if (!BUCKET_PATTERN.matches(normalized)) {
+            throw ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "bucket must look like '<n> <unit>' (e.g. '1 minute', '5 minutes', '1 hour')",
+            )
+        }
+        return normalized
+    }
+
+    companion object {
+        private val BUCKET_PATTERN =
+            Regex("^\\d+\\s+(second|minute|hour|day|week|month|year)s?$", RegexOption.IGNORE_CASE)
     }
 }

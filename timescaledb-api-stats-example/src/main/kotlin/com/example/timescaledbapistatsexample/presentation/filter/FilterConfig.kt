@@ -2,6 +2,7 @@ package com.example.timescaledbapistatsexample.presentation.filter
 
 import com.example.timescaledbapistatsexample.application.ApiAccessService
 import com.example.timescaledbapistatsexample.application.ApiCallEventPublisher
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.boot.web.servlet.FilterRegistrationBean
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -18,8 +19,11 @@ class FilterConfig {
     }
 
     @Bean
-    fun apiKeyAuthFilter(apiAccessService: ApiAccessService): FilterRegistrationBean<ApiKeyAuthFilter> {
-        return FilterRegistrationBean(ApiKeyAuthFilter(apiAccessService)).apply {
+    fun apiKeyAuthFilter(
+        apiAccessService: ApiAccessService,
+        objectMapper: ObjectMapper,
+    ): FilterRegistrationBean<ApiKeyAuthFilter> {
+        return FilterRegistrationBean(ApiKeyAuthFilter(apiAccessService, objectMapper)).apply {
             order = Ordered.HIGHEST_PRECEDENCE + 20
             addUrlPatterns("/*")
         }

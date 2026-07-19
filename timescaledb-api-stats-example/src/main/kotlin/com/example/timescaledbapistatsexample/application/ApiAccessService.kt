@@ -8,7 +8,9 @@ import com.example.timescaledbapistatsexample.domain.port.ApiAccessSnapshotProvi
 import com.example.timescaledbapistatsexample.domain.service.RoutePatternMatcher
 import com.example.timescaledbapistatsexample.domain.service.Sha256ApiKeyHasher
 import jakarta.annotation.PostConstruct
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 
 data class AuthorizationDecision(
@@ -23,16 +25,39 @@ class ApiAccessService(
     private val snapshotProvider: ApiAccessSnapshotProvider,
     @Value("\${api-stats.auth.load-on-startup:true}") private val loadOnStartup: Boolean = true,
 ) {
+    private val log = LoggerFactory.getLogger(javaClass)
+
     @Volatile
     private var cachedSnapshot: ApiAccessSnapshot? = null
 
     @Volatile
     private var cachedMatcher: RoutePatternMatcher? = null
 
+    /**
+     * 기동 시 스냅샷을 미리 적재한다.
+     *
+     * 실패해도 예외를 던지지 않는다. 기동 시점에 DB가 아직 안 떠 있다는 이유로 앱 전체가
+     * 죽는 것보다, 첫 요청이나 다음 주기 갱신에서 다시 시도하는 편이 낫다.
+     */
     @PostConstruct
     fun initialize() {
-        if (loadOnStartup) {
-            refresh()
+        if (!loadOnStartup) return
+
+        runCatching { refresh() }.onFailure { ex ->
+            log.warn("Failed to load API access snapshot on startup; will retry on next refresh", ex)
+        }
+    }
+
+    /**
+     * 스냅샷을 주기적으로 다시 읽는다.
+     *
+     * 이게 없으면 DB에 client나 route를 추가해도 앱을 재시작해야 반영된다.
+     */
+    @Scheduled(fixedDelayString = "\${api-stats.auth.refresh-interval-ms:60000}")
+    fun refreshPeriodically() {
+        runCatching { refresh() }.onFailure { ex ->
+            // 갱신 실패 시 직전 스냅샷을 그대로 유지한다. 인증이 통째로 막히는 것보다 낫다.
+            log.warn("Failed to refresh API access snapshot; keeping the previous one", ex)
         }
     }
 

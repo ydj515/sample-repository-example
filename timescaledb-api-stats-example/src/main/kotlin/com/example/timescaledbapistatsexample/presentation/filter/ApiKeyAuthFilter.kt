@@ -2,6 +2,7 @@ package com.example.timescaledbapistatsexample.presentation.filter
 
 import com.example.timescaledbapistatsexample.application.ApiAccessService
 import com.example.timescaledbapistatsexample.domain.model.ApiAuthResult
+import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -10,6 +11,7 @@ import org.springframework.web.filter.OncePerRequestFilter
 
 class ApiKeyAuthFilter(
     private val apiAccessService: ApiAccessService,
+    private val objectMapper: ObjectMapper,
 ) : OncePerRequestFilter() {
     override fun shouldNotFilter(request: HttpServletRequest): Boolean {
         // context path가 설정돼도 앱 내부 경로로 매칭되도록 servletPath를 사용한다.
@@ -55,7 +57,15 @@ class ApiKeyAuthFilter(
     ) {
         response.status = status
         response.contentType = MediaType.APPLICATION_JSON_VALUE
-        response.writer.write("""{"authResult":"${authResult.name}","message":"${message ?: "Access denied"}"}""")
+        response.characterEncoding = Charsets.UTF_8.name()
+        // 문자열을 직접 이어붙이면 message에 따옴표나 역슬래시가 섞였을 때 JSON이 깨진다.
+        objectMapper.writeValue(
+            response.writer,
+            mapOf(
+                "authResult" to authResult.name,
+                "message" to (message ?: "Access denied"),
+            ),
+        )
     }
 
     companion object {
