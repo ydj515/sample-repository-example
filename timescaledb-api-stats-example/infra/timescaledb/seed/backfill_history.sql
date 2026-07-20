@@ -11,6 +11,13 @@
 --
 --   기본값은 400일 x 2000건 = 80만 건이다. 생성에 수십 초가 걸릴 수 있다.
 --   400일로 잡으면 연 단위 집계가 두 해에 걸쳐 비교된다.
+--
+-- 보존 정책과의 관계:
+--   raw 테이블에는 180일 보존 정책이 걸려 있다. days를 180보다 크게 주면 보존 job이
+--   다음 실행 때 그만큼의 raw를 지운다. 집계 view는 그대로 남으므로
+--   "원본은 버려도 통계는 남는다"를 보여 주는 구성이지만, 그 구간에서는
+--   source=raw 와 source=aggregate 결과가 달라진다.
+--   전 구간을 raw로도 비교하려면 days를 보존 기간보다 짧게 주면 된다.
 
 \if :{?days}
 \else
@@ -26,10 +33,16 @@
 
 \echo '생성 대상:' :days '일 x' :events_per_day '건/일'
 
--- 정책 job이 중간에 끼어들지 않도록 잠시 멈춘다(생성 후 다시 켠다).
-SELECT alter_job(job_id, scheduled => false)
-FROM timescaledb_information.jobs
-WHERE proc_name IN ('policy_compression', 'policy_retention', 'policy_refresh_continuous_aggregate');
+-- 정책 job은 일부러 끄지 않는다.
+--
+-- 처음에는 alter_job(scheduled => false)로 멈췄다가 끝에서 되살리는 구조였는데,
+-- ON_ERROR_STOP 상태에서 중간에 실패하면 job이 꺼진 채로 남는다. 압축/보존/집계 갱신이
+-- 조용히 멈추고, 사용자는 그 사실을 알 방법이 없다. 복구를 보장할 수 없는 구조라 걷어냈다.
+--
+-- 끄지 않아도 안전한 이유:
+--   - INSERT는 단일 문장이라 원자적이고, 정책이 중간 상태를 보지 않는다.
+--   - 아래 압축은 if_not_compressed => true 라서 정책이 먼저 압축했어도 문제없다.
+--   - refresh는 TimescaleDB가 뷰 단위로 직렬화한다.
 
 INSERT INTO api_call_events (
     stream_id, occurred_at, api_client_id, api_client_name, auth_result,
@@ -99,13 +112,20 @@ CALL refresh_continuous_aggregate('api_key_call_stats_yearly', NULL, date_trunc(
 SELECT compress_chunk(c, if_not_compressed => true)
 FROM show_chunks('api_call_events', older_than => INTERVAL '7 days') c;
 
--- 멈춰둔 정책 job을 다시 켠다.
-SELECT alter_job(job_id, scheduled => true)
-FROM timescaledb_information.jobs
-WHERE proc_name IN ('policy_compression', 'policy_retention', 'policy_refresh_continuous_aggregate');
-
 \echo ''
 \echo '=== 결과 ==='
+
+-- 생성 구간이 보존 기간을 넘는지 알려 준다. 넘으면 보존 job이 그만큼의 raw를 지운다.
+SELECT
+    :days AS seeded_days,
+    (config ->> 'drop_after') AS retention,
+    CASE
+        WHEN make_interval(days => :days) > (config ->> 'drop_after')::interval
+        THEN '주의: 생성 구간이 보존 기간보다 깁니다. 보존 job 실행 후 오래된 raw는 삭제되고 집계만 남습니다.'
+        ELSE '생성 구간이 보존 기간 안에 있습니다.'
+    END AS note
+FROM timescaledb_information.jobs
+WHERE proc_name = 'policy_retention' AND hypertable_name = 'api_call_events';
 
 SELECT
     (SELECT count(*) FROM api_call_events) AS raw_events,
