@@ -10,6 +10,7 @@ import com.example.timescaledbapistatsexample.domain.model.StatsPeriod
 import com.example.timescaledbapistatsexample.domain.model.StatsSource
 import com.example.timescaledbapistatsexample.domain.model.TopEndpoint
 import com.example.timescaledbapistatsexample.domain.port.ApiStatsReader
+import org.springframework.mock.web.MockHttpServletResponse
 import com.example.timescaledbapistatsexample.presentation.response.ApiKeyCallStatResponse
 import com.example.timescaledbapistatsexample.presentation.response.BucketCountResponse
 import java.time.Instant
@@ -129,6 +130,39 @@ class ApiStatsControllerTest {
             response.first(),
         )
     }
+
+    @Test
+    fun `결과가 전체 상한에 걸리면 잘림 헤더를 붙인다`() {
+        reader.apiKeyCallsResult = List(ApiStatsReader.MAX_TOTAL_ROWS) { stat() }
+        val response = MockHttpServletResponse()
+
+        controller.apiKeyCalls(from = from, to = to, response = response)
+
+        assertEquals("true", response.getHeader(ApiStatsController.HEADER_RESULT_TRUNCATED))
+    }
+
+    @Test
+    fun `상한에 걸리지 않으면 잘림 헤더를 붙이지 않는다`() {
+        reader.apiKeyCallsResult = listOf(stat())
+        val response = MockHttpServletResponse()
+
+        controller.apiKeyCalls(from = from, to = to, response = response)
+
+        assertEquals(null, response.getHeader(ApiStatsController.HEADER_RESULT_TRUNCATED))
+    }
+
+    private fun stat() = ApiKeyCallStat(
+        bucket = from,
+        apiClientId = 1,
+        apiClientName = "demo-client-01",
+        method = "GET",
+        pathPattern = "/api/products",
+        totalCalls = 1,
+        failedCalls = 0,
+        failureRate = 0.0,
+        averageDurationMs = 1.0,
+        maxDurationMs = 1,
+    )
 
     @Test
     fun `top endpoint limit은 1 이상 100 이하로 제한한다`() {

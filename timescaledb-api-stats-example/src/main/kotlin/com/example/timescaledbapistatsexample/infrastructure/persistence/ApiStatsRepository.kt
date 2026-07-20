@@ -104,6 +104,7 @@ class ApiStatsRepository(
         val parameters = params(from, to)
             .addValue("limit", limit)
             .addValue("bucket", period.bucket)
+            .addValue("maxTotalRows", ApiStatsReader.MAX_TOTAL_ROWS)
 
         // 조회 구간을 버킷 경계로 스냅한다.
         //
@@ -186,6 +187,7 @@ class ApiStatsRepository(
             FROM ranked
             WHERE bucket_rank <= :limit
             ORDER BY bucket, total_calls DESC, api_client_name, method, path_pattern
+            LIMIT :maxTotalRows
         """.trimIndent()
 
         return jdbcTemplate.query(sql, parameters) { rs, _ ->

@@ -3,6 +3,7 @@ package com.example.timescaledbapistatsexample.infrastructure.persistence
 import com.example.timescaledbapistatsexample.domain.model.ApiCallEventRecord
 import com.example.timescaledbapistatsexample.domain.model.StatsPeriod
 import com.example.timescaledbapistatsexample.domain.model.StatsSource
+import com.example.timescaledbapistatsexample.domain.port.ApiStatsReader
 import com.example.timescaledbapistatsexample.support.TimescaleDbTestSupport
 import java.time.Instant
 import java.time.temporal.ChronoUnit
@@ -167,6 +168,39 @@ class ApiStatsRepositoryIntegrationTest {
         assertEquals(2, stats.single().totalCalls)
     }
 
+    @Test
+    fun `응답 행 수는 전체 상한을 넘지 않는다`() {
+        // limit은 버킷별 상한이라 총 행 수는 "버킷 수 x limit"까지 늘어난다.
+        // 상한이 없으면 넓은 구간 조회 한 번이 수만 행을 한 응답에 담는다.
+        val combos = 40
+        val buckets = 170
+        val events = buildList {
+            (1..buckets).forEach { day ->
+                val at = Instant.now().minus(day.toLong(), ChronoUnit.DAYS)
+                (1..combos).forEach { client ->
+                    add(record("cap-$day-$client", at, clientId = client.toLong(), pathPattern = "/api/r$client"))
+                }
+            }
+        }
+        store.write(events)
+        TimescaleDbTestSupport.refreshAllAggregates()
+
+        val stats = repository.apiKeyCalls(
+            period = StatsPeriod.DAY,
+            source = StatsSource.AGGREGATE,
+            from = Instant.now().minus(200, ChronoUnit.DAYS),
+            to = Instant.now().plus(1, ChronoUnit.DAYS),
+            apiClientId = null, method = null, pathPattern = null,
+            limit = 500,
+        )
+
+        assertTrue(
+            combos * buckets > ApiStatsReader.MAX_TOTAL_ROWS,
+            "상한을 넘길 만큼 데이터를 만들어야 의미 있는 검증입니다",
+        )
+        assertEquals(ApiStatsReader.MAX_TOTAL_ROWS, stats.size, "전체 상한이 적용되어야 합니다")
+    }
+
     private fun records(count: Int, at: Instant): List<ApiCallEventRecord> =
         (1..count).map { record("evt-$it", at) }
 
@@ -176,6 +210,7 @@ class ApiStatsRepositoryIntegrationTest {
         clientId: Long = 1,
         durationMs: Long = 10,
         status: Int = 200,
+        pathPattern: String = "/api/products",
     ) = ApiCallEventRecord(
         streamId = streamId,
         occurredAt = at,
@@ -184,8 +219,8 @@ class ApiStatsRepositoryIntegrationTest {
         authResult = "ALLOWED",
         deniedReason = null,
         method = "GET",
-        path = "/api/products",
-        pathPattern = "/api/products",
+        path = pathPattern,
+        pathPattern = pathPattern,
         status = status,
         durationMs = durationMs,
         clientIp = "127.0.0.1",

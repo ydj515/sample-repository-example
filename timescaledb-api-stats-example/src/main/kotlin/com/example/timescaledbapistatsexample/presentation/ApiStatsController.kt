@@ -3,6 +3,7 @@ package com.example.timescaledbapistatsexample.presentation
 import com.example.timescaledbapistatsexample.domain.model.StatsPeriod
 import com.example.timescaledbapistatsexample.domain.model.StatsSource
 import com.example.timescaledbapistatsexample.domain.port.ApiStatsReader
+import jakarta.servlet.http.HttpServletResponse
 import com.example.timescaledbapistatsexample.presentation.response.ApiKeyCallStatResponse
 import com.example.timescaledbapistatsexample.presentation.response.AuthFailureResponse
 import com.example.timescaledbapistatsexample.presentation.response.BucketCountResponse
@@ -62,13 +63,14 @@ class ApiStatsController(
         @RequestParam(required = false) method: String? = null,
         @RequestParam(required = false) pathPattern: String? = null,
         @RequestParam(defaultValue = "100") limit: Int = 100,
+        response: HttpServletResponse? = null,
     ): List<ApiKeyCallStatResponse> {
         val statsPeriod = StatsPeriod.from(period)
             ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "period must be day, month, or year")
         val statsSource = StatsSource.from(source)
             ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST, "source must be raw or aggregate")
 
-        return reader.apiKeyCalls(
+        val stats = reader.apiKeyCalls(
             period = statsPeriod,
             source = statsSource,
             from = from,
@@ -77,7 +79,15 @@ class ApiStatsController(
             method = method.normalizedMethod(),
             pathPattern = pathPattern.blankToNull(),
             limit = limit.coerceIn(1, 500),
-        ).map { it.toResponse() }
+        )
+
+        // 상한에 걸려 잘렸다면 조용히 넘기지 않고 헤더로 알린다.
+        // 응답 스키마(배열)를 바꾸지 않으면서 클라이언트가 잘림을 감지할 수 있게 하는 방법이다.
+        if (stats.size >= ApiStatsReader.MAX_TOTAL_ROWS) {
+            response?.setHeader(HEADER_RESULT_TRUNCATED, "true")
+        }
+
+        return stats.map { it.toResponse() }
     }
 
     @GetMapping("/top-endpoints")
@@ -125,6 +135,9 @@ class ApiStatsController(
     }
 
     companion object {
+        /** 결과가 [ApiStatsReader.MAX_TOTAL_ROWS] 상한에 걸려 잘렸음을 알리는 헤더. */
+        const val HEADER_RESULT_TRUNCATED = "X-Result-Truncated"
+
         private val BUCKET_PATTERN =
             Regex("^\\d+\\s+(second|minute|hour|day|week|month|year)s?$", RegexOption.IGNORE_CASE)
     }
