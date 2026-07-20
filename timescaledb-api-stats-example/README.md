@@ -145,6 +145,8 @@ curl "http://localhost:8080/api/stats/api-key-calls?period=day&source=aggregate&
 
 `source`의 기본값은 `aggregate`입니다.
 
+`limit`은 **버킷별 상위 N개**를 의미합니다. 전체 행 수로 자르면 앞쪽 버킷만 채우고 뒤쪽 버킷이 통째로 사라지기 때문입니다. 대신 응답 전체에는 5000행 상한이 걸려 있고, 상한에 걸리면 `X-Result-Truncated: true` 헤더가 붙습니다.
+
 조회 구간은 `period` 단위의 **버킷 경계로 스냅**됩니다. raw는 이벤트 시각(`occurred_at`)에, 집계 view는 버킷 시작 시각(`bucket`)에 필터가 걸리기 때문입니다. 예를 들어 `period=month`에서 7월 버킷의 라벨은 `2026-07-01`인데, `from=2026-07-18`로 그대로 필터를 걸면 원본 이벤트는 구간 안에 있어도 버킷 라벨이 구간 밖이라 집계 쪽 결과만 비어버립니다. 양쪽 모두 "구간에 걸친 완전한 버킷"을 대상으로 맞춰 두 경로의 결과가 일치합니다.
 
 | | `source=raw` | `source=aggregate` |
@@ -253,7 +255,10 @@ docker compose exec -T timescaledb psql -U api_stats -d api_stats \
   -v days=800 -v events_per_day=5000 < infra/timescaledb/seed/backfill_history.sql
 ```
 
-스크립트는 이벤트를 생성한 뒤 집계를 계층 순서대로 materialize 하고, 7일이 지난 청크를 압축한 다음 결과를 출력합니다. 실제 실행 결과(80만 건 기준)입니다.
+스크립트는 이벤트를 생성한 뒤 집계를 계층 순서대로 materialize 하고, 7일이 지난 청크를 압축한 다음 결과를 출력합니다.
+
+> 기본 구간(400일)은 보존 기간(180일)보다 깁니다. 보존 job이 실행되면 180일 이전 raw는 삭제되고 집계만 남습니다. "원본은 버려도 통계는 남는다"를 보여 주는 구성이지만, 그 구간에서는 `source=raw`와 `source=aggregate` 결과가 달라집니다. 전 구간을 raw로도 비교하려면 `days`를 180 미만으로 주세요. 스크립트가 실행 결과에 이 경고를 함께 출력합니다.
+{:.prompt-warning} 실제 실행 결과(80만 건 기준)입니다.
 
 ```text
  raw_events | daily_rows | monthly_rows | yearly_rows
@@ -421,6 +426,10 @@ Dashboard JSON:
 infra/grafana/dashboards/api-stats-timescaledb.json
 infra/grafana/dashboards/operations-prometheus.json
 ```
+
+## 설계 결정
+
+주요 판단과 그 근거, 검토한 대안은 [docs/design-decisions.md](docs/design-decisions.md)에 정리했습니다. realtime aggregation, 계층형 집계, 백필 refresh 경계, 인증 캐시 교체, 응답 상한, 예외 처리 등 코드만 봐서는 이유를 알기 어려운 항목들입니다.
 
 ## 예제로서의 의도적인 단순화
 
