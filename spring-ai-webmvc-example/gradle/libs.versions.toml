@@ -1,0 +1,16 @@
+[versions]
+dependencyManagement = "1.1.7"
+springAi = "1.1.4"
+springBoot = "3.5.16"
+
+[libraries]
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
+lombok = { module = "org.projectlombok:lombok" }
+spring-ai-bom = { module = "org.springframework.ai:spring-ai-bom", version.ref = "springAi" }
+spring-ai-starter-mcp-server-webmvc = { module = "org.springframework.ai:spring-ai-starter-mcp-server-webmvc" }
+spring-boot-devtools = { module = "org.springframework.boot:spring-boot-devtools" }
+spring-boot-starter-test = { module = "org.springframework.boot:spring-boot-starter-test" }
+
+[plugins]
+dependency-management = { id = "io.spring.dependency-management", version.ref = "dependencyManagement" }
+spring-boot = { id = "org.springframework.boot", version.ref = "springBoot" }
