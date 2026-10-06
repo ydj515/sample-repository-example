@@ -5,13 +5,15 @@
 ## Stack
 
 ### java & kotlin
-주로 kotlin1.9 이상, java17 이상, springboot3.3이상, gradle.kts 8이상으로 작성된 예시입니다.
+Gradle 예제는 Java 21(mise: `21.0.2`), Gradle 8.14.5를 사용합니다.
+Spring 기반 예제는 Spring Boot 3.5.16, Kotlin 예제는 Kotlin 2.4.10으로 통일합니다.
+각 예제의 `gradle/libs.versions.toml`에서 의존성과 플러그인 버전을 관리합니다.
 
-> [!NOTE]
-> 2025-12-01 기준 kotlin 2.2 이상(java 25 미지원 → java 21 기준),
-> java 25 이상, spring boot 4 이상, gradle 9 이상으로 작성되었습니다.
+예제 디렉터리에서 `mise install` 후 `mise exec -- ./gradlew build`로 빌드합니다.
+DB·Redis·외부 API가 필요한 실행과 테스트는 각 예제의 설정을 따릅니다.
 
 ## TOC
+
 - [bucket4j-example](./bucket4j-example/) — Bucket4j로 IP와 엔드포인트별 요청 제한을 구현한 예제
 - [runner-example](./runner-example/) — Spring의 `ApplicationRunner`, `CommandLineRunner`, 애플리케이션 이벤트 실행 순서를 비교하는 예제
 - [warmup-example](./warmup-example/) — `@Warmup` 대상을 탐색해 애플리케이션 시작 시 동기·비동기로 준비 작업을 실행하는 예제
@@ -21,7 +23,7 @@
 - [global-cache-example](./global-cache-example/) — Redis와 Spring Cache로 여러 인스턴스가 공유하는 글로벌 캐시를 구현한 예제
 - [two-tier-cache-example](./two-tier-cache-example/) — Caffeine 로컬 캐시와 Redis 글로벌 캐시를 결합한 2단계 캐시 예제
 - [webflux-with-mongo-example](./webflux-with-mongo-example/) — Spring WebFlux 함수형 라우팅과 Reactive MongoDB로 사용자 API를 구현한 예제
-- [webflux-with-redis-example](./webflux-with-redis-example/) — Reactive Redis의 자료형, Lua, Pub/Sub, Stream, 캐시 전략을 다루는 WebFlux 예제
+- [webflux-with-redis-example](./webflux-with-redis-example/) — Redis 자료구조·캐시 전략과 상품·장바구니·재고·주문 Stream의 재시도·DLQ·복구를 다루는 WebFlux 예제
 - [resilience4j-example](./resilience4j-example/) — Circuit Breaker, Retry, Rate Limiter, Time Limiter를 조합하고 메트릭을 수집하는 예제
 - [uri-strange-example](./uri-strange-example/) — 커스텀 스킴 URI를 `URI`와 `UriComponentsBuilder`로 변환할 때의 차이를 검증하는 예제
 - [proxy-query-plan-example](./proxy-query-plan-example/) — datasource-proxy로 느린 쿼리를 감지하고 `EXPLAIN ANALYZE` 실행 계획을 출력하는 예제
