@@ -17,7 +17,7 @@ Spring AI 기능을 한 프로젝트에서 단계적으로 실험할 수 있도�
 ## 기술 스택
 
 - Java 21
-- Spring Boot 3.5.12
+- Spring Boot 3.5.16
 - Spring AI 1.1.4
 - Gradle Kotlin DSL
 - OpenAI

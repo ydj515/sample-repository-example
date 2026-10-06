@@ -24,3 +24,4 @@ run = "./gradlew build"
 [tasks.clean]
 description = "Clean build outputs"
 run = "./gradlew clean"
+

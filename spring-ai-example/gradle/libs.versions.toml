@@ -1,0 +1,26 @@
+[versions]
+dependencyManagement = "1.1.7"
+springAi = "1.1.4"
+springBoot = "3.5.16"
+
+[libraries]
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
+lombok = { module = "org.projectlombok:lombok" }
+postgresql = { module = "org.postgresql:postgresql" }
+spring-ai-advisors-vector-store = { module = "org.springframework.ai:spring-ai-advisors-vector-store" }
+spring-ai-bom = { module = "org.springframework.ai:spring-ai-bom", version.ref = "springAi" }
+spring-ai-pdf-document-reader = { module = "org.springframework.ai:spring-ai-pdf-document-reader" }
+spring-ai-rag = { module = "org.springframework.ai:spring-ai-rag" }
+spring-ai-starter-mcp-client-webflux = { module = "org.springframework.ai:spring-ai-starter-mcp-client-webflux" }
+spring-ai-starter-model-anthropic = { module = "org.springframework.ai:spring-ai-starter-model-anthropic" }
+spring-ai-starter-model-chat-memory-repository-jdbc = { module = "org.springframework.ai:spring-ai-starter-model-chat-memory-repository-jdbc" }
+spring-ai-starter-model-openai = { module = "org.springframework.ai:spring-ai-starter-model-openai" }
+spring-ai-starter-vector-store-pgvector = { module = "org.springframework.ai:spring-ai-starter-vector-store-pgvector" }
+spring-ai-template-st = { module = "org.springframework.ai:spring-ai-template-st" }
+spring-ai-tika-document-reader = { module = "org.springframework.ai:spring-ai-tika-document-reader" }
+spring-boot-starter-test = { module = "org.springframework.boot:spring-boot-starter-test" }
+spring-boot-starter-web = { module = "org.springframework.boot:spring-boot-starter-web" }
+
+[plugins]
+dependency-management = { id = "io.spring.dependency-management", version.ref = "dependencyManagement" }
+spring-boot = { id = "org.springframework.boot", version.ref = "springBoot" }

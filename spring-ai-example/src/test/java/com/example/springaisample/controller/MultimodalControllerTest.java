@@ -5,9 +5,11 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.request;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.nio.charset.StandardCharsets;
@@ -72,9 +74,13 @@ class MultimodalControllerTest {
     void imageAnalysisEndpointRejectsNonImageUpload() throws Exception {
         MockMultipartFile attach = new MockMultipartFile("attach", "sample.txt", "text/plain", "text".getBytes());
 
-        mockMvc.perform(multipart("/test/multimodal/image-analysis")
+        var result = mockMvc.perform(multipart("/test/multimodal/image-analysis")
                         .file(attach)
                         .param("question", "무엇이 보이나요?"))
+                .andExpect(request().asyncStarted())
+                .andReturn();
+
+        mockMvc.perform(asyncDispatch(result))
                 .andExpect(status().isOk())
                 .andExpect(content().bytes("data:이미지를 올려주세요.\n\n".getBytes(StandardCharsets.UTF_8)));
 
