@@ -1,17 +1,15 @@
 plugins {
     java
-    id("org.springframework.boot") version "3.4.4"
-    id("io.spring.dependency-management") version "1.1.7"
+    alias(libs.plugins.spring.boot)
+    alias(libs.plugins.dependency.management)
 }
 
 group = "com.example"
 version = "0.0.1-SNAPSHOT"
 
-val mapstructVersion = "1.5.3.Final"
-
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
+        languageVersion = JavaLanguageVersion.of(21)
     }
 }
 
@@ -27,27 +25,27 @@ repositories {
 
 dependencies {
     /* spring */
-    implementation("org.springframework.boot:spring-boot-starter-webflux")
-    developmentOnly("org.springframework.boot:spring-boot-devtools")
+    implementation(libs.spring.boot.starter.webflux)
+    developmentOnly(libs.spring.boot.devtools)
 
     /* mongodb */
-    implementation("org.springframework.boot:spring-boot-starter-data-mongodb-reactive")
+    implementation(libs.spring.boot.starter.data.mongodb.reactive)
 
     /* mapstruct */
-    compileOnly("org.projectlombok:lombok")
-    annotationProcessor("org.projectlombok:lombok")
-    implementation("org.mapstruct:mapstruct:${mapstructVersion}")
-    annotationProcessor("org.mapstruct:mapstruct-processor:${mapstructVersion}")
-    annotationProcessor("org.projectlombok:lombok-mapstruct-binding:0.2.0")
+    compileOnly(libs.lombok)
+    annotationProcessor(libs.lombok)
+    implementation(libs.mapstruct)
+    annotationProcessor(libs.mapstruct.processor)
+    annotationProcessor(libs.lombok.mapstruct.binding)
 
 
     /* test */
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.springframework.boot:spring-boot-testcontainers")
-    testImplementation("io.projectreactor:reactor-test")
-    testImplementation("org.testcontainers:junit-jupiter")
-    testImplementation("org.testcontainers:mongodb")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation(libs.spring.boot.starter.test)
+    testImplementation(libs.spring.boot.testcontainers)
+    testImplementation(libs.reactor.test)
+    testImplementation(libs.testcontainers.junit.jupiter)
+    testImplementation(libs.testcontainers.mongodb)
+    testRuntimeOnly(libs.junit.platform.launcher)
 }
 
 tasks.withType<Test> {
