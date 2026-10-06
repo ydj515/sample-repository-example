@@ -1,9 +1,11 @@
 plugins {
-    kotlin("jvm") version "1.9.25"
-    kotlin("plugin.spring") version "1.9.25"
-    id("org.springframework.boot") version "3.5.6"
-    id("io.spring.dependency-management") version "1.1.7"
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.spring)
+    alias(libs.plugins.spring.boot)
+    alias(libs.plugins.dependency.management)
 }
+
+extra["kotlin.version"] = libs.versions.kotlin.get()
 
 group = "com.example"
 version = "0.0.1-SNAPSHOT"
@@ -11,26 +13,26 @@ description = "timescaledb-api-stats-example"
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
+        languageVersion = JavaLanguageVersion.of(21)
     }
 }
 
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-actuator")
-    implementation("org.springframework.boot:spring-boot-starter-data-redis")
-    implementation("org.springframework.boot:spring-boot-starter-jdbc")
-    implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("org.jetbrains.kotlin:kotlin-reflect")
-    runtimeOnly("io.micrometer:micrometer-registry-prometheus")
-    runtimeOnly("org.postgresql:postgresql")
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
+    implementation(libs.spring.boot.starter.actuator)
+    implementation(libs.spring.boot.starter.data.redis)
+    implementation(libs.spring.boot.starter.jdbc)
+    implementation(libs.spring.boot.starter.web)
+    implementation(libs.jackson.module.kotlin)
+    implementation(libs.kotlin.reflect)
+    runtimeOnly(libs.micrometer.registry.prometheus)
+    runtimeOnly(libs.postgresql)
+    testImplementation(libs.spring.boot.starter.test)
+    testImplementation(libs.kotlin.test.junit5)
     // 실제 TimescaleDB에 붙어야만 드러나는 동작(continuous aggregate, 압축, 롤업 정확도)을 검증한다.
-    testImplementation("org.testcontainers:junit-jupiter")
-    testImplementation("org.testcontainers:postgresql")
-    testRuntimeOnly("com.h2database:h2")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation(libs.testcontainers.junit.jupiter)
+    testImplementation(libs.testcontainers.postgresql)
+    testRuntimeOnly(libs.h2)
+    testRuntimeOnly(libs.junit.platform.launcher)
 }
 
 kotlin {
