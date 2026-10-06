@@ -1,0 +1,13 @@
+[versions]
+dependencyManagement = "1.1.7"
+springBoot = "3.5.16"
+
+[libraries]
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
+spring-boot-starter = { module = "org.springframework.boot:spring-boot-starter" }
+spring-boot-starter-test = { module = "org.springframework.boot:spring-boot-starter-test" }
+spring-boot-starter-web = { module = "org.springframework.boot:spring-boot-starter-web" }
+
+[plugins]
+dependency-management = { id = "io.spring.dependency-management", version.ref = "dependencyManagement" }
+spring-boot = { id = "org.springframework.boot", version.ref = "springBoot" }
