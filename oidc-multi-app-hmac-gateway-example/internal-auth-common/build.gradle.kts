@@ -1,10 +1,10 @@
 plugins {
-    kotlin("plugin.spring")
+    alias(libs.plugins.kotlin.spring)
     `java-library`
 }
 
 dependencies {
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation(libs.spring.boot.starter.test)
+    testImplementation(libs.kotlin.test.junit5)
+    testRuntimeOnly(libs.junit.platform.launcher)
 }

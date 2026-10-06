@@ -1,19 +1,19 @@
 plugins {
-    kotlin("plugin.spring")
+    alias(libs.plugins.kotlin.spring)
     `java-library`
 }
 
 dependencies {
     api(project(":internal-auth-common"))
-    api("org.springframework.boot:spring-boot-starter-security")
-    api("org.springframework.boot:spring-boot-starter-web")
-    api("org.springframework.boot:spring-boot-starter-data-redis")
-    api("org.springframework.session:spring-session-data-redis")
-    api("com.fasterxml.jackson.module:jackson-module-kotlin")
-    api("org.jetbrains.kotlin:kotlin-reflect")
+    api(libs.spring.boot.starter.security)
+    api(libs.spring.boot.starter.web)
+    api(libs.spring.boot.starter.data.redis)
+    api(libs.spring.session.data.redis)
+    api(libs.jackson.module.kotlin)
+    api(libs.kotlin.reflect)
 
-    testImplementation("org.springframework.security:spring-security-test")
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation(libs.spring.security.test)
+    testImplementation(libs.spring.boot.starter.test)
+    testImplementation(libs.kotlin.test.junit5)
+    testRuntimeOnly(libs.junit.platform.launcher)
 }
