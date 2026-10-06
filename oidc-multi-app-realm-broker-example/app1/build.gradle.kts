@@ -1,15 +1,15 @@
 plugins {
-    kotlin("plugin.spring")
-    id("org.springframework.boot")
+    alias(libs.plugins.kotlin.spring)
+    alias(libs.plugins.spring.boot)
 }
 
 dependencies {
     implementation(project(":oidc-common"))
     implementation(project(":session-common"))
-    implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
+    implementation(libs.spring.boot.starter.thymeleaf)
 
-    testImplementation("org.springframework.security:spring-security-test")
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation(libs.spring.security.test)
+    testImplementation(libs.spring.boot.starter.test)
+    testImplementation(libs.kotlin.test.junit5)
+    testRuntimeOnly(libs.junit.platform.launcher)
 }
