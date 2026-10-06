@@ -1,0 +1,16 @@
+@baseUrl = http://localhost:8080
+
+### 상품 캐시: 락으로 중복 로딩 방어
+GET {{baseUrl}}/usecases/products/1?protected=true
+
+### 락 없는 cache-aside 비교 (캐시 만료 후 실행)
+GET {{baseUrl}}/usecases/products/1?protected=false
+
+### TTL 확인
+GET {{baseUrl}}/usecases/products/1/ttl
+
+### Fake DB 누적 조회 횟수
+GET {{baseUrl}}/usecases/products/stats/db
+
+### 없는 상품: 404
+GET {{baseUrl}}/usecases/products/missing

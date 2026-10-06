@@ -1,18 +1,16 @@
 plugins {
     java
-    id("org.springframework.boot") version "3.4.4"
-    id("io.spring.dependency-management") version "1.1.7"
+    alias(libs.plugins.spring.boot)
+    alias(libs.plugins.dependency.management)
 }
 
 group = "com.example"
 version = "0.0.1-SNAPSHOT"
 
-val mapstructVersion = "1.5.3.Final"
-
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
+        languageVersion = JavaLanguageVersion.of(21)
     }
 }
 
@@ -28,31 +26,32 @@ repositories {
 
 dependencies {
     /* spring */
-    implementation("org.springframework.boot:spring-boot-starter-webflux")
-    developmentOnly("org.springframework.boot:spring-boot-devtools")
+    implementation(libs.spring.boot.starter.webflux)
+    developmentOnly(libs.spring.boot.devtools)
 
     /* swagger */
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0")
+    implementation(libs.springdoc.openapi)
     /* redis */
-    implementation("org.springframework.boot:spring-boot-starter-data-redis-reactive")
-    implementation("org.redisson:redisson:3.27.2")
+    implementation(libs.spring.boot.starter.data.redis.reactive)
+    implementation(libs.redisson)
 
     /* gson */
-    implementation("com.google.code.gson:gson:2.11.0")
+    implementation(libs.gson)
 
     /* mapstruct */
-    compileOnly("org.projectlombok:lombok")
-    annotationProcessor("org.projectlombok:lombok")
-    implementation("org.mapstruct:mapstruct:${mapstructVersion}")
-    annotationProcessor("org.mapstruct:mapstruct-processor:${mapstructVersion}")
-    annotationProcessor("org.projectlombok:lombok-mapstruct-binding:0.2.0")
+    compileOnly(libs.lombok)
+    annotationProcessor(libs.lombok)
+    implementation(libs.mapstruct)
+    annotationProcessor(libs.mapstruct.processor)
+    annotationProcessor(libs.lombok.mapstruct.binding)
 
     /* test */
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("io.projectreactor:reactor-test")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation(libs.spring.boot.starter.test)
+    testImplementation(libs.reactor.test)
+    testRuntimeOnly(libs.junit.platform.launcher)
 }
 
 tasks.withType<Test> {
     useJUnitPlatform()
+    inputs.property("runRedisUsecaseTests", providers.environmentVariable("RUN_REDIS_USECASE_TESTS").orElse("true"))
 }

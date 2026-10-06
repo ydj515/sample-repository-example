@@ -1,0 +1,25 @@
+@baseUrl = http://localhost:8080
+
+### 읽기 경쟁으로 재고 불일치
+POST {{baseUrl}}/usecases/inventory/simulations
+Content-Type: application/json
+
+{"mode":"unsafe","initialStock":10,"requests":50,"concurrency":20,"quantity":1}
+
+### DECRBY는 원자적이지만 음수 재고 발생
+POST {{baseUrl}}/usecases/inventory/simulations
+Content-Type: application/json
+
+{"mode":"atomic","initialStock":10,"requests":50,"concurrency":20,"quantity":1}
+
+### 같은 락으로 재고 확인과 감소 보호
+POST {{baseUrl}}/usecases/inventory/simulations
+Content-Type: application/json
+
+{"mode":"lock","initialStock":10,"requests":50,"concurrency":20,"quantity":1}
+
+### 재고 확인과 감소를 원자적으로 실행
+POST {{baseUrl}}/usecases/inventory/simulations
+Content-Type: application/json
+
+{"mode":"lua","initialStock":10,"requests":50,"concurrency":20,"quantity":1}

@@ -1,0 +1,25 @@
+@baseUrl = http://localhost:8080
+@userId = sample-user
+@productId = 1
+@visitorId = 42
+
+### Set: 찜 추가, 반복 실행하면 added=0
+PUT {{baseUrl}}/usecases/popularity/wishlists/{{userId}}/{{productId}}
+
+### 사용자 찜 목록
+GET {{baseUrl}}/usecases/popularity/wishlists/{{userId}}
+
+### ZSet: 점수 1 증가 (찜 추가와 독립)
+POST {{baseUrl}}/usecases/popularity/ranking/{{productId}}
+
+### 상위 랭킹
+GET {{baseUrl}}/usecases/popularity/ranking?limit=10
+
+### HyperLogLog / Bitmap: UTC 일일 방문 기록
+POST {{baseUrl}}/usecases/popularity/visits/{{productId}}/{{visitorId}}
+
+### Bitmap: 방문 여부
+GET {{baseUrl}}/usecases/popularity/visits/{{productId}}/{{visitorId}}
+
+### Bitmap offset 제한: 400
+POST {{baseUrl}}/usecases/popularity/visits/{{productId}}/1000001

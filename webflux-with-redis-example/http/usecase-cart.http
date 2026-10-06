@@ -1,0 +1,30 @@
+@baseUrl = http://localhost:8080
+
+### 1. 세션 생성: 응답에서 세션 ID 자동 저장 (IntelliJ HTTP Client)
+POST {{baseUrl}}/usecases/sessions
+Content-Type: application/json
+
+{"userId":"sample-user"}
+
+> {%
+    client.test("Session created", function () { client.assert(response.status === 200); });
+    client.global.set("usecaseSessionId", response.body.sessionId);
+%}
+
+### 2. 상품 수량 설정
+PUT {{baseUrl}}/usecases/carts/{{usecaseSessionId}}/items
+Content-Type: application/json
+
+{"productId":"1","quantity":2}
+
+### 3. 조회: 세션과 장바구니 TTL 갱신
+GET {{baseUrl}}/usecases/carts/{{usecaseSessionId}}
+
+### 4. 수량 0: 항목 제거
+PUT {{baseUrl}}/usecases/carts/{{usecaseSessionId}}/items
+Content-Type: application/json
+
+{"productId":"1","quantity":0}
+
+### 만료/없는 세션: 401
+GET {{baseUrl}}/usecases/carts/missing-session

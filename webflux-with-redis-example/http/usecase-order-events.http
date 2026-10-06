@@ -1,0 +1,35 @@
+@baseUrl = http://localhost:8080
+
+### List: 발행
+POST {{baseUrl}}/usecases/order-events/list/publish
+Content-Type: application/json
+
+{"orderId":"list-order-1","productId":"1","quantity":2}
+
+### List: 하나 처리 (빈 큐는 204)
+POST {{baseUrl}}/usecases/order-events/list/process-next
+
+### Pub/Sub: 먼저 실행해 SSE 연결 유지. 다른 요청 탭에서 발행
+GET {{baseUrl}}/usecases/order-events/pubsub/subscribe
+Accept: text/event-stream
+
+### Pub/Sub: 발행 결과는 수신 구독자 수
+POST {{baseUrl}}/usecases/order-events/pubsub/publish
+Content-Type: application/json
+
+{"orderId":"pubsub-order-1","productId":"1","quantity":2}
+
+### Stream: 발행
+POST {{baseUrl}}/usecases/order-events/stream/publish
+Content-Type: application/json
+
+{"orderId":"stream-order-1","productId":"1","quantity":2}
+
+### Stream: 그룹 생성 (기존 그룹은 EXISTS)
+POST {{baseUrl}}/usecases/order-events/stream/group
+
+### Stream: 신규 이벤트 처리 후 ACK
+POST {{baseUrl}}/usecases/order-events/stream/process?consumer=worker-1
+
+### Stream: 동일 소비자의 pending 재처리
+POST {{baseUrl}}/usecases/order-events/stream/process?consumer=worker-1&pending=true

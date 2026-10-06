@@ -1,0 +1,37 @@
+@baseUrl = http://localhost:8080
+@minIdleMillis = 1000
+
+### 1. 이벤트 발행 및 복구 커서 초기화
+POST {{baseUrl}}/usecases/order-events/stream/publish
+Content-Type: application/json
+
+{"orderId":"recovery-order-1","productId":"1","quantity":2}
+
+> {%
+    client.global.set("recoveryCursor", "0-0");
+%}
+
+### 2. 소비자 그룹 생성
+POST {{baseUrl}}/usecases/order-events/stream/group
+
+### 3. 중단 재현: 전달받은 메시지를 ACK 없이 pending에 남김
+POST {{baseUrl}}/usecases/order-events/stream/reserve?consumer=stopped-worker
+
+### 4. pending 소유자, idleMillis, deliveries 확인
+GET {{baseUrl}}/usecases/order-events/stream/pending?cursor=0-0&count=20
+
+### 5. reserve 후 최소 1초 기다린 뒤 회수 → 처리 → ACK
+# nextCursor가 0-0이 아니면 이 요청을 반복하여 다음 페이지 처리
+# 0-0은 이번 스캔 종료. 빈 processed도 다음 커서가 있으면 계속 실행
+POST {{baseUrl}}/usecases/order-events/stream/recover?consumer=recovery-worker&minIdleMillis={{minIdleMillis}}&cursor={{recoveryCursor}}&count=20
+
+> {%
+    client.test("Recovery completed", function () { client.assert(response.status === 200); });
+    client.global.set("recoveryCursor", response.body.nextCursor);
+%}
+
+### 6. ACK 후 pending에서 사라지는지 확인
+GET {{baseUrl}}/usecases/order-events/stream/pending?cursor=0-0&count=20
+
+### 입력 제한: minIdleMillis=0은 400
+POST {{baseUrl}}/usecases/order-events/stream/recover?consumer=recovery-worker&minIdleMillis=0

@@ -1,0 +1,41 @@
+@baseUrl = http://localhost:8080
+@consumer = dlq-worker
+
+### 1. 이벤트 발행: 기본 한도 3회 실패를 재현
+POST {{baseUrl}}/usecases/order-events/stream/publish
+Content-Type: application/json
+
+{"orderId":"dlq-order-1","productId":"1","quantity":2}
+
+### 2. 소비자 그룹 생성
+POST {{baseUrl}}/usecases/order-events/stream/group
+
+### 3. 첫 처리 실패: RETRY_PENDING, attempts=1, acknowledged=0
+POST {{baseUrl}}/usecases/order-events/stream/process?consumer={{consumer}}&fail=true
+
+### 4. 첫 재시도 실패: RETRY_PENDING, attempts=2
+POST {{baseUrl}}/usecases/order-events/stream/process?consumer={{consumer}}&pending=true&fail=true
+
+### 5. 두 번째 재시도 실패: DEAD_LETTERED, attempts=3, acknowledged=1
+POST {{baseUrl}}/usecases/order-events/stream/process?consumer={{consumer}}&pending=true&fail=true
+
+### 6. 원본 pending에서 제거되었는지 확인
+GET {{baseUrl}}/usecases/order-events/stream/pending?cursor=0-0&count=100
+
+### 7. DLQ의 원본 ID, event, attempts, errorType 확인
+GET {{baseUrl}}/usecases/order-events/stream/dlq?count=100
+
+### 8. 재시도 성공 비교용 이벤트 발행
+POST {{baseUrl}}/usecases/order-events/stream/publish
+Content-Type: application/json
+
+{"orderId":"retry-success-order-1","productId":"1","quantity":2}
+
+### 9. 첫 처리 실패
+POST {{baseUrl}}/usecases/order-events/stream/process?consumer={{consumer}}&fail=true
+
+### 10. fail=false로 재시도 성공: PROCESSED, acknowledged=1
+POST {{baseUrl}}/usecases/order-events/stream/process?consumer={{consumer}}&pending=true&fail=false
+
+### 11. DLQ에는 성공한 재시도 이벤트가 없어야 함
+GET {{baseUrl}}/usecases/order-events/stream/dlq?count=100
