@@ -58,7 +58,9 @@ curl -i http://localhost:8080/todos
 
 H2는 메모리 DB이며 프로세스 종료 시 데이터가 사라진다. `create-drop`은 이 예제 전용이다.
 H2 웹 콘솔은 기본 비활성화한다. 운영 DB와 H2의 SQL·잠금 동작이 같다는 보장은 없다.
-서비스는 null/공백 제목을 거부하지만, API의 표준 오류 응답과 페이지 조회는 이 예제 범위 밖이다.
+제목 누락·null·빈 문자열·공백은 HTTP 400과 ProblemDetail로 응답하며 저장하지 않는다.
+오류 코드는 `INVALID_TODO_TITLE`이다. 전용 예외만 매핑하므로 내부의 일반 RuntimeException을
+입력 오류로 숨기지 않는다. 잘못된 JSON 등 Spring 기본 오류와 페이지 조회는 별도 확장 범위다.
 
 ## 패키지와 의존 방향
 
@@ -130,7 +132,7 @@ ArchUnit은 런타임 DI를 보장하지 않으므로 H2 통합 테스트가 프
 | 규칙 | 목적 |
 | --- | --- |
 | AvoidStarImport, UnusedImports | 의존 타입을 명시하고 불필요한 import 방지 |
-| TypeName, MethodName, MemberName | 타입·메서드·필드 이름 규약 |
+| TypeName, MethodName, MemberName | 타입·메서드·인스턴스 필드 이름 규약 |
 | ParameterName, LocalVariableName | 매개변수·지역변수 이름 규약 |
 | OneTopLevelClass, OuterTypeFilename | 소스 파일과 타입의 대응 유지 |
 | NeedBraces | 조건·반복문 블록의 중괄호 강제 |
@@ -148,6 +150,21 @@ ArchUnit은 런타임 DI를 보장하지 않으므로 H2 통합 테스트가 프
 
 예를 들어 `public void BadName()`은 MethodName 위반이다. Spotless는 메서드명을 고치지 않으므로
 자동 포맷을 적용한 뒤에도 Checkstyle에서 실패한다.
+
+명명 검사의 소유자는 Checkstyle이다. Spotless는 식별자 이름을 검사하거나 수정하지 않는다.
+현재 적용 여부는 다음과 같다. 미적용은 다른 도구가 대신 보장한다는 의미가 아니다.
+
+| 대상 | Checkstyle 규칙 | 현재 적용 |
+| --- | --- | --- |
+| 타입·메서드 | TypeName, MethodName | 적용 |
+| 인스턴스 필드 | MemberName | 적용 |
+| 매개변수·지역변수 | ParameterName, LocalVariableName | 적용 |
+| 상수·정적 필드 | ConstantName, StaticVariableName | 미적용 |
+| 패키지 | PackageName | 미적용 |
+| record 컴포넌트 | RecordComponentName | 미적용 |
+
+기존 프로젝트로 옮길 때는 상수·정적 필드·record 명명 규약을 먼저 합의하고 해당 규칙을 명시적으로 추가한다.
+규칙을 추가하지 않은 현재 설정을 Java 명명 규칙 전체 검사로 해석하지 않는다.
 
 ## PMD: 오류 패턴과 복잡도
 
@@ -223,6 +240,7 @@ SpotBugs는 의존성 취약점 검사와 런타임 테스트를 대체하지 �
 H2 통합 테스트는 POST로 등록한 뒤 `flush`와 `clear`를 수행하고 GET으로 다시 조회한다.
 1차 캐시에서만 반환하는 테스트가 되지 않게 하며, 테스트 트랜잭션은 종료 시 롤백한다.
 단위 테스트는 null·공백·정상 제목을 구분해 분기를 검증한다.
+HTTP 테스트는 제목 누락·null·빈 문자열·공백의 400 상태, ProblemDetail 오류 코드·본문과 저장 건수 0을 검증한다.
 HTTP 통합 테스트는 MockMvc를 사용하므로 실제 TCP 서버나 운영 DB 동작까지 보장하지 않는다.
 
 향후 integrationTest를 별도 Test 태스크로 분리하면 해당 태스크를 report·verification의
@@ -274,6 +292,9 @@ mise를 사용하지 않는 환경에서는 JDK 21에서 `./gradlew check --cons
 임계치 하향·패키지 제외·baseline 추가는 검증 범위를 줄이는 변경이므로 근거와 후속 해소 계획을 검토한다.
 
 ## 참고
+
+독자가 직접 따라 할 수 있는 도구별 실패 코드, 실행 명령, 수정 및 통과 확인은
+[위반 재현 실습](docs/quality-gate-exercises.md)에 정리했다.
 
 설정 구성은 인접 workflow 저장소의 `dev-standards/standards/tools/languages/java/`와
 `dev-standards/templates/gradle/`를 참고했다.

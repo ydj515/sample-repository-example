@@ -5,6 +5,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.example.quality.application.todo.TodoService;
+import com.example.quality.domain.todo.InvalidTodoTitleException;
 import com.example.quality.domain.todo.Todo;
 import com.example.quality.domain.todo.TodoRepository;
 import java.util.List;
@@ -15,7 +16,7 @@ class TodoServiceTest {
   void rejectsNullTitle() {
     TodoService service = new TodoService(mock(TodoRepository.class));
     assertThatThrownBy(() -> service.create(null))
-        .isInstanceOf(IllegalArgumentException.class)
+        .isInstanceOf(InvalidTodoTitleException.class)
         .hasMessage("title must not be blank");
   }
 
@@ -24,7 +25,7 @@ class TodoServiceTest {
     TodoService service = new TodoService(mock(TodoRepository.class));
 
     assertThatThrownBy(() -> service.create(" "))
-        .isInstanceOf(IllegalArgumentException.class)
+        .isInstanceOf(InvalidTodoTitleException.class)
         .hasMessage("title must not be blank");
   }
 

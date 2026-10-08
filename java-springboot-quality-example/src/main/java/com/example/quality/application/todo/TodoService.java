@@ -1,5 +1,6 @@
 package com.example.quality.application.todo;
 
+import com.example.quality.domain.todo.InvalidTodoTitleException;
 import com.example.quality.domain.todo.Todo;
 import com.example.quality.domain.todo.TodoRepository;
 import java.util.List;
@@ -17,7 +18,7 @@ public class TodoService {
   @Transactional
   public Todo create(String title) {
     if (title == null || title.isBlank()) {
-      throw new IllegalArgumentException("title must not be blank");
+      throw new InvalidTodoTitleException();
     }
     return todoRepository.save(new Todo(title));
   }
