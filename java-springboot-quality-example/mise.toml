@@ -1,0 +1,61 @@
+min_version = "2026.9.18"
+
+[settings]
+lockfile = false
+
+[tools]
+java = "21.0.2"
+
+[tasks.default]
+description = "Run the H2-backed Spring Boot application"
+depends = ["run"]
+
+[tasks.run]
+description = "Run Spring Boot with the pinned JDK"
+run = "./gradlew bootRun"
+
+[tasks.bootstrap]
+description = "Install the pinned JDK and verify the Gradle runtime"
+run = """
+mise install java@21.0.2
+./gradlew --version
+"""
+
+[tasks."config:check"]
+description = "Validate mise task references"
+run = "mise tasks validate --errors-only"
+
+[tasks.test]
+description = "Run unit and H2 integration tests and generate coverage reports"
+run = "./gradlew test"
+
+[tasks.build]
+description = "Build the application and execute all quality gates"
+run = "./gradlew build"
+
+[tasks.check]
+description = "Execute all six quality tools and application tests"
+run = "./gradlew check --console=plain"
+
+[tasks.lint]
+description = "Check formatting, source conventions and bytecode defects"
+run = "./gradlew spotlessCheck checkstyleMain checkstyleTest pmdMain pmdTest spotbugsMain spotbugsTest"
+
+[tasks.format]
+description = "Apply Google Java Format to Java sources"
+run = "./gradlew spotlessApply"
+
+[tasks.architecture-test]
+description = "Verify package boundaries and repository ownership"
+run = "./gradlew architectureTest"
+
+[tasks.coverage]
+description = "Run tests and verify line and branch coverage thresholds"
+run = "./gradlew jacocoTestCoverageVerification"
+
+[tasks.ci]
+description = "Validate mise configuration and run the complete quality gate"
+run = """
+mise run config:check
+mise run check
+"""

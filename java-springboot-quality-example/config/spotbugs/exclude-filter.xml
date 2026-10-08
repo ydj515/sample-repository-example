@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+  <!-- No confirmed false positives. Add only class + method + bug-specific exceptions. -->
+</FindBugsFilter>
