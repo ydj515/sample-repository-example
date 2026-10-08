@@ -1,7 +1,7 @@
 # Kotlin Spring Boot Quality Example
 
 Kotlin + Spring Boot + H2로 Todo 등록·조회를 구현하고, 다섯 품질 도구를 Gradle의
-`check`에 연결하는 예제다. 애플리케이션 구조와 기능 범위는 인접한
+`check`에 연결하는 예제다. 애플리케이션 구조는 인접한
 [java-springboot-quality-example](../java-springboot-quality-example/README.md)을 따른다.
 `koteset`은 테스트 프레임워크인 **Kotest**로 해석했다.
 
@@ -30,9 +30,29 @@ curl -i http://localhost:8080/todos
 
 POST는 생성된 `id`와 `title`을 HTTP 201로 반환한다.
 GET은 ID 오름차순의 전체 목록을 HTTP 200으로 반환한다.
-서비스는 null·빈 문자열·공백 제목을 거부한다.
-Java 예제와 동일하게 표준 오류 응답 변환, 페이지 조회, 수정·삭제는 다루지 않는다.
-따라서 제목 검증 예외를 HTTP 400으로 변환하는 API 계약은 제공하지 않는다.
+제목 누락·null·빈 문자열·공백 제목은 HTTP 400으로 반환한다.
+잘못된 JSON도 HTTP 400이며, 두 경우 모두 `application/problem+json` 응답을 사용한다.
+
+```shell
+curl -i -H 'Content-Type: application/json' \
+  -d '{"title":"   "}' http://localhost:8080/todos
+```
+
+```json
+{
+  "type": "about:blank",
+  "title": "Bad Request",
+  "status": 400,
+  "detail": "title must not be blank",
+  "instance": "/todos"
+}
+```
+
+서비스는 `InvalidTodoTitleException`을 발생시키고 presentation의
+`TodoErrorHandler`가 HTTP 응답으로 변환한다. 일반적인 `IllegalArgumentException`이나
+저장소 실패까지 400으로 변환하지 않는다. 파싱 오류는 내부 예외 메시지를 노출하지 않고
+`request body must be valid JSON`으로 응답한다.
+모든 HTTP 오류의 응답 표준화, 페이지 조회, 수정·삭제는 다루지 않는다.
 
 ## 고정 버전과 mise
 
@@ -81,10 +101,13 @@ mise 태스크의 다중 명령은 POSIX shell 환경을 기준으로 한다.
 ```text
 com.example.quality
 ├── QualityExampleApplication
-├── presentation/todo/TodoController
+├── presentation/todo
+│   ├── TodoController
+│   └── TodoErrorHandler
 ├── application/todo/TodoService
 ├── domain/todo
 │   ├── Todo
+│   ├── InvalidTodoTitleException
 │   └── TodoRepository
 └── repository/todo/JpaTodoRepository
 ```
@@ -131,9 +154,23 @@ ktlint 플러그인과 엔진을 각각 고정해 플러그인의 기본 엔진 
 
 [detekt.yml](config/detekt/detekt.yml)은 기본 규칙을 상속하고,
 순환 복잡도 허용값 10과 인지 복잡도 허용값 15를 명시한다.
-파일에 쓰지 않은 기본 규칙도 활성일 수 있다. naming, import와 줄 길이 등
-포맷 소유권은 ktlint에 두고 중복 규칙은 비활성화한다.
+파일에 쓰지 않은 기본 규칙도 활성일 수 있다.
+들여쓰기·import·줄 길이와 기본 이름 표기법은 ktlint에 둔다.
 `detektMain`과 `detektTest`는 컴파일 classpath와 JVM target 21로 타입 분석을 실행한다.
+
+명명 규칙은 아래 범위까지만 검사한다. Detekt의 `naming.active = false`가
+모든 명명 검사를 ktlint로 이전했다는 뜻은 아니다.
+
+| 검사 내용 | 담당 | 이 예제의 범위 |
+| --- | --- | --- |
+| 클래스·함수·프로퍼티의 기본 이름 표기법 | ktlint | `class-naming`, `function-naming`, `property-naming`의 기본 규칙 |
+| 저장소 인터페이스 이름과 소속 패키지 | Konsist | `TodoRepository`, `JpaTodoRepository` 선언 검사 |
+| boolean 이름의 의미·접두사 등 Detekt 전용 naming 규칙 | 미사용 | ktlint가 동일하게 보장한다고 가정하지 않음 |
+| 모든 서비스의 `Service` 접미사와 업무 용어 일관성 | 미사용 | 현재 Konsist 검사 범위에 포함하지 않음 |
+
+ktlint의 이름 규칙에는 factory 함수, 상수, 테스트 함수 등의 예외가 있으며,
+의미를 바꿀 수 있는 이름 변경은 `ktlintFormat`이 대신 처리하지 않는다.
+규칙별 예외는 [ktlint 1.8.0 표준 규칙](https://ktlint.github.io/ktlint/1.8.0/rules/standard/)을 확인한다.
 
 baseline이나 광범위한 소스 제외는 사용하지 않는다.
 유일한 코드 suppression은 진입 함수의 `SpreadOperator`다.
@@ -170,8 +207,15 @@ Konsist 0.17.3의 import는
 
 [TodoIntegrationTest](src/test/kotlin/com/example/quality/TodoIntegrationTest.kt)는
 Kotest Spring extension으로 애플리케이션 context를 구성하고 MockMvc와 실제 H2를 사용한다.
-빈 목록 조회, HTTP 201과 생성 ID, 여러 Todo의 저장·정렬 조회, 잘못된 JSON의 거부를 확인한다.
+빈 목록 조회, HTTP 201과 생성 ID, 여러 Todo의 저장·정렬 조회를 확인한다.
+제목 누락·null·빈 문자열·공백·탭/개행과 잘못된 JSON은 HTTP 400 응답의
+상태·미디어 타입·오류 내용과 DB 미저장을 함께 검사한다.
 각 테스트 전에 DB를 비워 테스트 순서에 의존하지 않게 한다.
+
+[TodoErrorHandlerTest](src/test/kotlin/com/example/quality/TodoErrorHandlerTest.kt)는
+예상하지 못한 인자 오류와 저장소 실패를 입력 오류로 변환하지 않는지 검사한다.
+MockMvc에서 처리되지 않은 서버 예외가 전파되는 것을 확인하며,
+실제 서버의 전체 500 응답 형식까지 검증하는 테스트는 아니다.
 
 ```shell
 mise run test
@@ -193,19 +237,119 @@ Kover는 모든 main 클래스를 동일한 report·verification 범위에 포�
 
 ## 검증 사례
 
-초기 예제에서 단위 테스트 7개, H2 통합 테스트 3개, Konsist 테스트 4개가 실행된다.
-직접 작성한 main 코드를 제외하지 않은 Kover 측정값은 LINE 87.5%, BRANCH 100%다.
-코드를 변경하면 테스트 수와 측정값도 달라질 수 있으므로 실제 리포트를 확인한다.
+서비스 테스트 7개, 오류 처리 테스트 2개, H2 통합 테스트 8개,
+Konsist 테스트 4개가 실행된다. 커버리지 수치는 실제 Kover 리포트에서 확인한다.
 
-품질 검사가 실제 실패하는지도 다음 임시 변경으로 확인하고 원복했다.
+아래 실습은 **한 번에 하나만 적용**한다. 각 명령은 이 예제 디렉터리에서 실행하며
+해당 도구의 위반으로 종료 코드가 0이 아닌지 확인한다.
+의존성 다운로드 실패나 컴파일 오류를 품질 규칙 검증 성공으로 판단하지 않는다.
+확인 후 직접 수정한 줄만 원복하고 같은 명령이 성공하는지 확인한다.
+기존 작업을 잃을 수 있으므로 일괄 Git 복원 명령은 사용하지 않는다.
 
-- 컨트롤러에 `JpaTodoRepository` 의존 추가: Konsist 계층 검사와 저장소 접근 검사 실패.
-- Kover LINE 기준을 100%로 변경: 측정값 87.5%로 `koverVerify` 실패.
-- Detekt 타입 분석: 불필요한 `filter(...).isEmpty()`를 `none(...)`으로 바꾸도록 지적하여 수정.
+### 1. ktlint: 포맷 위반과 자동 수정
+
+`domain/todo/Todo.kt`의 생성자 프로퍼티에서 콜론 다음 공백을 제거한다.
+
+```kotlin
+val title:String,
+```
+
+```shell
+mise exec -- ./gradlew ktlintCheck
+mise run format
+mise exec -- ./gradlew ktlintCheck
+```
+
+첫 검사에서는 `standard:colon-spacing`으로 실패한다.
+포맷을 적용하면 `val title: String,`으로 돌아가고 검사가 성공한다.
+`format`은 다른 포맷 위반도 수정할 수 있으므로 실행 후 diff를 확인한다.
+
+### 2. Detekt: 타입 기반 분석
+
+`ArchitectureKonsistTest`의 `none` assertion 한 줄을 다음과 같이 바꾼다.
+
+```kotlin
+scope.classes().filter { it.name.endsWith("Repository") }.isEmpty() shouldBe true
+```
+
+```shell
+mise exec -- ./gradlew detektTest
+```
+
+`UnnecessaryFilter`로 실패한다. 다음처럼 조건을 직접 검사하면 중간 리스트가 필요하지 않다.
+
+```kotlin
+scope.classes().none { it.name.endsWith("Repository") } shouldBe true
+```
+
+원복 후 `detektTest`를 다시 실행한다. ktlint 포맷 수정만으로는 이 위반이 해결되지 않는다.
+
+### 3. Konsist: 컨트롤러의 저장소 접근
+
+`TodoController.kt`에 아래 import와 클래스 본문의 프로퍼티를 임시로 추가한다.
+생성자 서명을 유지하여 컨트롤러를 직접 생성하는 테스트도 컴파일되게 한다.
+
+```kotlin
+import com.example.quality.repository.todo.JpaTodoRepository
+```
+
+```kotlin
+private val repository: JpaTodoRepository? = null
+```
+
+```shell
+mise run architecture-test
+```
+
+컴파일은 가능하지만 presentation → repository 의존 금지와
+컨트롤러의 저장소 import 금지 검사에서 실패한다.
+추가한 프로퍼티와 import를 제거한 뒤 같은 명령을 다시 실행한다.
+
+### 4. Kotest: assertion이 동작 회귀를 잡는지 확인
+
+`TodoServiceTest`의 정상 등록 테스트에서 기대 제목만 바꾼다.
+입력 `service.create("learn quality gates")`는 그대로 둔다.
+
+```kotlin
+saved.title shouldBe "unexpected title"
+```
+
+```shell
+mise exec -- ./gradlew test --tests '*TodoServiceTest'
+```
+
+정상 등록 테스트가 기대값과 실제값의 차이로 실패한다.
+기대값을 `"learn quality gates"`로 복원하고 같은 명령을 다시 실행한다.
+테스트 실행 여부뿐 아니라 assertion이 실제 결과를 검사하는지 확인하는 실습이다.
+
+### 5. Kover: 리포트 생성과 임계치 검증의 차이
+
+`build.gradle.kts`의 LINE 최소 기준만 80에서 100으로 바꾼다.
+
+```kotlin
+minBound(100, CoverageUnit.LINE)
+```
+
+```shell
+mise run coverage
+```
+
+테스트와 HTML/XML 리포트 생성은 성공하지만, 현재 테스트는 실행 진입점의
+`main` 함수를 직접 호출하지 않으므로 LINE 100% 기준에서 `koverVerify`가 실패한다.
+기준을 80으로 복원하고 같은 명령을 다시 실행한다.
+나중에 모든 라인을 검증하게 되면 이 실습의 전제도 달라진다.
+실패를 숨기기 위해 production 클래스 제외를 추가하지 않는다.
+
+모든 임시 변경을 원복한 뒤 전체 검사를 실행한다.
+
+```shell
+mise run ci
+mise run build
+```
 
 ## 주의사항
 
-- 제약: Todo 등록·전체 조회에 집중한 단일 모듈 예제다. 인증과 API 오류 응답 표준화는 포함하지 않는다.
+- 제약: Todo 등록·전체 조회에 집중한 단일 모듈 예제다. 인증과 모든 HTTP 오류의 응답 표준화는 포함하지 않는다.
 - 위험: H2 메모리 DB와 `create-drop` 설정은 프로세스 종료 시 데이터를 잃는다. 운영 환경에 사용하지 않는다.
 - 예외: H2의 SQL·잠금 동작은 운영 DB와 다를 수 있다. 운영 DB를 도입하면 해당 DB 통합 테스트가 필요하다.
 
@@ -217,3 +361,4 @@ Kover는 모든 main 클래스를 동일한 report·verification 범위에 포�
 - [Konsist architecture assertion](https://docs.konsist.lemonappdev.com/writing-tests/architecture-assert)
 - [Kotest Spring extension](https://kotest.io/docs/5.5.x/extensions/spring.html)
 - [Detekt 호환성 안내](https://detekt.dev/docs/introduction/compatibility/)
+- [Spring Framework 오류 응답](https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-ann-rest-exceptions.html)

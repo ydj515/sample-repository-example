@@ -1,6 +1,7 @@
 package com.example.quality
 
 import com.example.quality.application.todo.TodoService
+import com.example.quality.domain.todo.InvalidTodoTitleException
 import com.example.quality.domain.todo.Todo
 import com.example.quality.domain.todo.TodoRepository
 import io.kotest.assertions.throwables.shouldThrow
@@ -29,7 +30,7 @@ class TodoServiceTest :
                 val repository = InMemoryTodoRepository()
                 val service = TodoService(repository)
 
-                shouldThrow<IllegalArgumentException> {
+                shouldThrow<InvalidTodoTitleException> {
                     service.create(invalidTitle)
                 }.message shouldBe "title must not be blank"
                 repository.findAllByOrderByIdAsc().shouldBeEmpty()

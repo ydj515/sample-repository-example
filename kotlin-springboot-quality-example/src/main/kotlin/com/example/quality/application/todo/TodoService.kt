@@ -1,5 +1,6 @@
 package com.example.quality.application.todo
 
+import com.example.quality.domain.todo.InvalidTodoTitleException
 import com.example.quality.domain.todo.Todo
 import com.example.quality.domain.todo.TodoRepository
 import org.springframework.stereotype.Service
@@ -11,7 +12,9 @@ class TodoService(
 ) {
     @Transactional
     fun create(title: String?): Todo {
-        require(!title.isNullOrBlank()) { "title must not be blank" }
+        if (title.isNullOrBlank()) {
+            throw InvalidTodoTitleException()
+        }
         return todoRepository.save(Todo(title))
     }
 

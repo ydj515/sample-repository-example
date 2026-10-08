@@ -54,12 +54,43 @@ class TodoIntegrationTest
                 repository.findAllByOrderByIdAsc().map { it.title } shouldBe listOf("first", "second")
             }
 
-            test("malformed JSON fails before persistence") {
+            listOf(
+                "{}",
+                """{"title":null}""",
+                """{"title":""}""",
+                """{"title":"   "}""",
+                """{"title":"\t\n"}""",
+            ).forEachIndexed { index, body ->
+                test("invalid title case $index returns a problem response without saving") {
+                    mockMvc
+                        .post("/todos") {
+                            contentType = MediaType.APPLICATION_JSON
+                            content = body
+                        }.andExpect {
+                            status { isBadRequest() }
+                            content { contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON) }
+                            jsonPath("$.type") { value("about:blank") }
+                            jsonPath("$.title") { value("Bad Request") }
+                            jsonPath("$.status") { value(400) }
+                            jsonPath("$.detail") { value("title must not be blank") }
+                            jsonPath("$.instance") { value("/todos") }
+                        }
+                    repository.count() shouldBe 0L
+                }
+            }
+
+            test("malformed JSON fails before persistence with a stable problem response") {
                 mockMvc
                     .post("/todos") {
                         contentType = MediaType.APPLICATION_JSON
                         content = "{"
-                    }.andExpect { status { isBadRequest() } }
+                    }.andExpect {
+                        status { isBadRequest() }
+                        content { contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON) }
+                        jsonPath("$.status") { value(400) }
+                        jsonPath("$.detail") { value("request body must be valid JSON") }
+                        jsonPath("$.instance") { value("/todos") }
+                    }
                 repository.count() shouldBe 0L
             }
         }

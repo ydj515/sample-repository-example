@@ -9,7 +9,8 @@ complexity:
     active: true
     allowedComplexity: 15
 
-# ktlint owns naming, imports and whitespace conventions.
+# ktlint owns identifier casing, imports and whitespace.
+# Detekt-specific naming semantics (for example boolean prefixes) are not enforced.
 naming:
   active: false
 style:
