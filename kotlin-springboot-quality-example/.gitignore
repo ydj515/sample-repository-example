@@ -1,5 +1,6 @@
 .gradle/
 .kotlin/
 build/
+bin/
 mise.local.toml
 mise.local.lock
