@@ -1,0 +1,57 @@
+min_version = "2026.9.18"
+
+[settings]
+lockfile = true
+
+[tools]
+java = "21.0.2"
+
+[tasks.default]
+depends = ["run"]
+
+[tasks.run]
+description = "Run the H2-backed Spring Boot application"
+run = "./gradlew bootRun"
+
+[tasks.bootstrap]
+description = "Install the pinned JDK and verify the Gradle runtime"
+run = """
+mise install
+./gradlew --version
+"""
+
+[tasks."config:check"]
+description = "Validate mise task references"
+run = "mise tasks validate --errors-only"
+
+[tasks.test]
+description = "Run Kotest unit, HTTP/H2 integration and Konsist tests"
+run = "./gradlew test"
+
+[tasks.build]
+description = "Build the executable JAR and run all quality gates"
+run = "./gradlew build"
+
+[tasks.lint]
+description = "Check formatting and source quality with type resolution"
+run = "./gradlew ktlintCheck detekt detektMain detektTest"
+
+[tasks.format]
+description = "Format Kotlin sources and Gradle Kotlin DSL"
+run = "./gradlew ktlintFormat"
+
+[tasks.architecture-test]
+description = "Run Konsist architecture and declaration rules"
+run = "./gradlew test --tests '*KonsistTest'"
+
+[tasks.coverage]
+description = "Generate coverage reports and verify line/branch thresholds"
+run = "./gradlew koverHtmlReport koverXmlReport koverVerify"
+
+[tasks.verify]
+alias = ["ci", "check"]
+description = "Validate mise configuration and run all five quality tools"
+run = """
+mise run config:check
+./gradlew check --console=plain
+"""

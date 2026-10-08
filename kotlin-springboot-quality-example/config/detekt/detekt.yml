@@ -1,0 +1,19 @@
+config:
+  validation: true
+  warningsAsErrors: true
+
+complexity:
+  CyclomaticComplexMethod:
+    allowedComplexity: 10
+  CognitiveComplexMethod:
+    active: true
+    allowedComplexity: 15
+
+# ktlint owns naming, imports and whitespace conventions.
+naming:
+  active: false
+style:
+  MaxLineLength:
+    active: false
+  WildcardImport:
+    active: false
