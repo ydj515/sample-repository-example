@@ -1,10 +1,14 @@
-package com.example.mcp;
+package com.example.mcp.presentation;
 
+import com.example.mcp.protocol.Rpc;
+import com.example.mcp.protocol.RpcFailure;
+import com.example.mcp.protocol.legacy.LegacyProtocol;
+import com.example.mcp.protocol.modern.ModernProtocol;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -58,7 +62,7 @@ final class ComparisonController {
                 response.setHeader("X-Demo-Routing", "headers");
             }
             request = mapper.readTree(body);
-            validateEnvelope(request, era);
+            RpcEnvelopeValidator.validate(request, era);
             if (selected == null) {
                 selected = request.path("params").path("arguments").path("region").asText("kr");
                 response.setHeader("X-Demo-Routing", "body");
@@ -69,27 +73,8 @@ final class ComparisonController {
             return modern.handle(selected, request, headers);
         } catch (JsonProcessingException ex) {
             return ResponseEntity.badRequest().body(Rpc.fail(400, -32700, "Parse error").response(null));
-        } catch (Rpc.Failure failure) {
-            return ResponseEntity.status(failure.status).body(failure.response(request == null ? null : request.get("id")));
-        }
-    }
-
-    private void validateEnvelope(JsonNode request, String era) {
-        if (request == null || !request.isObject() || !"2.0".equals(request.path("jsonrpc").asText())) {
-            throw Rpc.fail(400, -32600, "Expected a JSON-RPC 2.0 object");
-        }
-        boolean initialized = "notifications/initialized".equals(request.path("method").asText());
-        if (!(initialized && era.equals("legacy"))
-                && (!request.has("id") || !(request.get("id").isTextual() || request.get("id").isIntegralNumber()))) {
-            throw Rpc.fail(400, -32600, "A string or integer request id is required");
-        }
-        if (request.has("method")) {
-            if (!request.get("method").isTextual()
-                    || (request.has("params") && !request.get("params").isObject())) {
-                throw Rpc.fail(400, -32600, "Invalid method or params");
-            }
-        } else if (!era.equals("legacy") || request.has("result") == request.has("error")) {
-            throw Rpc.fail(400, -32600, "Expected method or legacy response");
+        } catch (RpcFailure failure) {
+            return ResponseEntity.status(failure.status()).body(failure.response(request == null ? null : request.get("id")));
         }
     }
 }

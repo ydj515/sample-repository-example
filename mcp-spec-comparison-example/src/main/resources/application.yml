@@ -1,0 +1,7 @@
+server:
+  address: 127.0.0.1
+  port: 8097
+
+spring:
+  application:
+    name: mcp-spec-comparison-example

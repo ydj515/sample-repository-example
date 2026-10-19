@@ -1,5 +1,7 @@
 package com.example.mcp;
 
+import com.example.mcp.protocol.Rpc;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -258,4 +260,12 @@ class ComparisonTest {
         var invalid = send("/modern/mcp", Rpc.object(), modernHeaders("tools/list"));
         assertThat(json.readTree(invalid.body()).path("error").path("code").asInt()).isEqualTo(-32600);
     }
+
+    @Test void overlappingBase64HeaderMarkersReturnProtocolError() throws Exception {
+        var response = send("/modern/mcp", request("tools/list", true),
+                Map.of("MCP-Protocol-Version", Rpc.MODERN, "Mcp-Method", "=?base64?="));
+        assertThat(response.statusCode()).isEqualTo(400);
+        assertThat(json.readTree(response.body()).path("error").path("code").asInt()).isEqualTo(-32020);
+    }
+
 }

@@ -101,9 +101,13 @@ POST /modern/mcp
 ## 코드 위치
 
 - `ComparisonController`: HTTP 진입점, 헤더/본문 라우팅, 오류 응답
-- `LegacyProtocol`: 노드에 연결된 초기화 상태, SSE 서버 요청과 클라이언트 응답 연결
-- `ModernProtocol`: 요청별 메타데이터, 헤더 검증, MRTR, server/discover
-- `DocumentSearch`: 두 버전이 공유하는 도구 정의와 검색
+- `McpSpecComparisonExampleApplication`: Spring Boot 실행 클래스
+- `presentation`: HTTP 엔드포인트와 JSON-RPC 요청 형식 검증
+- `protocol`: 공통 JSON-RPC 응답과 오류
+- `protocol.legacy`: 초기화·세션 처리(`LegacyProtocol`), 세션 상태(`LegacySession`), SSE 입력 요청·응답(`LegacyElicitation`, `PendingElicitation`)
+- `protocol.modern`: 요청별 처리와 MRTR(`ModernProtocol`), 헤더 대조(`ModernHeaderValidator`)
+- `tool`: 두 버전이 공유하는 도구 정의와 문서 검색(`DocumentSearch`)
+- `src/main/resources/application.yml`: 애플리케이션 이름과 로컬 서버 주소·포트
 - `ComparisonTest`: 임의 포트의 실제 Spring Boot 서버에 HTTP/SSE 요청하는 통합 테스트
 - `scripts/demo.py`: 단계별 요청·응답을 출력하는 실행 클라이언트
 - `postman/comparison.postman_collection.json`: 가져와 실행할 수 있는 기본 요청과 오류 검증

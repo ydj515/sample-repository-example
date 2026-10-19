@@ -1,5 +1,6 @@
-package com.example.mcp;
+package com.example.mcp.tool;
 
+import com.example.mcp.protocol.Rpc;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;
@@ -7,7 +8,7 @@ import java.util.Locale;
 import org.springframework.stereotype.Service;
 
 @Service
-final class DocumentSearch {
+public final class DocumentSearch {
     record Document(String region, String scope, String title) {}
 
     private final List<Document> documents = List.of(
@@ -16,7 +17,7 @@ final class DocumentSearch {
             new Document("kr", "team", "Deployment checklist: Korea team"),
             new Document("us", "team", "Deployment checklist: US team"));
 
-    ObjectNode tools(boolean modern) {
+    public ObjectNode tools(boolean modern) {
         ObjectNode tool = Rpc.object().put("name", "search_documents")
                 .put("description", "Search synthetic documents by region, query and scope");
         ObjectNode schema = tool.putObject("inputSchema").put("type", "object");
@@ -33,7 +34,7 @@ final class DocumentSearch {
         return result;
     }
 
-    void validate(JsonNode params) {
+    public void validate(JsonNode params) {
         if (!"search_documents".equals(params.path("name").asText())) {
             throw Rpc.fail(200, -32602, "Unknown tool");
         }
@@ -46,14 +47,14 @@ final class DocumentSearch {
         if (args.has("scope")) validateScope(args.get("scope"));
     }
 
-    String validateScope(JsonNode scope) {
+    public String validateScope(JsonNode scope) {
         if (!scope.isTextual() || !List.of("public", "team").contains(scope.asText())) {
             throw Rpc.fail(200, -32602, "Expected scope public/team");
         }
         return scope.asText();
     }
 
-    ObjectNode inputRequest() {
+    public ObjectNode inputRequest() {
         ObjectNode input = Rpc.object().put("method", "elicitation/create");
         ObjectNode params = input.putObject("params").put("mode", "form")
                 .put("message", "Choose the document scope");
@@ -64,7 +65,7 @@ final class DocumentSearch {
         return input;
     }
 
-    ObjectNode search(JsonNode args, String scope) {
+    public ObjectNode search(JsonNode args, String scope) {
         String query = args.path("query").asText().toLowerCase(Locale.ROOT);
         List<String> hits = documents.stream()
                 .filter(d -> d.region().equals(args.path("region").asText()) && d.scope().equals(scope))
@@ -77,7 +78,7 @@ final class DocumentSearch {
         return result;
     }
 
-    ObjectNode declined() {
+    public ObjectNode declined() {
         ObjectNode result = Rpc.object().put("isError", true);
         result.putArray("content").addObject().put("type", "text").put("text", "Scope selection declined");
         return result;
