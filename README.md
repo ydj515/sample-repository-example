@@ -45,3 +45,4 @@ DB·Redis·외부 API가 필요한 실행과 테스트는 각 예제의 설정�
 - [spring-ai-mcpserver-webflux](./spring-ai-mcpserver-webflux/) — Spring AI WebFlux와 SSE 전송 방식으로 구현한 MCP 서버 예제
 - [spring-ai-webmvc-example](./spring-ai-webmvc-example/) — Spring AI WebMVC와 SSE 전송 방식으로 구현한 MCP 서버 예제
 - [openclaw-local-mcp-example](./openclaw-local-mcp-example/) — TypeScript와 MCP SDK로 도구, 리소스, 프롬프트, Sampling을 제공하는 로컬 MCP 서버 예제
+- [mcp-spec-comparison-example](./mcp-spec-comparison-example/) — 하나의 애플리케이션에서 MCP 2025-11-25와 2026-07-28의 초기화, 헤더 라우팅, 추가 입력을 비교하는 예제

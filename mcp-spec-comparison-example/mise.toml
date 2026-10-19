@@ -1,0 +1,35 @@
+[tools]
+java = "21.0.2"
+node = "24.19.0"
+
+[tasks.run]
+run = "./gradlew bootRun"
+
+[tasks.test]
+run = "./gradlew test"
+
+[tasks.build]
+run = "./gradlew build"
+
+[tasks.demo]
+description = "Run real HTTP comparison against the locally running app"
+run = "python3 scripts/demo.py"
+
+[tasks."web:check"]
+description = "Check browser JavaScript syntax"
+run = "node --check src/main/resources/static/comparison.js"
+
+[tasks."web:test"]
+description = "Run the browser script against a real temporary HTTP server"
+run = """
+./gradlew bootJar
+node --test scripts/web-regression.test.cjs
+"""
+
+[tasks.ci]
+run = """
+mise tasks validate --errors-only
+./gradlew build
+mise run web:check
+mise run web:test
+"""

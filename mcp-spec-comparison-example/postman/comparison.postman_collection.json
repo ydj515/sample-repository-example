@@ -1,0 +1,393 @@
+{
+  "info": {
+    "name": "MCP spec comparison",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Local learning example. Run in order; full legacy SSE interaction is in scripts/demo.py."
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:8097"
+    },
+    {
+      "key": "session",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Legacy initialize",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json, text/event-stream"
+          }
+        ],
+        "url": "{{baseUrl}}/legacy/kr/mcp",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"jsonrpc\": \"2.0\",\n  \"id\": 1,\n  \"method\": \"initialize\",\n  \"params\": {\n    \"protocolVersion\": \"2025-11-25\",\n    \"capabilities\": {\n      \"elicitation\": {\n        \"form\": {}\n      }\n    },\n    \"clientInfo\": {\n      \"name\": \"postman\",\n      \"version\": \"1\"\n    }\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.collectionVariables.set(\"session\", pm.response.headers.get(\"MCP-Session-Id\"));",
+              "pm.test(\"Negotiated version\", () => pm.expect(pm.response.json().result.protocolVersion).to.eql(\"2025-11-25\"));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Legacy initialized",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json, text/event-stream"
+          },
+          {
+            "key": "MCP-Session-Id",
+            "value": "{{session}}"
+          },
+          {
+            "key": "MCP-Protocol-Version",
+            "value": "2025-11-25"
+          }
+        ],
+        "url": "{{baseUrl}}/legacy/kr/mcp",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"jsonrpc\": \"2.0\",\n  \"method\": \"notifications/initialized\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 202\", () => pm.response.to.have.status(202));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Legacy other node loses session",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json, text/event-stream"
+          },
+          {
+            "key": "MCP-Session-Id",
+            "value": "{{session}}"
+          },
+          {
+            "key": "MCP-Protocol-Version",
+            "value": "2025-11-25"
+          }
+        ],
+        "url": "{{baseUrl}}/legacy/us/mcp",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"jsonrpc\": \"2.0\",\n  \"id\": 1,\n  \"method\": \"tools/list\",\n  \"params\": {}\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 404\", () => pm.response.to.have.status(404));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Modern discovery without initialization",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json, text/event-stream"
+          },
+          {
+            "key": "MCP-Protocol-Version",
+            "value": "2026-07-28"
+          },
+          {
+            "key": "Mcp-Method",
+            "value": "server/discover"
+          }
+        ],
+        "url": "{{baseUrl}}/modern/mcp",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"jsonrpc\": \"2.0\",\n  \"id\": 1,\n  \"method\": \"server/discover\",\n  \"params\": {\n    \"_meta\": {\n      \"io.modelcontextprotocol/protocolVersion\": \"2026-07-28\",\n      \"io.modelcontextprotocol/clientCapabilities\": {\n        \"elicitation\": {\n          \"form\": {}\n        }\n      },\n      \"io.modelcontextprotocol/clientInfo\": {\n        \"name\": \"comparison-client\",\n        \"version\": \"1.0.0\"\n      }\n    }\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"Version advertised\", () => pm.expect(pm.response.json().result.supportedVersions).to.include(\"2026-07-28\"));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Modern request additional input",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json, text/event-stream"
+          },
+          {
+            "key": "MCP-Protocol-Version",
+            "value": "2026-07-28"
+          },
+          {
+            "key": "Mcp-Method",
+            "value": "tools/call"
+          },
+          {
+            "key": "Mcp-Name",
+            "value": "search_documents"
+          },
+          {
+            "key": "Mcp-Param-Region",
+            "value": "kr"
+          }
+        ],
+        "url": "{{baseUrl}}/modern/mcp",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"jsonrpc\": \"2.0\",\n  \"id\": 1,\n  \"method\": \"tools/call\",\n  \"params\": {\n    \"_meta\": {\n      \"io.modelcontextprotocol/protocolVersion\": \"2026-07-28\",\n      \"io.modelcontextprotocol/clientCapabilities\": {\n        \"elicitation\": {\n          \"form\": {}\n        }\n      },\n      \"io.modelcontextprotocol/clientInfo\": {\n        \"name\": \"comparison-client\",\n        \"version\": \"1.0.0\"\n      }\n    },\n    \"name\": \"search_documents\",\n    \"arguments\": {\n      \"region\": \"kr\",\n      \"query\": \"deployment\"\n    }\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"Input required\", () => pm.expect(pm.response.json().result.resultType).to.eql(\"input_required\"));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Modern retry with input",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json, text/event-stream"
+          },
+          {
+            "key": "MCP-Protocol-Version",
+            "value": "2026-07-28"
+          },
+          {
+            "key": "Mcp-Method",
+            "value": "tools/call"
+          },
+          {
+            "key": "Mcp-Name",
+            "value": "search_documents"
+          },
+          {
+            "key": "Mcp-Param-Region",
+            "value": "kr"
+          }
+        ],
+        "url": "{{baseUrl}}/modern/mcp",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"jsonrpc\": \"2.0\",\n  \"id\": 2,\n  \"method\": \"tools/call\",\n  \"params\": {\n    \"_meta\": {\n      \"io.modelcontextprotocol/protocolVersion\": \"2026-07-28\",\n      \"io.modelcontextprotocol/clientCapabilities\": {\n        \"elicitation\": {\n          \"form\": {}\n        }\n      },\n      \"io.modelcontextprotocol/clientInfo\": {\n        \"name\": \"comparison-client\",\n        \"version\": \"1.0.0\"\n      }\n    },\n    \"name\": \"search_documents\",\n    \"arguments\": {\n      \"region\": \"kr\",\n      \"query\": \"deployment\"\n    },\n    \"inputResponses\": {\n      \"scope\": {\n        \"action\": \"accept\",\n        \"content\": {\n          \"scope\": \"public\"\n        }\n      }\n    }\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"Completed search\", () => pm.expect(pm.response.json().result.structuredContent.documents).to.eql([\"Deployment guide: Korea\"]));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Header mismatch",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json, text/event-stream"
+          },
+          {
+            "key": "MCP-Protocol-Version",
+            "value": "2026-07-28"
+          },
+          {
+            "key": "Mcp-Method",
+            "value": "tools/call"
+          },
+          {
+            "key": "Mcp-Name",
+            "value": "search_documents"
+          },
+          {
+            "key": "Mcp-Param-Region",
+            "value": "kr"
+          }
+        ],
+        "url": "{{baseUrl}}/modern/mcp",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"jsonrpc\": \"2.0\",\n  \"id\": 1,\n  \"method\": \"tools/call\",\n  \"params\": {\n    \"_meta\": {\n      \"io.modelcontextprotocol/protocolVersion\": \"2026-07-28\",\n      \"io.modelcontextprotocol/clientCapabilities\": {\n        \"elicitation\": {\n          \"form\": {}\n        }\n      },\n      \"io.modelcontextprotocol/clientInfo\": {\n        \"name\": \"comparison-client\",\n        \"version\": \"1.0.0\"\n      }\n    },\n    \"name\": \"search_documents\",\n    \"arguments\": {\n      \"region\": \"us\",\n      \"query\": \"deployment\"\n    }\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));",
+              "pm.test(\"Header mismatch code\", () => pm.expect(pm.response.json().error.code).to.eql(-32020));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Modern no headers",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Accept",
+            "value": "application/json, text/event-stream"
+          }
+        ],
+        "url": "{{baseUrl}}/modern/mcp",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"jsonrpc\": \"2.0\",\n  \"id\": 1,\n  \"method\": \"tools/list\",\n  \"params\": {\n    \"_meta\": {\n      \"io.modelcontextprotocol/protocolVersion\": \"2026-07-28\",\n      \"io.modelcontextprotocol/clientCapabilities\": {\n        \"elicitation\": {\n          \"form\": {}\n        }\n      },\n      \"io.modelcontextprotocol/clientInfo\": {\n        \"name\": \"comparison-client\",\n        \"version\": \"1.0.0\"\n      }\n    }\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

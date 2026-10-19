@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MCP 명세 비교</title>
+  <link rel="stylesheet" href="/comparison.css">
+  <script src="/comparison.js" defer></script>
+</head>
+<body>
+<main>
+  <header><span class="eyebrow">PROTOCOL LAB · LOCAL DEMO</span><h1>MCP 명세 비교</h1><p>같은 검색 요청이 두 버전에서 어떻게 처리되는지 확인합니다.</p></header>
+  <form id="controls">
+    <label>비교할 흐름<select id="scenario"><option value="search">검색과 라우팅</option><option value="input">추가 입력 처리</option><option value="node">노드 변경</option><option value="mismatch">헤더·본문 불일치</option></select></label>
+    <label>검색어<input id="query" value="deployment" required maxlength="200"></label>
+    <label>리전<select id="region"><option value="kr">한국 · kr</option><option value="us">미국 · us</option></select></label>
+    <label>검색 범위<select id="scope"><option value="public">공개 문서 · public</option><option value="team">팀 문서 · team</option><option value="decline">추가 입력 거절</option></select></label>
+    <button id="run" type="submit">두 버전 비교 실행</button>
+  </form>
+  <aside id="explanation"></aside>
+  <p id="status" role="status" aria-live="polite">실행하면 실제 HTTP 요청과 응답이 아래에 표시됩니다.</p>
+  <div class="comparison">
+    <section class="lane legacy" aria-labelledby="legacy-title"><div class="lane-heading"><div><span class="eyebrow">LEGACY</span><h2 id="legacy-title">2025-11-25</h2></div><span class="badge" id="legacy-state">대기</span></div><p>초기화 · 노드별 세션 · 서버 발신 RPC</p><ol id="legacy-events" class="events"><li class="empty">요청 전 초기화부터 시작합니다.</li></ol><div id="legacy-result" class="result" aria-live="polite"></div></section>
+    <section class="lane modern" aria-labelledby="modern-title"><div class="lane-heading"><div><span class="eyebrow">MODERN</span><h2 id="modern-title">2026-07-28</h2></div><span class="badge" id="modern-state">대기</span></div><p>요청별 메타데이터 · 헤더 라우팅 · MRTR</p><ol id="modern-events" class="events"><li class="empty">초기화 없이 도구를 호출합니다.</li></ol><div id="modern-result" class="result" aria-live="polite"></div></section>
+  </div>
+  <footer>한 JVM의 논리 노드 kr/us를 사용하는 교육용 부분 구현입니다. 검색 데이터는 합성이며 OAuth·운영 권한 검증은 포함하지 않습니다. 표시 시간은 브라우저 관측값으로 성능 비교 지표가 아닙니다.</footer>
+</main>
+</body>
+</html>
