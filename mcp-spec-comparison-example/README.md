@@ -4,7 +4,7 @@
 
 ## 실행
 
-Java 21.0.2, Gradle 8.14.5, Spring Boot 3.5.16을 사용합니다. 웹 스크립트 검증에 사용하는 Node.js도 mise에서 24.19.0으로 지정했습니다. 데모 클라이언트는 Python 3.9 이상에서 실행하며 표준 라이브러리만 사용합니다.
+Java 21.0.2, Gradle 8.14.5, Spring Boot 3.5.16을 사용합니다. 웹 스크립트 검증에 사용하는 Node.js도 mise에서 24.22.3으로 지정했습니다. 데모 클라이언트는 Python 3.9 이상에서 실행하며 표준 라이브러리만 사용합니다.
 
 ```bash
 cd mcp-spec-comparison-example
