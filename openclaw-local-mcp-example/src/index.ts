@@ -38,8 +38,6 @@ function buildMcpServer() {
       capabilities: {
         // Standard capabilities will also be registered automatically
         // by McpServer when we register tools/resources/prompts.
-        sampling: {},
-        elicitation: {},
         logging: {}
       }
     }
@@ -52,7 +50,11 @@ function buildMcpServer() {
   // Provide a minimal sampling provider so Inspector's Sampling tab can call the server
   server.server.setRequestHandler(CreateMessageRequestSchema, async (request) => {
     const userText = request.params.messages
-      .map((m) => (m.content.type === "text" ? m.content.text : "[non-text]"))
+      .map((m) =>
+        (Array.isArray(m.content) ? m.content : [m.content])
+          .map((content) => content.type === "text" ? content.text : "[non-text]")
+          .join("\n")
+      )
       .join("\n\n");
     return {
       model: "stub-sampler",

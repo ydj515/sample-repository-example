@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "zod/v4";
 
 /**
  * 초단기실황조회 API 입력 파라미터 스키마

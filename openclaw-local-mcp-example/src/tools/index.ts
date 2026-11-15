@@ -1,5 +1,5 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { z, ZodType } from "zod";
+import { z, ZodType } from "zod/v4";
 import { DATA_PORTAL_API_KEY } from "../config.js";
 
 import DustTool from "./DustTool.js";
@@ -55,7 +55,7 @@ export function registerAllTools(server: McpServer) {
       }
     };
 
-    server.registerTool(
+    server.registerTool<Record<string, ZodType>, Record<string, ZodType>>(
       tool.name,
       {
         description: tool.description,

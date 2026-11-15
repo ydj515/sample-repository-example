@@ -1,9 +1,9 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { z } from "zod";
+import { z } from "zod/v4";
 
 export function registerAllPrompts(server: McpServer) {
   // Simple echo prompt with one required arg
-  server.registerPrompt(
+  server.registerPrompt<{ message: z.ZodString }>(
     "echo",
     {
       title: "Echo Prompt",
@@ -26,7 +26,7 @@ export function registerAllPrompts(server: McpServer) {
   );
 
   // Example with optional argument
-  server.registerPrompt(
+  server.registerPrompt<{ text: z.ZodString; maxWords: z.ZodOptional<z.ZodString> }>(
     "summarize",
     {
       title: "Summarize Text",

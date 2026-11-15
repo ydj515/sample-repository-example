@@ -1,5 +1,5 @@
 import { MCPTool } from "mcp-framework";
-import { z } from "zod";
+import { z } from "zod/v3";
 
 interface ExampleInput {
   message: string;

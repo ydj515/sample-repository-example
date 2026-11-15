@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "zod/v4";
 
 // Based on swagger/dust.json
 const SidoNameEnum = z.enum([

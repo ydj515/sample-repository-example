@@ -1,5 +1,5 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { z } from "zod";
+import { z } from "zod/v4";
 
 const InputSchema = z.object({
   text: z.string().describe("Text to summarize"),
