@@ -1,0 +1,25 @@
+name: MCP Validation
+on:
+  push:
+    branches: [main]
+    paths: ['openclaw-local-mcp-example/**', 'mise.toml', '.github/workflows/mcp-validation.yml']
+  pull_request:
+    paths: ['openclaw-local-mcp-example/**', 'mise.toml', '.github/workflows/mcp-validation.yml']
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: openclaw-local-mcp-example
+    steps:
+      - uses: actions/checkout@v6
+      - uses: jdx/mise-action@v4
+        with:
+          version: '2026.9.18'
+          install_args: node
+      - run: npm ci
+      - run: npm test
+      - run: npm audit --audit-level=low

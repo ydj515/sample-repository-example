@@ -1,20 +1,15 @@
-import { MCPTool } from "mcp-framework";
-import { z } from "zod/v3";
+import { z } from "zod/v4";
 
-interface ExampleInput {
-  message: string;
-}
+const InputSchema = z.object({
+  message: z.string().describe("Message to process"),
+});
 
-class ExampleTool extends MCPTool<ExampleInput> {
+type ExampleInput = z.infer<typeof InputSchema>;
+
+class ExampleTool {
   name = "example_tool";
   description = "An example tool that processes messages";
-
-  schema = {
-    message: {
-      type: z.string(),
-      description: "Message to process",
-    },
-  };
+  schema = InputSchema;
 
   async execute(input: ExampleInput) {
     return `Processed: ${input.message}`;

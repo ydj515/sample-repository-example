@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 // src/server.ts
 import express, { Request, Response } from "express";
 import cors from "cors";
