@@ -1,6 +1,6 @@
 # my-mcp-server
 
-A Model Context Protocol (MCP) server built with mcp-framework.
+A Model Context Protocol (MCP) server built with the official TypeScript SDK and Zod 4.
 
 ## Quick Start
 
@@ -14,5 +14,5 @@ npm run build
 
 ## 참고
 
-- [MCP Framework Github](https://github.com/QuantGeekDev/mcp-framework)
-- [MCP Framework Docs](https://mcp-framework.com)
+- [MCP TypeScript SDK](https://github.com/modelcontextprotocol/typescript-sdk)
+- [MCP documentation](https://modelcontextprotocol.io/)
