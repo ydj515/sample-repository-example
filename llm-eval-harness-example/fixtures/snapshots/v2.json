@@ -1,0 +1,173 @@
+{
+  "version": "v2",
+  "model": "llama3.2",
+  "createdAt": "2026-07-18T01:57:38.617Z",
+  "cases": [
+    {
+      "id": "case-01",
+      "answer": "15일",
+      "scores": {
+        "keyword": true,
+        "citation": false,
+        "semantic": 0.533901281952503
+      },
+      "verdict": "incorrect",
+      "reason": "사내 규정에 대한 정보가 부족하여 정확한 정보를 제공할 수 없습니다."
+    },
+    {
+      "id": "case-02",
+      "answer": "점심시간은 오전 12시부터 오후 1시까지입니다.",
+      "scores": {
+        "keyword": true,
+        "citation": false,
+        "semantic": 0.9999999999999998
+      },
+      "verdict": "incorrect",
+      "reason": "사내 규정에 대한 정식 내용이 없기 때문에 정확한 시간을 알 수 없습니다."
+    },
+    {
+      "id": "case-03",
+      "answer": "주 최대 2일까지 허용됩니다.",
+      "scores": {
+        "keyword": true,
+        "citation": false,
+        "semantic": 0.8598236262464648
+      },
+      "verdict": "incorrect",
+      "reason": "사내 규정에 대한 명확한 정보가 없기 때문에, 재택근무의 일주일 수는 정해져 있지 않습니다."
+    },
+    {
+      "id": "case-04",
+      "answer": "연차 신청은 사용 3일 전까지 인사팀에 제출해야 하며, 재택근무 신청은 전날 오후 5시까지 팀장에게 알려야 합니다.",
+      "scores": {
+        "keyword": true,
+        "citation": false,
+        "semantic": 0.9710054973043751
+      },
+      "verdict": "partial",
+      "reason": "연차 신청은 사용 1일 전까지 인사팀에 제출해야 하며, 재택근무 신청은 전날 오후 5시까지 팀장에게 알려야 합니다."
+    },
+    {
+      "id": "case-05",
+      "answer": "본부장 결재가 필요합니다.",
+      "scores": {
+        "keyword": true,
+        "citation": false,
+        "semantic": 0.7955050481714442
+      },
+      "verdict": "incorrect",
+      "reason": "본부장 결재가 필요할 수 있지만, 15만 원짜리 업무 경비는 일반적으로 사장 또는 본부장의 결재가 필요할 수 있습니다."
+    },
+    {
+      "id": "case-06",
+      "answer": "자료에 없습니다.",
+      "scores": {
+        "keyword": false,
+        "citation": false,
+        "semantic": 0.414628753007227
+      },
+      "verdict": "partial",
+      "reason": "사내 규정에 대한 정보가 unavailable이지만, 일반적으로 매월 1일부터 15일까지 applies합니다."
+    },
+    {
+      "id": "case-07",
+      "answer": "자료에 없습니다.",
+      "scores": {
+        "keyword": false,
+        "citation": false,
+        "semantic": 0.4171410852942338
+      },
+      "verdict": "partial",
+      "reason": "회의실 예약 시간이 정해져 있지 않다는 점을 고려하여, ' partial'로 판정합니다."
+    },
+    {
+      "id": "case-08",
+      "answer": "자료에 없습니다.",
+      "scores": {
+        "keyword": false,
+        "citation": false,
+        "semantic": 0.45771827415470995
+      },
+      "verdict": "partial",
+      "reason": "회의실 예약이 있는 경우, 회의실을 예약해 놓고 들어가지 않으면 회의실 예약이 취소되거나 회의실 사용권이失効할 수 있습니다."
+    },
+    {
+      "id": "case-09",
+      "answer": "IT 지원팀에 신청서를 제출해야 합니다.",
+      "scores": {
+        "keyword": true,
+        "citation": false,
+        "semantic": 1
+      },
+      "verdict": "correct",
+      "reason": "업무용 노트북이 고장 나면, 일반적으로 IT 지원팀에 신청서를 제출하여 고장을 확인하고 대체 또는修理를 받을 수 있습니다."
+    },
+    {
+      "id": "case-10",
+      "answer": "오전 8시부터 오후 7시까지",
+      "scores": {
+        "keyword": true,
+        "citation": false,
+        "semantic": 0.7871751157929928
+      },
+      "verdict": "partial",
+      "reason": "사내 카페테리아의 운영 시간이 명확히 정해져 있지 않아 partial로 판정됩니다."
+    },
+    {
+      "id": "case-11",
+      "answer": "매달 1일에 3만 원씩 충전됩니다.",
+      "scores": {
+        "keyword": true,
+        "citation": false,
+        "semantic": 0.9365522704201193
+      },
+      "verdict": "partial",
+      "reason": "카페테리아 포인트의 충전은 사내 규정에 따라 달라질 수 있지만, 일반적으로는 매월 또는 매년 특정 시기에 충전이 이루어집니다. 그러나 exact한 일일 충전량과 주기(1일, 1주, 1개월 등)도 규정에 따라 다를 수 있습니다."
+    },
+    {
+      "id": "case-12",
+      "answer": "자료에 없습니다.",
+      "scores": {
+        "refusal": true
+      },
+      "verdict": "partial",
+      "reason": "월급 입금일이 정해져 있지 않아도 된다는 점을 고려하여 partial로 판정합니다."
+    },
+    {
+      "id": "case-13",
+      "answer": "자료에 없습니다.",
+      "scores": {
+        "refusal": true
+      },
+      "verdict": "partial",
+      "reason": "사내 규정에 대한 정보가 없기 때문에 정확한 정보를 제공할 수 없습니다."
+    },
+    {
+      "id": "case-14",
+      "answer": "자료에 없습니다.",
+      "scores": {
+        "refusal": true
+      },
+      "verdict": "partial",
+      "reason": "출산 휴가에 대한 사내 규정이 없다는 것은 규정의 specifics에 대한 정보를 제공하지 못함으로써 partial로 판단됩니다."
+    },
+    {
+      "id": "case-15",
+      "answer": "자료에 없습니다.",
+      "scores": {
+        "refusal": true
+      },
+      "verdict": "partial",
+      "reason": "사내 주차장 등록에 대한 정보가 제공되지 않지만, 일반적으로 주차장을 등록하기 위해 주차장 관리 시스템을 사용하거나 사내 주차장 등록 formul러를 fills할 수 있습니다."
+    },
+    {
+      "id": "case-16",
+      "answer": "자료에 없습니다.",
+      "scores": {
+        "refusal": true
+      },
+      "verdict": "partial",
+      "reason": "복장 규정은 사내 규정의 일반적인 부분이지만, 질문에 대한 답변이 사실적으로 옳다면 'yes'나 'no'로 trả answer해야 합니다."
+    }
+  ]
+}

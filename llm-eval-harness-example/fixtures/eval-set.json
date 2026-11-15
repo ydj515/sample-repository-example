@@ -1,0 +1,154 @@
+[
+    {
+        "id": "case-01",
+        "question": "1년 근속하면 연차 휴가가 며칠 나오나요?",
+        "reference": "1년 근속 시 연차 휴가 15일이 부여됩니다.",
+        "keywords": [
+            "15일"
+        ],
+        "mustCite": [
+            "doc-1"
+        ]
+    },
+    {
+        "id": "case-02",
+        "question": "점심시간은 몇 시부터 몇 시까지인가요?",
+        "reference": "점심시간은 오전 12시부터 오후 1시까지입니다.",
+        "keywords": [
+            "12시",
+            "1시"
+        ],
+        "mustCite": [
+            "doc-2"
+        ]
+    },
+    {
+        "id": "case-03",
+        "question": "재택근무는 일주일에 며칠까지 할 수 있나요?",
+        "reference": "재택근무는 주 최대 2일까지 허용됩니다.",
+        "keywords": [
+            "2일"
+        ],
+        "mustCite": [
+            "doc-3"
+        ]
+    },
+    {
+        "id": "case-04",
+        "question": "연차 신청과 재택근무 신청은 각각 언제까지 해야 하나요?",
+        "reference": "연차는 사용 3일 전까지 인사팀에 제출하고, 재택근무는 전날 오후 5시까지 팀장에게 알려야 합니다.",
+        "keywords": [
+            "3일",
+            "오후 5시"
+        ],
+        "mustCite": [
+            "doc-1",
+            "doc-3"
+        ]
+    },
+    {
+        "id": "case-05",
+        "question": "15만 원짜리 업무 경비는 누구의 결재를 받아야 하나요?",
+        "reference": "건당 10만 원을 초과하므로 본부장 결재가 필요합니다.",
+        "keywords": [
+            "본부장"
+        ],
+        "mustCite": [
+            "doc-4"
+        ]
+    },
+    {
+        "id": "case-06",
+        "question": "경비 신청 마감은 매달 며칠인가요?",
+        "reference": "경비 신청 마감은 매월 25일입니다.",
+        "keywords": [
+            "25일"
+        ],
+        "mustCite": [
+            "doc-4"
+        ]
+    },
+    {
+        "id": "case-07",
+        "question": "회의실은 한 번에 몇 시간까지 예약할 수 있나요?",
+        "reference": "예약은 최대 2시간까지 가능하며, 더 쓰려면 재예약이 필요합니다.",
+        "keywords": [
+            "2시간"
+        ],
+        "mustCite": [
+            "doc-5"
+        ]
+    },
+    {
+        "id": "case-08",
+        "question": "회의실을 예약해 놓고 들어가지 않으면 어떻게 되나요?",
+        "reference": "예약 후 15분 이내에 입실하지 않으면 자동 취소됩니다.",
+        "keywords": [
+            "15분",
+            "취소"
+        ],
+        "mustCite": [
+            "doc-5"
+        ]
+    },
+    {
+        "id": "case-09",
+        "question": "업무용 노트북이 고장 나면 어떻게 해야 하나요?",
+        "reference": "IT 지원팀에 신청서를 제출해야 합니다.",
+        "keywords": [
+            "IT 지원팀",
+            "신청서"
+        ],
+        "mustCite": [
+            "doc-6"
+        ]
+    },
+    {
+        "id": "case-10",
+        "question": "사내 카페테리아는 몇 시까지 여나요?",
+        "reference": "카페테리아는 오전 8시부터 오후 7시까지 운영합니다.",
+        "keywords": [
+            "7시"
+        ],
+        "mustCite": [
+            "doc-7"
+        ]
+    },
+    {
+        "id": "case-11",
+        "question": "카페테리아 포인트는 언제 얼마씩 충전되나요?",
+        "reference": "포인트는 매달 1일에 3만 원씩 충전됩니다.",
+        "keywords": [
+            "1일",
+            "3만"
+        ],
+        "mustCite": [
+            "doc-7"
+        ]
+    },
+    {
+        "id": "case-12",
+        "question": "월급은 매달 며칠에 입금되나요?",
+        "expectRefusal": true
+    },
+    {
+        "id": "case-13",
+        "question": "성과평가는 1년에 몇 번 진행되나요?",
+        "expectRefusal": true
+    },
+    {
+        "id": "case-14",
+        "question": "출산휴가는 며칠까지 쓸 수 있나요?",
+        "expectRefusal": true
+    },
+    {
+        "id": "case-15",
+        "question": "사내 주차장은 어떻게 등록하나요?",
+        "expectRefusal": true
+    },
+    {
+        "id": "case-16",
+        "question": "회사에 복장 규정이 있나요?",
+        "expectRefusal": true
+    }
+]

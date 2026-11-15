@@ -1,0 +1,46 @@
+[tools]
+node = "24.22.3"
+
+[tasks.install]
+description = "Install npm dependencies"
+run = "npm install"
+
+[tasks.typecheck]
+description = "Run TypeScript type checking"
+run = "npm run typecheck"
+
+[tasks.build]
+description = "Compile TypeScript sources"
+run = "npm run build"
+
+[tasks.gate]
+description = "Compare saved snapshots (v2 vs v2-broken) and verify regression gate"
+run = "npm run demo:gate"
+
+[tasks."snapshot:v1"]
+description = "Generate v1 snapshot against local Ollama"
+run = "npm run demo:snapshot:v1"
+
+[tasks."snapshot:v2"]
+description = "Generate v2 snapshot against local Ollama"
+run = "npm run demo:snapshot:v2"
+
+[tasks.determinism]
+description = "Check LLM judge determinism across repeated runs"
+run = "npm run demo:determinism"
+
+[tasks.calibration]
+description = "Measure judge agreement with gold set and position bias rate"
+run = "npm run demo:calibration"
+
+[tasks.trace]
+description = "Run span tracer, token accounting, and generate waterfall HTML"
+run = "npm run demo:trace"
+
+[tasks.ci]
+description = "Validate mise tasks, typecheck, and run offline snapshot gate demo"
+run = """
+mise tasks validate --errors-only
+npm run typecheck
+npm run demo:gate
+"""

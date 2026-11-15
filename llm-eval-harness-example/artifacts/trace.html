@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Trace Waterfall</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#1d2127;color:#c9d1d9;font-family:monospace;font-size:13px;padding:24px}
+h1{color:#e0b04a;font-size:15px;margin-bottom:16px;letter-spacing:.05em}
+.meta{color:#8b949e;font-size:12px;margin-bottom:20px}
+.span-row{display:flex;align-items:center;height:28px;border-bottom:1px solid #2a2f38}
+.span-row:hover{background:#22272e}
+.span-label{width:300px;min-width:300px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.token-label{color:#e0b04a;font-size:11px;margin-left:4px}
+.dur-label{color:#8b949e;font-size:11px;margin-left:6px}
+.span-bar-track{flex:1;background:#2a2f38;position:relative;height:16px;border-radius:2px;overflow:hidden}
+.span-bar{position:absolute;top:0;height:100%;background:#e0b04a;opacity:.75;border-radius:2px;min-width:2px}
+</style>
+</head>
+<body>
+<h1>Trace Waterfall</h1>
+<div class="meta">spans: 5 | total: 19049ms</div>
+<div class="span-row"><div class="span-label" style="padding-left:28px">retrieve<span class="dur-label">1ms</span></div><div class="span-bar-track"><div class="span-bar" style="left:0.00%;width:0.50%"></div></div></div>
+<div class="span-row"><div class="span-label" style="padding-left:8px">evaluate-case<span class="dur-label">19049ms</span></div><div class="span-bar-track"><div class="span-bar" style="left:0.00%;width:100.00%"></div></div></div>
+<div class="span-row"><div class="span-label" style="padding-left:28px">sut-chat <span class="token-label">[p:152 e:19]</span><span class="dur-label">6316ms</span></div><div class="span-bar-track"><div class="span-bar" style="left:0.01%;width:33.16%"></div></div></div>
+<div class="span-row"><div class="span-label" style="padding-left:28px">semantic-embed <span class="token-label">[p:34 e:-]</span><span class="dur-label">3493ms</span></div><div class="span-bar-track"><div class="span-bar" style="left:33.16%;width:18.34%"></div></div></div>
+<div class="span-row"><div class="span-label" style="padding-left:28px">judge <span class="token-label">[p:145 e:63]</span><span class="dur-label">9239ms</span></div><div class="span-bar-track"><div class="span-bar" style="left:51.50%;width:48.50%"></div></div></div>
+</body>
+</html>

@@ -1,0 +1,24 @@
+{
+  "name": "llm-eval-harness-example",
+  "version": "1.0.0",
+  "description": "로컬 Ollama 기반 HR 정책 QA 시스템(SUT) 및 LLM 평가 하네스 예제",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "demo:snapshot:v1": "tsx demo/snapshot.ts v1",
+    "demo:snapshot:v2": "tsx demo/snapshot.ts v2",
+    "demo:gate": "tsx demo/gate.ts",
+    "demo:determinism": "tsx demo/judge-determinism.ts",
+    "demo:calibration": "tsx demo/calibration.ts",
+    "demo:trace": "tsx demo/trace.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.1",
+    "tsx": "^4.23.1",
+    "typescript": "^7.0.2"
+  },
+  "dependencies": {
+    "zod": "^4.4.3"
+  }
+}

@@ -1,0 +1,173 @@
+{
+  "version": "v1",
+  "model": "llama3.2",
+  "createdAt": "2026-07-18T01:31:53.153Z",
+  "cases": [
+    {
+      "id": "case-01",
+      "answer": "연차 휴가는 1년 근속 시 15일이 부여됩니다.",
+      "scores": {
+        "keyword": true,
+        "citation": false,
+        "semantic": 0.9847329151527537
+      },
+      "verdict": "partial",
+      "reason": "연차 휴가는 근속 기간에 따라 다르며, 일반적으로 1년 근속 시 10일에서 20일까지의 휴가가 부여되지만, exact한 15일은 보장되지 않습니다."
+    },
+    {
+      "id": "case-02",
+      "answer": "점심시간은 오전 12시부터 오후 1시까지입니다.",
+      "scores": {
+        "keyword": true,
+        "citation": false,
+        "semantic": 0.9999999999999998
+      },
+      "verdict": "incorrect",
+      "reason": "사내 규정에 대한 정식 내용이 없기 때문에 정확한 시간을 알 수 없습니다."
+    },
+    {
+      "id": "case-03",
+      "answer": "재택근무는 주 최대 2일까지 허용됩니다.",
+      "scores": {
+        "keyword": true,
+        "citation": false,
+        "semantic": 1
+      },
+      "verdict": "incorrect",
+      "reason": "사내 규정에 대한 명확한 정보가 없기 때문에, exact한 시간을 알 수 없습니다."
+    },
+    {
+      "id": "case-04",
+      "answer": "연차 신청은 사용 3일 전까지 인사팀에 제출해야 하며, 재택근무 신청은 전날 오후 5시까지 팀장에게 알려야 합니다.",
+      "scores": {
+        "keyword": true,
+        "citation": false,
+        "semantic": 0.9710054973043751
+      },
+      "verdict": "partial",
+      "reason": "연차 신청은 사용 1일 전까지 인사팀에 제출해야 하며, 재택근무 신청은 전날 오후 5시까지 팀장에게 알려야 합니다."
+    },
+    {
+      "id": "case-05",
+      "answer": "10만 원 초과인 업무 경비 15만 원은 본부장 결재가 필요합니다.",
+      "scores": {
+        "keyword": true,
+        "citation": false,
+        "semantic": 0.8608240736198463
+      },
+      "verdict": "incorrect",
+      "reason": "본부장 결재가 필요하다는 규정이 없기 때문"
+    },
+    {
+      "id": "case-06",
+      "answer": "경비 신청 마감은 매월 25일입니다.",
+      "scores": {
+        "keyword": true,
+        "citation": false,
+        "semantic": 1
+      },
+      "verdict": "incorrect",
+      "reason": "사내 규정에 대한 정보가 없기 때문에 정확한 날짜를 알 수 없습니다."
+    },
+    {
+      "id": "case-07",
+      "answer": "회의실 예약 시간은 부서 상황에 따라 다를 수 있습니다. 하지만 일반적으로는 1시간 이내로 예약이 가능합니다.",
+      "scores": {
+        "keyword": false,
+        "citation": false,
+        "semantic": 0.6932713585473886
+      },
+      "verdict": "partial",
+      "reason": "회의실 예약 시간은 부서 상황에 따라 다를 수 있음을 mentioning했지만, 일반적으로는 1시간 이내로 예약이 가능하다는 점만 mention했습니다."
+    },
+    {
+      "id": "case-08",
+      "answer": "회의실을 예약해놓고 들어가지 않으면 회의가 중단될 수 있습니다.",
+      "scores": {
+        "keyword": false,
+        "citation": false,
+        "semantic": 0.6968740536062931
+      },
+      "verdict": "correct",
+      "reason": "회의실을 예약해놓고 들어가지 않으면 회의가 중단될 수 있기 때문에, 회의실 예약이 완료된 경우에는 회의실에 들어가지 않도록 주의해야 합니다."
+    },
+    {
+      "id": "case-09",
+      "answer": "IT 지원팀에 신청서를 제출해야 합니다.",
+      "scores": {
+        "keyword": true,
+        "citation": false,
+        "semantic": 1
+      },
+      "verdict": "correct",
+      "reason": "업무용 노트북이 고장 나면, 일반적으로 IT 지원팀에 신청서를 제출하여 고장을 확인하고 대체 또는修理를 받을 수 있습니다."
+    },
+    {
+      "id": "case-10",
+      "answer": "오전 8시부터 오후 7시까지입니다.",
+      "scores": {
+        "keyword": true,
+        "citation": false,
+        "semantic": 0.802475237303953
+      },
+      "verdict": "correct",
+      "reason": "사내 규정에 따라 정해진 시간이 있기 때문에 정확한 시간을 제공할 수 있습니다."
+    },
+    {
+      "id": "case-11",
+      "answer": "매달 1일에 3만 원씩 충전됩니다.",
+      "scores": {
+        "keyword": true,
+        "citation": false,
+        "semantic": 0.9365522704201193
+      },
+      "verdict": "partial",
+      "reason": "카페테리아 포인트의 충전은 사내 규정에 따라 달라질 수 있지만, 일반적으로는 매월 또는 매년 특정 시기에 충전이 이루어집니다. 그러나 exact한 일일 충전량과 주기(1일, 1주, 1개월 등)도 규정에 따라 다를 수 있습니다."
+    },
+    {
+      "id": "case-12",
+      "answer": "자료가 제공된 내용에서 월급의 입금 일정을 específicz히 알려주지 않았기 때문에, 월급 입금 일정을 확인하기 위해서는 다른แหล인으로 확인해야 합니다.",
+      "scores": {
+        "refusal": false
+      },
+      "verdict": "partial",
+      "reason": "월급 입금 일정을 확인하기 위해 다른แหล인이 필요함"
+    },
+    {
+      "id": "case-13",
+      "answer": "자료가 제공되는 내용을 참고해서 성과평가는 1년에 2번 진행됩니다.",
+      "scores": {
+        "refusal": false
+      },
+      "verdict": "partial",
+      "reason": "사내 규정에 대한 명확한 정보가 unavailable이며, 일반적으로 성과평가는 매년 또는 매분기마다 진행되지만, exact frequency는 사내 규정에 따라 다를 수 있습니다."
+    },
+    {
+      "id": "case-14",
+      "answer": "출산 휴가는 연차 휴가와는 다르게 정해져 있지 않습니다. 출산 휴가는 부서 상황에 따라 정해집니다.",
+      "scores": {
+        "refusal": false
+      },
+      "verdict": "partial",
+      "reason": "출산 휴가는 연차 휴가와는 다르게 정해져 있지 않습니다. 출산 휴가는 부서 상황에 따라 정해집니다."
+    },
+    {
+      "id": "case-15",
+      "answer": "사내 주차장은 등록하는 방법을 찾고 있나요?\n\n이 정보가 포함된 자료에서 주차장 등록에 대한 정보는 없지만, 일반적으로 사내 주차장은 다음을 통해 등록할 수 있습니다.\n\n1. 사내 주차장 관리 시스템을 사용하여 등록을 진행합니다.\n2. 사내 HR 또는 인사팀에 연락하여 주차장 등록을 요청합니다.\n3. 사내 주차장 관리 시스템의 온라인 registration을 통해 등록을 진행합니다.\n\n이러한 방법 중 하나를 통해 주차장을 등록할 수 있습니다. mais, 이 정보가 포함된 자료에서는 주차장 등록에 대한 정보가 없기 때문에 exact 방법을 알 수 없습니다.",
+      "scores": {
+        "refusal": false
+      },
+      "verdict": "partial",
+      "reason": "주차장 등록에 대한 정보가 포함된 자료가 있지만, exact 방법은 알 수 없기 때문에 partial로 판정됩니다."
+    },
+    {
+      "id": "case-16",
+      "answer": "복장 규정에 대한 정보가 제공되지 않았습니다.",
+      "scores": {
+        "refusal": false
+      },
+      "verdict": "partial",
+      "reason": "복장 규정에 대한 정보가 제공되지 않았기 때문에 정확한 판정을 할 수 없습니다."
+    }
+  ]
+}
